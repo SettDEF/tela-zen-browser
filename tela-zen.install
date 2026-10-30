@@ -1,0 +1,18 @@
+# Our rebuilds reuse the compiled-in BuildID, so Gecko treats the startup
+# cache as valid and keeps running previously compiled chrome JS after an
+# upgrade - installs then appear to do nothing. Drop it here instead.
+_clear_startup_cache() {
+  local cache
+  for cache in /home/*/.cache/zen/*/startupCache; do
+    [ -d "$cache" ] || continue
+    rm -rf -- "$cache" && echo "tela-zen: cleared stale startup cache: $cache"
+  done
+}
+
+post_install() {
+  _clear_startup_cache
+}
+
+post_upgrade() {
+  _clear_startup_cache
+}

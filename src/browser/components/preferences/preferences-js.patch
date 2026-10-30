@@ -1,0 +1,42 @@
+diff --git a/browser/components/preferences/preferences.js b/browser/components/preferences/preferences.js
+index a76699af75..1b900e1918 100644
+--- a/browser/components/preferences/preferences.js
++++ b/browser/components/preferences/preferences.js
+@@ -132,6 +132,7 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
+       styleSheets: [
+         "chrome://browser/skin/preferences/dialog.css",
+         "chrome://browser/skin/preferences/preferences.css",
++        "chrome://browser/skin/preferences/zen-preferences.css",
+       ],
+       resizeCallback: async ({ title, frame }) => {
+         // Search within main document and highlight matched keyword.
+@@ -462,6 +463,8 @@ const CONFIG_PANES = Object.freeze({
+   tabsBrowsing: {
+     l10nId: "tabs-browsing-section",
+     groupIds: [
++      "defaultBrowserHome",
++      "startupHome",
+       "browserLayout",
+       "tabs",
+       "pageNavigation",
+@@ -509,7 +512,7 @@ function register_module(categoryName, categoryObject) {
+       }
+       this._initted = true;
+       let template = document.getElementById("template-" + categoryName);
+-      if (template && !srdSectionPrefs.all) {
++      if (template && (!srdSectionPrefs.all || categoryName.startsWith("paneZen"))) {
+         // Replace the template element with the nodes inside of it.
+         template.replaceWith(template.content);
+ 
+@@ -553,6 +556,11 @@ function init_all() {
+   register_module("paneHome", gHomePane);
+   register_module("paneSearch", gSearchPane);
+   register_module("panePrivacy", gPrivacyPane);
++  register_module("paneZenLooks", gZenLooksAndFeel);
++  register_module("paneZenTabManagement", gZenWorkspacesSettings);
++  register_module("paneZenCKS", gZenCKSSettings);
++  register_module("paneZenMarketplace", gZenMarketplaceManager);
++  register_module("paneZenPrivacy", gZenPrivacySettings);
+ 
+   // Restore the cached Firefox Labs nav button visibility so it shows
+   // immediately when recipes are expected to be available, before

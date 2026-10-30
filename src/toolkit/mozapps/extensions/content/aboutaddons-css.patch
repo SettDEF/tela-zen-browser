@@ -1,0 +1,29 @@
+diff --git a/toolkit/mozapps/extensions/content/aboutaddons.css b/toolkit/mozapps/extensions/content/aboutaddons.css
+index 7c8fbf714b..d220b8d8bf 100644
+--- a/toolkit/mozapps/extensions/content/aboutaddons.css
++++ b/toolkit/mozapps/extensions/content/aboutaddons.css
+@@ -2,6 +2,11 @@
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
++/* Zen: category icons, kept in our own sheet so this file stays close to
++   upstream and a build without it still renders the stock rail. */
++@import url("chrome://browser/skin/preferences/zen-addons-nav.css");
++
++
+ :root {
+   --addon-icon-size: 32px;
+   --main-margin-start: 28px;
+@@ -735,6 +740,12 @@ section:not(:empty) ~ :is(#empty-addons-message, #empty-addons-promo) {
+   font-weight: var(--font-weight-bold);
+ }
+ 
++@media -moz-pref('zen.theme.disable-lightweight') {
++  #category-theme {
++    display: none;
++  }
++}
++
+ /* Position the badged dot in the top-end (right in ltr, left in rtl)
+  * corner of the badged category icon. */
+ @media (max-width: 950px) {

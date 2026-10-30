@@ -1,0 +1,78 @@
+// Sections and rows, as the shell's ContentSection and ConfigRow: a header
+// with an icon and a tonal title, then flat rows that light on hover - no
+// tiles, no cards.
+@use "sass:map";
+@use "zen/common/styles/android/tokens" as t;
+@use "zen/common/styles/android/mixins" as m;
+
+// Material Symbols per group; anything not listed gets the default.
+$icons: (
+  "zenConfigGroup": "edit_document",
+  "zenThemeGroup": "palette",
+  "zenUILayoutGroup": "dashboard",
+  "zenVerticalTabsGroup": "tab",
+  "zenUrlbarGroup": "search",
+  "zenTabFocusGroup": "tab_group",
+  "zenSitesGroup": "language",
+  "zenGlanceGroup": "preview",
+);
+$icon-default: "tune";
+
+@mixin section-icon($name) {
+  &::before {
+    content: $name;
+    font-family: "Material Symbols Rounded";
+    font-feature-settings: "liga";
+    font-variation-settings: "FILL" 0, "wght" 400, "opsz" 24;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1;
+    vertical-align: -4px;
+    margin-inline-end: t.space("s");
+    color: t.color("on-tonal");
+  }
+}
+
+@include m.scoped {
+  // Section title: icon + medium-weight text in the tonal colour.
+  .zen-section-head h2 {
+    color: t.color("on-tonal") !important;
+    font-size: 19px;
+    font-weight: 500;
+    @include section-icon($icon-default);
+  }
+
+  @each $group, $icon in $icons {
+    ##{$group} .zen-section-head h2 { @include section-icon($icon); }
+  }
+
+  .zen-section-desc,
+  .zen-section-note { color: t.color("subtext"); }
+
+  // Rows are flat: the connected tiles of the default page become one list.
+  .zen-card {
+    gap: 2px;
+
+    > * {
+      background-color: transparent !important;
+      border-radius: t.r("s") !important;
+    }
+
+    > .zen-row,
+    > checkbox {
+      min-height: 0;
+      padding: 8px t.space("m");
+      gap: t.space("m");
+      @include m.motion(background-color);
+    }
+
+    > .zen-row:hover:not(.zen-table-head),
+    > checkbox:hover { background-color: var(--a-hover-1) !important; }
+
+    > .zen-row:hover:not(.zen-table-head):active,
+    > checkbox:hover:active { background-color: var(--a-active-1) !important; }
+  }
+
+  .zen-row-label { color: t.color("on-tonal"); }
+  .zen-row-note { color: t.color("subtext"); }
+}

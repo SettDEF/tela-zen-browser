@@ -1,0 +1,29 @@
+# New tab page: the list of everything from before, served from chrome.
+- name: zen.newtab.url
+  value: "chrome://browser/content/zen-newtab.html"
+
+# Marker for "new since you last looked" - advanced by the page itself.
+- name: zen.newtab.last-seen
+  value: "0"
+
+# With continue-where-left-off: start on the new tab page instead when the
+# browser was closed at least this many hours. 0 = always the last tab.
+- name: zen.newtab.after-away-hours
+  value: 4
+
+# What the new tab page shows; set from its Settings view.
+- name: zen.newtab.show-date
+  value: true
+
+- name: zen.newtab.show-chips
+  value: true
+
+- name: zen.newtab.show-tiles
+  value: true
+
+- name: zen.newtab.show-recent
+  value: true
+
+# Start view layout: full | minimal | sites | recent.
+- name: zen.newtab.layout
+  value: "full"

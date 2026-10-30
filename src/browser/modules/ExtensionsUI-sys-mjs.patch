@@ -1,0 +1,21 @@
+diff --git a/browser/modules/ExtensionsUI.sys.mjs b/browser/modules/ExtensionsUI.sys.mjs
+index 95a4b6e40bd568c3ea5003b648b0acbf96bbb725..b01f40f3d895bfaeebf3186fedbe90026cfc013c 100644
+--- a/browser/modules/ExtensionsUI.sys.mjs
++++ b/browser/modules/ExtensionsUI.sys.mjs
+@@ -500,9 +500,14 @@
+         learnMoreURL,
+         persistent: true,
+         eventCallback,
+-        removeOnDismissal: true,
++        /* Upstream destroys the request when the prompt is dismissed. A
++           doorhanger anchored in the vertical sidebar gets rolled up natively
++           despite `persistent`, which left an extension's permission request
++           unanswerable - measured: notifications went [] 400ms after it hid.
++           Kept, it collapses to the urlbar icon and can still be answered. */
++        removeOnDismissal: false,
+         popupOptions: {
+-          position: "bottomright topright",
++          position: window.gZenUIManager.panelUIPosition(),
+         },
+         // Pass additional options used internally by the
+         // addon-webext-permissions-notification custom element

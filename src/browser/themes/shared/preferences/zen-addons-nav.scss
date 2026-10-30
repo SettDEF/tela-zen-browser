@@ -1,0 +1,275 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/* about:addons category icons.
+   ---------------------------------------------------------------------------
+   The same treatment as the settings rail next door: an outline glyph that
+   cross-fades to a solid one on hover, and stays solid while its category is
+   the current one. Glyphs are mask-images painted in currentColor, so they
+   follow the theme with no second colour to keep in sync.
+
+   The add-ons manager renders its icon from `iconsrc` into the widget's shadow
+   root, out of reach of this sheet and rebuilt on every Lit update, so the
+   native icon is collapsed to nothing and ours is drawn on the label the
+   button already slots. That label is hidden when the rail collapses to icons,
+   which is why this whole block only applies to the wide rail - under 950px
+   the stock icons are left exactly as they are.
+
+   The glyphs are files rather than inline data: URIs because about:addons ships
+   `img-src chrome:` with no `data:`, and a blocked mask paints nothing at all
+   with no error to go on. */
+
+@media (min-width: 951px) {
+  categories-box moz-page-nav-button {
+    --icon-size: 0;
+  }
+
+  categories-box moz-page-nav-button > span:not(.category-badge) {
+    /* Stand where the collapsed icon used to, and reserve its column so every
+       label starts on the same line. */
+    margin-inline-start: calc(var(--space-medium) * -1);
+    padding-inline-start: calc(16px + var(--space-medium));
+    position: relative;
+  }
+
+  categories-box moz-page-nav-button > span:not(.category-badge)::before,
+  categories-box moz-page-nav-button > span:not(.category-badge)::after {
+    background-color: currentColor;
+    block-size: 16px;
+    content: "";
+    inline-size: 16px;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    position: absolute;
+    transition:
+      opacity 160ms ease,
+      scale 160ms ease;
+    translate: 0 -50%;
+  }
+
+  categories-box moz-page-nav-button > span:not(.category-badge)::after {
+    opacity: 0;
+    scale: 0.82;
+  }
+
+  categories-box moz-page-nav-button:hover > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  categories-box moz-page-nav-button:hover > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    categories-box moz-page-nav-button > span:not(.category-badge)::before,
+    categories-box moz-page-nav-button > span:not(.category-badge)::after {
+      scale: 1;
+      transition: none;
+    }
+  }
+
+  categories-box #category-discover > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/discover.svg");
+  }
+
+  categories-box #category-discover > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/discover-fill.svg");
+  }
+
+  categories-box #category-extension > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/extension.svg");
+  }
+
+  categories-box #category-extension > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/extension-fill.svg");
+  }
+
+  categories-box #category-theme > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/theme.svg");
+  }
+
+  categories-box #category-theme > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/theme-fill.svg");
+  }
+
+  categories-box #category-plugin > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/plugin.svg");
+  }
+
+  categories-box #category-plugin > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/plugin-fill.svg");
+  }
+
+  categories-box #category-dictionary > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/dictionary.svg");
+  }
+
+  categories-box #category-dictionary > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/dictionary-fill.svg");
+  }
+
+  categories-box #category-locale > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/locale.svg");
+  }
+
+  categories-box #category-locale > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/locale-fill.svg");
+  }
+
+  categories-box #category-sitepermission > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/sitepermission.svg");
+  }
+
+  categories-box #category-sitepermission > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/sitepermission-fill.svg");
+  }
+
+  categories-box #category-mlmodel > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/mlmodel.svg");
+  }
+
+  categories-box #category-mlmodel > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/mlmodel-fill.svg");
+  }
+
+  categories-box #category-available-updates > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/available-updates.svg");
+  }
+
+  categories-box #category-available-updates > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/available-updates-fill.svg");
+  }
+
+  categories-box #category-recent-updates > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/recent-updates.svg");
+  }
+
+  categories-box #category-recent-updates > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/recent-updates-fill.svg");
+  }
+
+  categories-box #preferencesButton > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/settings.svg");
+  }
+
+  categories-box #preferencesButton > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/settings-fill.svg");
+  }
+
+  categories-box moz-page-nav-button[support-page="addons-help"] > span:not(.category-badge)::before {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/help.svg");
+  }
+
+  categories-box moz-page-nav-button[support-page="addons-help"] > span:not(.category-badge)::after {
+    mask-image: url("chrome://browser/skin/preferences/addons-icons/help-fill.svg");
+  }
+
+  moz-page-nav[currentview="discover"] #category-discover > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="discover"] #category-discover > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="extension"] #category-extension > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="extension"] #category-extension > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="theme"] #category-theme > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="theme"] #category-theme > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="plugin"] #category-plugin > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="plugin"] #category-plugin > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="dictionary"] #category-dictionary > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="dictionary"] #category-dictionary > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="locale"] #category-locale > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="locale"] #category-locale > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="sitepermission"] #category-sitepermission > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="sitepermission"] #category-sitepermission > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="mlmodel"] #category-mlmodel > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="mlmodel"] #category-mlmodel > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="available-updates"] #category-available-updates > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="available-updates"] #category-available-updates > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+  moz-page-nav[currentview="recent-updates"] #category-recent-updates > span:not(.category-badge)::before {
+    opacity: 0;
+    scale: 1.08;
+  }
+
+  moz-page-nav[currentview="recent-updates"] #category-recent-updates > span:not(.category-badge)::after {
+    opacity: 1;
+    scale: 1;
+  }
+
+}

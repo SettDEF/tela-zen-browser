@@ -1,0 +1,13 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Show a local ComfyUI's generation progress as an Activity card. Polls /queue,
+# backing off while the server is unreachable.
+- name: zen.comfyui.enabled
+  value: true
+
+# Where the ComfyUI server listens. Local by default; point it elsewhere only
+# at a server you trust, since the browser polls it continuously.
+- name: zen.comfyui.url
+  value: http://127.0.0.1:8188

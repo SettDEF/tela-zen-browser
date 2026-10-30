@@ -1,0 +1,38 @@
+diff --git a/browser/components/customizableui/content/panelUI.js b/browser/components/customizableui/content/panelUI.js
+index bb39efba5a001d7a61f9667664531f23dd6aa35b..bee3fc23993e1c3879868b90746b040d09bc76e2 100644
+--- a/browser/components/customizableui/content/panelUI.js
++++ b/browser/components/customizableui/content/panelUI.js
+@@ -643,6 +643,11 @@
+       }
+ 
+       try {
++        tempPanel.addEventListener(
++          "popuppositioned",
++          () => gZenUIManager.nudgePanelBesideSidebar(tempPanel),
++          { once: true }
++        );
+         viewShown = await PanelMultiView.openPopup(tempPanel, anchor, {
+           position: "bottomright topright",
+           triggerEvent: aEvent,
+@@ -696,10 +701,12 @@
+     if (hasKids && !this.navbar.hasAttribute("nonemptyoverflow")) {
+       this.navbar.setAttribute("nonemptyoverflow", "true");
+       this.overflowPanel.setAttribute("hasfixeditems", "true");
++      window.document.getElementById("zen-sidebar-top-buttons").setAttribute("nonemptyoverflow", "true");
+     } else if (!hasKids && this.navbar.hasAttribute("nonemptyoverflow")) {
+       PanelMultiView.hidePopup(this.overflowPanel);
+       this.overflowPanel.removeAttribute("hasfixeditems");
+       this.navbar.removeAttribute("nonemptyoverflow");
++      window.document.getElementById("zen-sidebar-top-buttons").removeAttribute("nonemptyoverflow");
+     }
+   },
+ 
+@@ -1075,7 +1082,7 @@
+         el.removeAttribute("data-lazy-l10n-id");
+       });
+ 
+-    this.notificationPanel.openPopup(anchor, "bottomright topright");
++    this.notificationPanel.openPopup(anchor, gZenUIManager.panelUIPosition(this.notificationPanel, anchor));
+   },
+ 
+   _clearNotificationPanel() {

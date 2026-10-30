@@ -1,0 +1,33 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+EXTRA_PP_COMPONENTS += [
+  "ZenComponents.manifest",
+]
+
+DIRS += [
+    "agent",
+    "boosts",
+    "common",
+    "compact-mode",
+    "config",
+    "downloads",
+    "glass",
+    "drag-and-drop",
+    "glance",
+    "live-folders",
+    "media",
+    "mods",
+    "privacy",
+    "tests",
+    "urlbar",
+    "toolkit",
+    "sessionstore",
+    "share",
+    "spaces",
+    "space-routing",
+    "tor",
+    "sync",
+    "window-drag",
+]

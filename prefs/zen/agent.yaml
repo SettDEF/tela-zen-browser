@@ -1,0 +1,20 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Master switch for the agent control channel. Off, and nothing listens: no
+# socket is created and every verb refuses with agent-disabled.
+- name: zen.agent.enabled
+  value: false
+
+# Silent agent tabs get their own container, so the agent does not inherit the
+# cookies of a signed-in user by default. Turning this off is what makes an
+# agent useful on signed-in sites, and is exactly what makes it dangerous.
+- name: zen.agent.isolate-tabs
+  value: true
+
+# Let the agent act on credential and financial origins. Off, and every verb
+# touching one refuses with origin-guarded. The list is a floor, not a
+# guarantee: no static list enumerates every bank.
+- name: zen.agent.allow-guarded-origins
+  value: false

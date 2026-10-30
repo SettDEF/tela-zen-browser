@@ -1,0 +1,12 @@
+// Dialogs: the shell's WindowDialog, 23px.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  dialog,
+  .dialogBox {
+    background: t.color("l1") !important;
+    border: 1px solid var(--a-border) !important;
+    border-radius: t.r("l") !important;
+  }
+}

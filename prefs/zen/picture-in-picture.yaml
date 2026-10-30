@@ -1,0 +1,18 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Pop-out video. Every host remembers where and how big its player was.
+- name: zen.pictureinpicture.remember-per-site
+  value: true
+# Which corner the hover button sits in; sites put their own controls on the
+# right often enough that moving it needs to be one click away.
+- name: media.videocontrols.picture-in-picture.video-toggle.position
+  value: "right"
+# Subtitles are dropped in the player unless this is on - a common surprise.
+- name: media.videocontrols.picture-in-picture.display-text-tracks.enabled
+  value: true
+# Seek bar, volume and fullscreen in the player window rather than play/pause
+# alone.
+- name: media.videocontrols.picture-in-picture.improved-video-controls.enabled
+  value: true

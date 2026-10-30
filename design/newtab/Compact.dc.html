@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+  <style>
+    body { margin: 0; background: #101010; color: #e2e2e2;
+           font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #a9b4d1; } a:hover { color: #c8d0e6; }
+    .s { font-family: "Instrument Serif", "Iowan Old Style", Georgia, serif; font-weight: 400; }
+    .m { font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase;
+         color: rgba(226,226,226,0.42); }
+  </style>
+</helmet>
+
+<div style="width: 1440px; box-sizing: border-box; padding: 48px 72px 64px; background: #101010">
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 32px; margin-bottom: 34px">
+    <div class="s" style="font-size: 40px; line-height: 1; letter-spacing: -0.01em">Where you left off</div>
+    <div style="display: flex; align-items: center; gap: 9px">
+      <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span>
+      <span class="m" style="color: rgba(226,226,226,0.6)">9 unread · 4 sources</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+
+    <div style="display: flex; align-items: center; gap: 20px; padding: 20px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+      <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+      <div class="s" style="font-size: 30px; line-height: 1.15; flex: 1 1 auto; text-wrap: pretty">
+        Reacher — Karambit
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 auto">
+        <div style="width: 96px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); overflow: hidden">
+          <div style="width: 63%; height: 100%; background: {{accent}}"></div>
+        </div>
+        <span class="m" style="letter-spacing: 0.08em">27 min</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px;
+                  background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 22px; line-height: 1.2; text-wrap: pretty">Neue EVENTWOCHE in GTA Online</div>
+          <div class="m">youtube.com</div>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px;
+                     background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">3</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px;
+                  background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 22px; line-height: 1.2; text-wrap: pretty">Opening a missing menu</div>
+          <div class="m">claude.ai</div>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px;
+                     background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">2</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px; padding: 20px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+      <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+      <div class="s" style="font-size: 26px; line-height: 1.15; flex: 1 1 auto; text-wrap: pretty">
+        Affenkäfig — Veranstaltungen im September
+      </div>
+      <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 4px 10px; border-radius: 5px;
+                   background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">4 new</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 7px;
+                  background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2">Madball16 replied</div>
+          <div class="m">reddit.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 7px;
+                  background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2; color: rgba(226,226,226,0.5)">1.21.16b release</div>
+          <div class="m" style="color: rgba(226,226,226,0.24)">github.com · read</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 7px;
+                  background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2; color: rgba(226,226,226,0.5)">Hard Techno set</div>
+          <div class="m" style="color: rgba(226,226,226,0.24)">youtube.com · read</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#a9b4d1","options":["#a9b4d1","#bed1a9","#d1a9c8","#d1c5a9"]},"$preview":{"width":1440,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#a9b4d1';
+    return { accent, accentSoft: accent + '24' };
+  }
+}
+</script>
+</body>
+</html>

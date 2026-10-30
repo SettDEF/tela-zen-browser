@@ -1,0 +1,23 @@
+// Compact mode: Zen hides the sidebar off-screen (position: fixed, shifted
+// by its own width) and floats it back on hover. The panel's margin would
+// shift that by 5px, and its outlines must not show while it is away.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+// The states in which Zen shows the floating sidebar.
+$revealed: "[zen-has-hover], [zen-user-show], [zen-has-empty-tab], [flash-popup], [has-popup-menu], [movingtab], [zen-compact-mode-active], [zen-resizing]";
+
+@include m.scoped {
+  &[zen-compact-mode="true"] #navigator-toolbox {
+    margin: 0 !important;
+
+    &:not(:is(#{$revealed})) {
+      .urlbar-background,
+      #zen-sidebar-top-buttons,
+      #zen-sidebar-foot-buttons {
+        border-color: transparent !important;
+        background: transparent !important;
+      }
+    }
+  }
+}

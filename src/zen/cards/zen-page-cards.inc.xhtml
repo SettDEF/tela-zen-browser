@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<toolbar id="zen-page-cards-toolbar"
+  class="browser-toolbar zen-sidebar-toolbar"
+  context="toolbar-context-menu"
+  mode="icons"
+  hidden="true">
+  <html:template id="zen-page-card-template">
+    <toolbaritem class="zen-page-card zen-stack-card">
+      <vbox class="zen-page-card-main">
+        <hbox class="zen-page-card-header">
+          <vbox class="zen-page-card-titles">
+            <label class="zen-page-card-title"/>
+            <label class="zen-page-card-subtitle"/>
+          </vbox>
+          <toolbarbutton class="zen-page-card-close toolbarbutton-1"/>
+        </hbox>
+        <vbox class="zen-page-card-items"/>
+      </vbox>
+    </toolbaritem>
+  </html:template>
+</toolbar>

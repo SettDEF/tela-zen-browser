@@ -1,0 +1,40 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# GTK-specific preferences
+- name: widget.gtk.rounded-bottom-corners.enabled
+  # See https://bugzilla.mozilla.org/show_bug.cgi?id=1979083
+  #   and https://bugzilla.mozilla.org/show_bug.cgi?id=1994267
+  # Disabled: the rounded-corner window shape was still being applied in
+  # fullscreen (video playback), showing as a stray rounded border/edge
+  # instead of a true edge-to-edge fullscreen window.
+  value: false
+  condition: "defined(MOZ_WIDGET_GTK)"
+
+- name: zen.widget.linux.transparency
+  value: false
+  condition: "defined(MOZ_WIDGET_GTK)"
+
+# Save/open dialogs through the desktop portal, so the desktop's own chooser
+# (KDE's here) replaces GTK's. Firefox only does that inside Flatpak/Snap.
+- name: widget.use-xdg-desktop-portal.file-picker
+  value: 1
+  condition: "defined(MOZ_WIDGET_GTK)"
+
+# Glass (tela): how much of the chrome's colour stays when
+# zen.widget.linux.transparency is on, in percent. Driven live by
+# ~/.config/tela-zen/glass.json (TelaGlass.sys.mjs).
+- name: zen.glass.opacity
+  value: 85
+  condition: "defined(MOZ_WIDGET_GTK)"
+
+- name: zen.glass.file
+  value: ""
+  condition: "defined(MOZ_WIDGET_GTK)"
+
+# Glass for pages that paint no background of their own (the shell's
+# "Websites" row). Drives browser.tabs.allow_transparent_browser.
+- name: zen.glass.pages
+  value: false
+  condition: "defined(MOZ_WIDGET_GTK)"

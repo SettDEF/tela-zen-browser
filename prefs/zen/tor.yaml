@@ -1,0 +1,114 @@
+# Onion routing. Off by default: without a Tor to point at, a routed container
+# is a container that cannot load anything (which is the correct failure, but
+# not one to hand somebody unasked). It gates *making* Tor containers only - a
+# container already marked keeps routing, and so keeps failing closed, whatever
+# this says.
+- name: zen.tor.enabled
+  value: false
+- name: zen.tor.proxy.host
+  value: "127.0.0.1"
+- name: zen.tor.proxy.port
+  value: 9050
+# Container ids of Tor spaces, as a JSON array. A value that no longer parses
+# means no Tor spaces, never "route everything".
+- name: zen.tor.space-containers
+  # Double-quoted, not '"[]"': a YAML single-quoted scalar containing quotes
+  # is the literal text "[]", which ffprefs then encodes again - the default
+  # parsed back as the string "[]" rather than an array, so every routed space
+  # was dropped on restart. Bare [] is a YAML array and emits an illegal literal.
+  value: "[]"
+- name: zen.tor.log
+  value: false
+# Tor's control port: the only source for the circuit. Enabled means "try it" -
+# nothing answers on a default torrc, and a refusal is the honest no-circuit
+# state.
+- name: zen.tor.control.enabled
+  value: true
+- name: zen.tor.control.host
+  value: "127.0.0.1"
+- name: zen.tor.control.port
+  value: 9051
+# Only consulted when the port does not name its own COOKIEFILE.
+- name: zen.tor.control.cookie-path
+  value: "/run/tor/control.authcookie"
+# Used only against a port advertising HASHEDPASSWORD; empty means cookie auth.
+- name: zen.tor.control.password
+  value: ""
+
+# Our own tor: the distro's binary under a config and data directory of ours,
+# started the first time something is actually routed and killed on exit. It is
+# the only way to get a control port, and so the only way the circuit is
+# knowable. Off falls back to whatever zen.tor.proxy.* points at.
+- name: zen.tor.daemon.enabled
+  value: true
+# Empty means look for tor on the usual paths.
+- name: zen.tor.daemon.path
+  value: ""
+
+# Bridges: only meaningful against our own tor (zen.tor.daemon.enabled), since
+# only there do we control the torrc. One pasted line per bridge, the same
+# "obfs4 IP:PORT FINGERPRINT cert=... iat-mode=..." / "snowflake ..." text a
+# bridge database hands out. A line naming a transport whose binary is not on
+# this machine, or one that fails to parse, stops our own tor from starting
+# at all rather than connecting without it.
+- name: zen.tor.bridges.enabled
+  value: false
+- name: zen.tor.bridges.lines
+  value: ""
+
+
+# Fingerprint hardening. Gecko has no per-container version of this, so it is
+# browser-wide and off by default: it changes how every site sees you, and
+# letterboxing visibly pads the viewport. The setting must say so.
+- name: zen.tor.harden
+  value: false
+
+# --- leak prevention (phase 3) -----------------------------------------------
+# These are global rather than per-container. Each is either inert for direct
+# browsing (it only bites a channel that has a proxy) or a small cost paid
+# browser-wide to close a path that routes around the proxy filter.
+
+# Resolve at the exit, never here. The filter also sets the equivalent flag on
+# the proxyInfo itself; this covers anything that builds its own SOCKS info.
+- name: network.proxy.socks_remote_dns
+  value: true
+# Gecko refuses .onion outright unless this is off.
+- name: network.dns.blockDotOnion
+  value: false
+# An unreachable proxy must be an error page, not a direct load. Only reached
+# for channels that had a proxy at all, so direct browsing is unaffected.
+- name: network.proxy.failover_direct
+  value: false
+# A channel can otherwise ask to skip every registered proxy filter.
+- name: network.proxy.allow_bypass
+  value: false
+# ICE gathers candidates from the real interfaces, outside any channel.
+- name: media.peerconnection.ice.proxy_only_if_behind_proxy
+  value: true
+- name: media.peerconnection.ice.default_address_only
+  value: true
+# Speculation happens before there is a document to attribute it to.
+- name: network.prefetch-next
+  value: false
+- name: network.dns.disablePrefetch
+  value: true
+- name: network.dns.disablePrefetchFromHTTPS
+  value: true
+- name: network.predictor.enabled
+  value: false
+- name: network.http.speculative-parallel-limit
+  value: 0
+- name: browser.urlbar.speculativeConnect.enabled
+  value: false
+# OCSP is fetched with system origin attributes, so it goes direct and tells
+# the CA which site is being visited. Firefox leans on CRLite/OneCRL anyway.
+- name: security.OCSP.enabled
+  value: 0
+# Probes a Mozilla endpoint on a timer, on its own schedule.
+- name: network.captive-portal-service.enabled
+  value: false
+- name: captivedetect.canonicalURL
+  value: ""
+# Remote binary lookups send a URL to Google; the local lists do not.
+- name: browser.safebrowsing.downloads.remote.enabled
+  value: false

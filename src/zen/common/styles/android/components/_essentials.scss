@@ -1,0 +1,18 @@
+// Essentials: app tiles, like the shell's dock. The open one is tonal.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+$tile: "#tabbrowser-tabs .tabbrowser-tab[zen-essential]";
+$bg: "> .tab-stack > .tab-background";
+
+@include m.scoped {
+  #{$tile} #{$bg} {
+    border-radius: t.r("m") !important;
+    background: t.color("l2") !important;
+    @include m.motion(background-color);
+  }
+
+  #{$tile}:hover #{$bg} { background: t.color("l3") !important; }
+  #{$tile} > .tab-stack { @include m.press-bounce(0.92); }
+  #{$tile}[visuallyselected] #{$bg} { background: t.color("tonal") !important; }
+}

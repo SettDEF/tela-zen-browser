@@ -1,0 +1,51 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+- name: image.jxl.enabled
+  value: true
+
+- name: svg.context-properties.content.enabled
+  value: true
+
+- name: media.eme.enabled
+  value: true
+
+# Firefox recreates the audio stream endpoint on every seek instead of
+# reusing it; upstream (bug 2059525) is enabling this platform-wide but it
+# currently only ships on macOS. Ships early here — see the "YouTube
+# playback errors after seeking" tracking issue.
+- name: media.audio.reuse-stream-on-seek
+  value: true
+
+# The loopback media bridge (~/.scripts/media) that every tab's media is
+# published to and controlled from. Empty turns it off; tests do that.
+- name: zen.media.bridge.url
+  value: "http://127.0.0.1:8788"
+
+# "Open in another app" (media card button, video context menu): which player
+# the media helper (`media external`) starts: reel, mpv or custom.
+- name: zen.media.external.player
+  value: "reel"
+
+# player=custom: the command, with {url} {referer} {cookies} {start}.
+- name: zen.media.external.command
+  value: ""
+
+# The helper; a bare name is looked up on PATH, then in ~/.scripts.
+- name: zen.media.external.helper
+  value: "media"
+
+- name: zen.media.external.pause-in-browser
+  value: true
+
+- name: zen.media.external.send-cookies
+  value: true
+
+- name: zen.media.external.context-menu
+  value: true
+
+# Per-site reel rules, {host: {always, after}}: always hands a site's videos to
+# the player when they start; after is what the tab does then (pause, close, keep).
+- name: zen.media.external.sites
+  value: "{}"

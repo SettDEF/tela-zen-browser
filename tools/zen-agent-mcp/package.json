@@ -1,0 +1,16 @@
+{
+  "name": "zen-agent-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "stdio MCP server bridging an assistant to tela-zen's agent control socket (AF_UNIX only).",
+  "type": "module",
+  "bin": { "zen-agent-mcp": "./server.mjs" },
+  "scripts": {
+    "start": "node server.mjs",
+    "print-config": "node server.mjs --print-config"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.0"
+  }
+}

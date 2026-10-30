@@ -1,0 +1,43 @@
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+index f746ea316a24d3dfd8990dfee25d7992c4f2278c..0af98f88da7a45cc0d130d97848dd0013ca36f24 100644
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -5435,12 +5435,6 @@ bool nsWindow::CheckForRollup(gdouble aMouseX, gdouble aMouseY, bool aIsWheel,
+     return false;
+   }
+   bool retVal = false;
+-  if (aIsWheel) {
+-    retVal = rollupListener->ShouldConsumeOnMouseWheelEvent();
+-    if (!rollupListener->ShouldRollupOnMouseWheelEvent()) {
+-      return retVal;
+-    }
+-  }
+   LayoutDeviceIntPoint point;
+   nsIRollupListener::RollupOptions options;
+   // if we're dealing with menus, we probably have submenus and
+@@ -5460,6 +5454,8 @@ bool nsWindow::CheckForRollup(gdouble aMouseX, gdouble aMouseY, bool aIsWheel,
+         // pass the number of popups to Rollup so that only those of the same
+         // type close up.
+         if (i < sameTypeCount) {
++          // A wheel here is the user scrolling that parent menu, so it has to
++          // reach its scrollbox: retVal is still false, i.e. not consumed.
+           return retVal;
+         }
+         options.mCount = sameTypeCount;
+@@ -5472,6 +5468,16 @@ bool nsWindow::CheckForRollup(gdouble aMouseX, gdouble aMouseY, bool aIsWheel,
+     }
+   }
+ 
++  // Only a wheel outside the popup chain gets swallowed. Deciding this before
++  // the walk above consumed every wheel over a parent menu, which is why a
++  // clamped menupopup could not be scrolled while a submenu was open.
++  if (aIsWheel) {
++    retVal = rollupListener->ShouldConsumeOnMouseWheelEvent();
++    if (!rollupListener->ShouldRollupOnMouseWheelEvent()) {
++      return retVal;
++    }
++  }
++
+   if (mSizeMode == nsSizeMode_Minimized) {
+     // When we try to rollup in a minimized window, transitionend events for
+     // panels might not fire and thus we might not hide the popup after all,

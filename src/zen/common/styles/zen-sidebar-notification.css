@@ -1,0 +1,134 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  background: var(--zen-sidebar-notification-bg);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* The card shape the media and page cards use. */
+  border-radius: var(--border-radius-medium);
+  outline: var(--zen-sidebar-notification-outline);
+  outline-offset: -1.5px;
+  box-shadow: var(--zen-sidebar-notification-shadow);
+  overflow: hidden;
+  padding: 4px 6px;
+  gap: 4px;
+}
+
+.zen-sidebar-notification-header {
+  display: flex;
+  align-items: start;
+  gap: 6px;
+  padding: 2px 2px 0 4px;
+}
+
+.zen-sidebar-notification-titles {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.zen-sidebar-notification-heading,
+.zen-sidebar-notification-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-sidebar-notification-heading {
+  font-weight: 600;
+}
+
+.zen-sidebar-notification-subtitle {
+  font-size: smaller;
+  opacity: 0.7;
+}
+
+.zen-sidebar-notification-close-button {
+  border-radius: var(--tela-radius-sm, 6px);
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+
+  & img {
+    -moz-context-properties: fill, fill-opacity;
+    fill-opacity: 1;
+    fill: currentColor;
+    width: 12px;
+    pointer-events: none;
+  }
+}
+
+/* The auto-hide countdown: a hairline along the card's bottom edge. */
+.zen-sidebar-notification-progress {
+  height: 2px;
+  margin: 2px 4px 0;
+  border-radius: 1px;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+
+  & .zen-sidebar-notification-progress-bar {
+    height: 100%;
+    background: color-mix(in srgb, var(--zen-primary-color) 45%, currentColor);
+    opacity: 0.6;
+    transform-origin: left center;
+  }
+}
+
+/* Rows like a page card's: icon, label, a hover shape, nothing dimmed. */
+.zen-sidebar-notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  & .zen-sidebar-notification-link-container {
+    cursor: pointer;
+    border-radius: var(--tela-radius-sm, 6px);
+    min-height: 26px;
+    padding: 3px 4px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    & .zen-sidebar-notification-link-text {
+      cursor: inherit;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      background: var(--toolbarbutton-hover-background, color-mix(in srgb, currentColor 10%, transparent));
+    }
+
+    & .zen-sidebar-notification-link-icon {
+      pointer-events: none;
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+      -moz-context-properties: fill, fill-opacity;
+      fill: currentColor;
+    }
+
+    /* The lead row is marked by its icon in the accent, not animated text. */
+    &[special] .zen-sidebar-notification-link-icon {
+      opacity: 1;
+      fill: color-mix(in srgb, var(--zen-primary-color) 55%, currentColor);
+    }
+  }
+}

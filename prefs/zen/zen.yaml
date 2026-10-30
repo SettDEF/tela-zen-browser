@@ -1,0 +1,81 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+- name: zen.tabs.vertical
+  value: true
+
+- name: zen.tabs.vertical.right-side
+  value: false
+
+- name: zen.tabs.rename-tabs
+  value: true
+
+- name: zen.tabs.essentials.max
+  value: 12
+
+- name: zen.tabs.show-newtab-vertical
+  value: true
+
+- name: zen.tabs.close-window-with-empty
+  value: true
+
+- name: zen.tabs.select-recently-used-on-close
+  value: true
+
+- name: zen.tabs.folder-dragover-threshold-percent
+  value: 20 # Percentage of folder height to trigger dragover
+
+- name: zen.tabs.dnd-switch-space-delay
+  value: 500 # milliseconds
+
+- name: zen.ctrlTab.show-pending-tabs
+  value: false
+
+- name: zen.mediacontrols.enabled
+  value: true
+
+- name: zen.haptic-feedback.enabled
+  value: true
+
+- name: zen.startup.smooth-scroll-in-tabs
+  value: true
+
+- name: zen.tabs.open-pinned-in-new-tab
+  value: true
+
+- name: zen.tabs.close-on-back-with-no-history
+  value: true
+
+- name: zen.tabs.ctrl-tab.ignore-essential-tabs
+  value: false
+
+- name: zen.tabs.ctrl-tab.ignore-pending-tabs
+  value: false
+
+# Keep a tab's media card while you are on that tab (Zen hides it there).
+- name: zen.mediacontrols.show-on-own-tab
+  value: false
+
+# Sites translated before ({host: {from, to, auto, at, title}}) and whether
+# they translate again on return.
+- name: zen.translations.sites
+  value: "{}"
+
+- name: zen.translations.remember-sites
+  value: true
+
+# Copy a page's Media Session into the real one when an extension (Plasma
+# Browser Integration) has replaced it, so MPRIS and the cards get the track.
+- name: zen.mediacontrols.mirror-session
+  value: true
+
+# Keep a new window off screen until its session is restored, so it opens
+# once, complete, instead of a placeholder layout first.
+- name: zen.startup.show-when-ready
+  value: false
+
+# The safer smooth start: the window shows normally, a flat sheet covers the
+# half-built layout until the session is restored (see ZenStartup).
+- name: zen.startup.cover
+  value: false

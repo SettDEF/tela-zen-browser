@@ -1,0 +1,69 @@
+// Building blocks shared by the layout and the components. Each one is a
+// recipe from the desktop shell's QML (Appearance.qml and the widgets), so a
+// rule here reads as "a card" or "a pill", not as a list of pixels.
+@use "tokens" as t;
+
+// Every rule of the theme is written inside `scoped`, so nothing can leak to
+// the default look.
+@mixin scoped {
+  #{t.$scope} {
+    @content;
+  }
+}
+
+// The layering rule: two surfaces and no more. The panel (sidebar, page) is
+// the base; a control sits one tonal step above it (`tile`). Nothing is
+// nested inside a tile, and only the panel has a border.
+
+// A tile one step above the panel: a fill and a radius, no border.
+@mixin tile($layer: "l2", $radius: "m") {
+  background-color: t.color($layer) !important;
+  border-radius: t.r($radius) !important;
+}
+
+// A flat panel on a layer, with the shell's 1px border.
+@mixin surface($layer, $radius: "m", $border: "border-0") {
+  background-color: t.color($layer) !important;
+  border: 1px solid var(--a-#{$border}) !important;
+  border-radius: t.r($radius) !important;
+}
+
+// A square action button filled with a container colour (the shell's FAB).
+@mixin fab($size: 40px, $radius: "s") {
+  width: $size;
+  height: $size;
+  border-radius: t.r($radius) !important;
+  background: t.color("primary-cont") !important;
+  color: t.color("on-primary-cont") !important;
+  fill: t.color("on-primary-cont") !important;
+}
+
+// Transitions in the shell's own motion: `$kind` is a name from tokens.$motion.
+@mixin motion($props, $kind: "effects") {
+  transition: $props var(--a-dur-#{$kind}) var(--a-ease-#{$kind});
+}
+
+// A control that dips when pressed and springs back with the shell's bounce.
+@mixin press-bounce($scale: 0.94) {
+  transition:
+    background-color var(--a-dur-effects) var(--a-ease-effects),
+    scale var(--a-dur-spatial-fast) var(--a-ease-spatial-fast);
+
+  &:active { scale: $scale; }
+}
+
+// Hover and press overlays on a flat control.
+@mixin state-layer($rest: transparent) {
+  background: $rest !important;
+  @include motion(background-color);
+
+  &:hover { background: var(--a-hover-1) !important; }
+  &:hover:active { background: var(--a-active-1) !important; }
+}
+
+// Removes the stock frame from an element that draws its own surface.
+@mixin bare {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}

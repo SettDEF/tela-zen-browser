@@ -1,0 +1,15 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Sidebar width remembered per site. Off by default: it moves the layout on
+# every tab switch, which should be asked for rather than discovered.
+- name: zen.sidebar.remember-per-site
+  value: false
+# host -> image source, as JSON. A path to a file on this computer or a data:
+# image, never a web address; anything else is refused when it is written.
+- name: zen.sidebar.site-icons
+  value: "{}"
+# host -> px, as JSON. The per-site editor in Settings reads and writes this.
+- name: zen.sidebar.site-widths
+  value: "{}"

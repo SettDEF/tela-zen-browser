@@ -1,0 +1,86 @@
+// Controls: the shell's M3 switch (a scaled 39x24 track, a thumb that grows
+// when on and springs when pressed), pill selects, tonal and primary buttons.
+@use "zen/common/styles/android/tokens" as t;
+@use "zen/common/styles/android/mixins" as m;
+
+// StyledSwitch at its 0.75 scale: track 39x24; thumb 12px off, 18px on.
+$track-w: 39px;
+$track-h: 24px;
+
+@include m.scoped {
+  // Checkbox -> switch. The label leads, the switch trails.
+  checkbox {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    accent-color: t.color("primary");
+
+    .checkbox-check {
+      appearance: none !important;
+      box-sizing: border-box;
+      flex: none;
+      width: $track-w;
+      height: $track-h;
+      margin: 0;
+      border: 1.5px solid t.color("subtext");
+      border-radius: t.r("full");
+      background:
+        radial-gradient(circle closest-side, t.color("subtext") 96%, transparent) 4px center / 12px 12px no-repeat,
+        t.color("l4");
+      transition:
+        background-color var(--a-dur-effects) var(--a-ease-effects),
+        background-position var(--a-dur-spatial-fast) var(--a-ease-spatial-fast),
+        background-size var(--a-dur-spatial-fast) var(--a-ease-spatial-fast),
+        border-color var(--a-dur-effects) var(--a-ease-effects);
+    }
+
+    &[checked="true"] .checkbox-check {
+      border-color: t.color("primary");
+      background:
+        radial-gradient(circle closest-side, t.color("on-primary") 96%, transparent) 16px center / 18px 18px no-repeat,
+        t.color("primary");
+    }
+
+    &:active .checkbox-check {
+      background-size: 22px 22px, auto;
+    }
+  }
+
+  // Selects: an outlined pill, like the shell's text fields.
+  .zen-card menulist,
+  .zen-card select,
+  menulist {
+    background-color: transparent !important;
+    border: 1px solid t.color("outline") !important;
+    border-radius: t.r("full") !important;
+    color: t.color("on");
+    @include m.motion(background-color);
+
+    &:hover { background-color: var(--a-hover-1) !important; }
+    &[open],
+    &:focus-visible { border-color: t.color("primary") !important; }
+  }
+
+  // Buttons: tonal by default, primary for the one main action.
+  button:not(.zen-button-ghost, .zen-button-primary, .zen-choice, .zen-choice *) {
+    background-color: t.color("tonal") !important;
+    color: t.color("on-tonal") !important;
+    border-radius: t.r("full") !important;
+    @include m.press-bounce(0.96);
+  }
+
+  button.zen-button-primary {
+    background-color: t.color("primary") !important;
+    color: t.color("on-primary") !important;
+    border-radius: t.r("full") !important;
+    @include m.press-bounce(0.96);
+  }
+
+  // The search field: a pill with the shell's outline.
+  moz-input-search::part(input) {
+    border-radius: t.r("full");
+    border-color: t.color("outline");
+  }
+
+  moz-input-search::part(input):focus-visible { border-color: t.color("primary"); }
+}

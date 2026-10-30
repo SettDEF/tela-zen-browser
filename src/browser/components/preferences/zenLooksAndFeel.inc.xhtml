@@ -1,0 +1,612 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Order runs from what a person changes often to what they set once:
+# layout, then the address bar, tab highlight and per-site memory, then
+# window behaviour and pop-out video.
+
+<script type="text/javascript" src="chrome://browser/content/preferences/zen-settings.js"/>
+<html:template id="template-paneZenLooks">
+
+<groupbox id="zenConfigGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-config-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-config-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <html:p id="zenConfigPath" class="zen-row zen-config-path"/>
+      <html:p id="zenConfigStatus" class="zen-row"/>
+      <html:ul id="zenConfigErrors" class="zen-config-errors" hidden="true"/>
+      <hbox class="zen-row">
+        <button id="zenConfigCreate" class="zen-button-primary" data-l10n-id="zen-config-create" hidden="true"/>
+        <button id="zenConfigOpen" data-l10n-id="zen-config-open" hidden="true"/>
+        <button id="zenConfigFolder" data-l10n-id="zen-config-folder"/>
+      </hbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenThemeGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-theme-style-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-theme-style-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-theme-style-label"/>
+        <menulist preference="zen.theme.style">
+          <menupopup>
+              <menuitem data-l10n-id="zen-theme-style-default" value="default"/>
+              <menuitem data-l10n-id="zen-theme-style-android" value="android"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-theme-palette-label"/>
+        <menulist preference="zen.theme.palette">
+          <menupopup>
+              <menuitem data-l10n-id="zen-theme-palette-desktop" value="desktop"/>
+              <menuitem data-l10n-id="zen-theme-palette-custom" value="custom"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row" id="zenThemeAccentRow">
+        <label class="zen-row-label" data-l10n-id="zen-theme-accent-label"/>
+        <html:input id="zenThemeAccent" type="color"/>
+      </hbox>
+      <hbox class="zen-row" id="zenThemeSchemeRow">
+        <label class="zen-row-label" data-l10n-id="zen-theme-scheme-label"/>
+        <menulist preference="zen.theme.scheme">
+          <menupopup>
+              <menuitem data-l10n-id="zen-theme-scheme-dark" value="dark"/>
+              <menuitem data-l10n-id="zen-theme-scheme-light" value="light"/>
+              <menuitem data-l10n-id="zen-theme-scheme-auto" value="auto"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenUILayoutCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-ui-layout-title"/>
+</hbox>
+
+<groupbox id="zenUILayoutGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-ui-layout-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-ui-layout-description"/>
+    </html:div>
+
+    <!-- Cards are built by gZenLayoutPresetsUI: the list is ordered by the
+         user, each preview is drawn from what its preset actually holds, and
+         the four custom slots change shape once they hold something. -->
+    <html:div id="zenUILayoutList" class="zen-choice-grid"/>
+
+    <vbox id="zenUILayoutCustomControls" class="zen-subsection" hidden="true">
+      <html:p class="zen-section-desc" data-l10n-id="zen-ui-layout-custom-description"/>
+      <vbox class="zen-card">
+        <checkbox id="zenUILayoutCustomCompact"
+              class="zen-row"
+              data-l10n-id="zen-ui-layout-custom-compact-mode"
+              preference="zen.view.compact.enable-at-startup"/>
+        <checkbox id="zenUILayoutCustomHideTabbar"
+              class="zen-row"
+              data-l10n-id="zen-ui-layout-custom-hide-tabbar"
+              preference="zen.view.compact.hide-tabbar"/>
+        <checkbox id="zenUILayoutCustomHideToolbar"
+              class="zen-row"
+              data-l10n-id="zen-ui-layout-custom-hide-toolbar"
+              preference="zen.view.compact.hide-toolbar"/>
+        <checkbox id="zenUILayoutCustomRightSide"
+              class="zen-row"
+              data-l10n-id="zen-ui-layout-custom-right-side"
+              preference="zen.tabs.vertical.right-side"/>
+        <hbox class="zen-row">
+          <label class="zen-row-label" data-l10n-id="zen-ui-layout-custom-tab-style-label"/>
+          <menulist preference="zen.tabs.style">
+            <menupopup>
+              <menuitem data-l10n-id="zen-ui-layout-tab-style-comfortable" value="comfortable"/>
+              <menuitem data-l10n-id="zen-ui-layout-tab-style-compact" value="compact"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+      </vbox>
+    </vbox>
+
+    <!-- Outside the Custom controls: a built-in layout pins no widgets, so
+         there this stays the user's own choice rather than the preset's. -->
+    <vbox id="zenUILayoutWidgets" class="zen-subsection">
+      <html:p class="zen-row-label" data-l10n-id="zen-ui-layout-widgets-label"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-ui-layout-widgets-description"/>
+      <!-- Rows are built by gZenLayoutPresetsUI from the toolbar/rail widgets
+           that are actually placed - the checkboxes hide them presentationally
+           per state, without moving or unplacing anything in CustomizableUI. -->
+      <vbox class="zen-card zen-table-card">
+        <html:div class="zen-table-head zen-ui-layout-widget-row">
+          <html:span/>
+          <html:span data-l10n-id="zen-ui-layout-widgets-header-normal"/>
+          <html:span data-l10n-id="zen-ui-layout-widgets-header-empty-tab"/>
+          <html:span data-l10n-id="zen-ui-layout-widgets-header-tor"/>
+          <html:span data-l10n-id="zen-ui-layout-widgets-header-tor-empty-tab"/>
+        </html:div>
+        <html:div id="zenUILayoutWidgetsList" class="zen-table-scroll"/>
+      </vbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenVerticalTabsGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-vertical-tabs-layout-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-vertical-tabs-layout-description"/>
+    </html:div>
+    <html:div id="zenLayoutList" class="zen-choice-grid zen-choice-grid-wide">
+      <html:button type="button" class="zen-choice" layout="single">
+        <html:img src="chrome://browser/content/zen-images/layouts/single-toolbar.png" alt=""/>
+        <html:span class="zen-choice-label" data-l10n-id="zen-layout-single-toolbar"/>
+      </html:button>
+      <html:button type="button" class="zen-choice" layout="multiple">
+        <html:img src="chrome://browser/content/zen-images/layouts/multiple-toolbar.png" alt=""/>
+        <html:span class="zen-choice-label" data-l10n-id="zen-layout-multiple-toolbar"/>
+      </html:button>
+      <html:button type="button" class="zen-choice" layout="collapsed">
+        <html:img src="chrome://browser/content/zen-images/layouts/collapsed.png" alt=""/>
+        <html:span class="zen-choice-label" data-l10n-id="zen-layout-collapsed-toolbar"/>
+      </html:button>
+    </html:div>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-vertical-tabs-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-vertical-tabs-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenLooksAndFeelNewtabUnderLastTab"
+            class="zen-row"
+            data-l10n-id="zen-vertical-tabs-newtab-on-tab-list"
+            preference="zen.tabs.show-newtab-vertical"/>
+      <checkbox id="zenLooksAndFeelMoveNewtabToTop"
+            class="zen-row zen-row-nested"
+            data-l10n-id="zen-vertical-tabs-newtab-top-button-up"
+            preference="zen.view.show-newtab-button-top"/>
+    </vbox>
+    <html:p class="zen-section-note" data-l10n-id="preferences-web-appearance-footer">
+        <html:a id="web-appearance-manage-themes-link" class="text-link" data-l10n-name="themes-link" href="about:addons" target="_blank" />
+    </html:p>
+  </html:div>
+</groupbox>
+
+<hbox id="zenUrlBarCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-urlbar-title"/>
+</hbox>
+
+<groupbox id="zenUrlbarGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-urlbar-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-urlbar-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <hbox class="zen-row">
+            <label class="zen-row-label" data-l10n-id="zen-urlbar-behavior-label"/>
+            <menulist preference="zen.urlbar.behavior">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-urlbar-behavior-normal" value="normal"/>
+                        <menuitem data-l10n-id="zen-urlbar-behavior-floating-on-type" value="floating-on-type"/>
+                        <menuitem data-l10n-id="zen-urlbar-behavior-float" value="float"/>
+                        <menuitem data-l10n-id="zen-urlbar-behavior-sidebar" value="sidebar"/>
+                  </menupopup>
+            </menulist>
+      </hbox>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-urlbar-sidebar-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-urlbar-sidebar-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-urlbar-sidebar-max-rows-label"/>
+        <html:input id="zenUrlbarSidebarMaxRows" class="zen-input zen-input-narrow"
+                    type="number" min="1" max="20" step="1"/>
+      </hbox>
+      <vbox class="zen-row zen-row-stack">
+        <checkbox id="zenUrlbarSidebarGroup"
+                  data-l10n-id="zen-urlbar-sidebar-group"
+                  preference="zen.urlbar.sidebar.group-by-site"/>
+        <html:p class="zen-row-note" data-l10n-id="zen-urlbar-sidebar-group-description"/>
+      </vbox>
+      <checkbox id="zenUrlbarSidebarPaths"
+                class="zen-row zen-row-nested"
+                data-l10n-id="zen-urlbar-sidebar-paths"
+                preference="zen.urlbar.sidebar.show-paths"/>
+      <hbox class="zen-row zen-row-nested">
+        <label class="zen-row-label" data-l10n-id="zen-urlbar-sidebar-max-paths-label"/>
+        <html:input id="zenUrlbarSidebarMaxPaths" class="zen-input zen-input-narrow"
+                    type="number" min="0" max="6" step="1"/>
+      </hbox>
+      <checkbox id="zenUrlbarSidebarUrl"
+                class="zen-row"
+                data-l10n-id="zen-urlbar-sidebar-url"
+                preference="zen.urlbar.sidebar.show-url"/>
+      <checkbox id="zenUrlbarSidebarSource"
+                class="zen-row"
+                data-l10n-id="zen-urlbar-sidebar-source"
+                preference="zen.urlbar.sidebar.show-source"/>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-urlbar-sidebar-density-label"/>
+        <menulist preference="zen.urlbar.sidebar.density">
+          <menupopup>
+            <menuitem data-l10n-id="zen-urlbar-sidebar-density-comfortable" value="comfortable"/>
+            <menuitem data-l10n-id="zen-urlbar-sidebar-density-compact" value="compact"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenTabFocusCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-tab-focus-title"/>
+</hbox>
+
+<groupbox id="zenTabFocusGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tab-look-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tab-look-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-glow-label"/>
+        <menulist preference="zen.tabs.focus.strength">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-glow-full" value="full"/>
+              <menuitem data-l10n-id="zen-tab-look-glow-subtle" value="subtle"/>
+              <menuitem data-l10n-id="zen-tab-look-glow-off" value="off"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-selected-label"/>
+        <menulist preference="zen.tabs.look.selected">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-selected-mark" value="mark"/>
+              <menuitem data-l10n-id="zen-tab-look-selected-fill" value="fill"/>
+              <menuitem data-l10n-id="zen-tab-look-selected-outline" value="outline"/>
+              <menuitem data-l10n-id="zen-tab-look-selected-plain" value="plain"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-close-label"/>
+        <menulist preference="zen.tabs.look.close">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-close-hover" value="hover"/>
+              <menuitem data-l10n-id="zen-tab-look-close-always" value="always"/>
+              <menuitem data-l10n-id="zen-tab-look-close-never" value="never"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-radius-label"/>
+        <menulist preference="zen.tabs.look.radius">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-radius--1" value="-1"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-0" value="0"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-4" value="4"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-6" value="6"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-8" value="8"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-10" value="10"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-12" value="12"/>
+              <menuitem data-l10n-id="zen-tab-look-radius-16" value="16"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-height-label"/>
+        <menulist preference="zen.tabs.look.height">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-height--1" value="-1"/>
+              <menuitem data-l10n-id="zen-tab-look-height-28" value="28"/>
+              <menuitem data-l10n-id="zen-tab-look-height-32" value="32"/>
+              <menuitem data-l10n-id="zen-tab-look-height-36" value="36"/>
+              <menuitem data-l10n-id="zen-tab-look-height-40" value="40"/>
+              <menuitem data-l10n-id="zen-tab-look-height-44" value="44"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-folder-gap-label"/>
+        <menulist preference="zen.tabs.look.folder-gap">
+          <menupopup>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-0" value="0"/>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-2" value="2"/>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-4" value="4"/>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-6" value="6"/>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-8" value="8"/>
+              <menuitem data-l10n-id="zen-tab-look-folder-gap-12" value="12"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox class="zen-row">
+        <label class="zen-row-label" data-l10n-id="zen-tab-look-color-label"/>
+        <menulist preference="zen.tabs.look.color">
+          <menupopup>
+            <menuitem data-l10n-id="zen-tab-look-color-off" value="off"/>
+            <menuitem data-l10n-id="zen-tab-look-color-selected" value="selected"/>
+            <menuitem data-l10n-id="zen-tab-look-color-all" value="all"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <checkbox id="zenTabLookHoverShade"
+                class="zen-row"
+                data-l10n-id="zen-tab-look-hover-shade"
+                preference="zen.tabs.look.hover-shade"/>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tab-focus-appearance-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tab-focus-appearance-description"/>
+    </html:div>
+    <html:div id="zenTabFocusSettings"></html:div>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tab-focus-events-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tab-focus-events-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenTabFocusEventSelected"
+                class="zen-row"
+                data-l10n-id="zen-tab-focus-event-selected"
+                preference="zen.tabs.focus.selected.enabled"/>
+      <checkbox id="zenTabFocusEventHover"
+                class="zen-row"
+                data-l10n-id="zen-tab-focus-event-hover"
+                preference="zen.tabs.focus.hover.enabled"/>
+      <checkbox id="zenTabFocusEventLoading"
+                class="zen-row"
+                data-l10n-id="zen-tab-focus-event-loading"
+                preference="zen.tabs.focus.loading.enabled"/>
+      <checkbox id="zenTabFocusEventAudio"
+                class="zen-row"
+                data-l10n-id="zen-tab-focus-event-audio"
+                preference="zen.tabs.focus.audio.enabled"/>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenSitesCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-sites-title"/>
+</hbox>
+
+<groupbox id="zenSitesGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-sites-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-sites-description"/>
+    </html:div>
+
+    <vbox class="zen-card">
+      <checkbox id="zenSitesRememberWidth"
+            class="zen-row"
+            data-l10n-id="zen-sites-remember-width"
+            preference="zen.sidebar.remember-per-site"/>
+    </vbox>
+
+    <html:div class="zen-card zen-table-card">
+      <html:div class="zen-table-scroll">
+        <html:div class="zen-table">
+          <html:div class="zen-sites-row zen-table-head">
+            <html:span data-l10n-id="zen-sites-column-site"/>
+            <html:span data-l10n-id="zen-sites-column-width"/>
+            <html:span data-l10n-id="zen-sites-column-colour"/>
+            <html:span data-l10n-id="zen-sites-column-icon"/>
+            <html:span/>
+          </html:div>
+          <html:div id="zenSitesList" class="zen-sites-list"></html:div>
+        </html:div>
+      </html:div>
+      <html:div id="zenSitesEmpty" class="zen-empty">
+        <html:span data-l10n-id="zen-sites-empty"/>
+      </html:div>
+      <html:p id="zenSitesIconError" class="zen-card-error" hidden="true"
+              data-l10n-id="zen-sites-icon-invalid"/>
+      <html:div class="zen-card-footer">
+        <html:input id="zenSitesNewHost" type="text" class="zen-input"
+                    data-l10n-id="zen-sites-new-host"/>
+        <button id="zenSitesAdd" class="zen-button-primary" data-l10n-id="zen-sites-add"/>
+      </html:div>
+    </html:div>
+  </html:div>
+</groupbox>
+
+<hbox id="zenThemeCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-behaviour-title"/>
+</hbox>
+
+<groupbox id="zenGlanceGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-glance-title"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-glance-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenLooksAndFeelGlanceEnabled"
+            class="zen-row"
+            data-l10n-id="zen-glance-enabled"
+            preference="zen.glance.enabled"/>
+      <hbox class="zen-row zen-row-nested">
+            <label id="zenGlanceTriggerLabel" class="zen-row-label" data-l10n-id="zen-glance-trigger-label"/>
+            <menulist id="zenGlanceTrigger" preference="zen.glance.activation-method">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-glance-trigger-ctrl-click" value="ctrl"/>
+                        <menuitem data-l10n-id="zen-glance-trigger-alt-click" value="alt"/>
+                        <menuitem data-l10n-id="zen-glance-trigger-shift-click" value="shift"/>
+#ifdef XP_MACOSX
+                        <menuitem data-l10n-id="zen-glance-trigger-meta-click" value="meta"/>
+#endif
+                  </menupopup>
+            </menulist>
+      </hbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenThemeGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-look-and-feel-window-drag-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-look-and-feel-window-drag-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenLooksAndFeelWindowDragEnabled"
+            class="zen-row"
+            data-l10n-id="zen-window-drag-enabled"
+            preference="zen.view.drag-window-from-content"/>
+      <checkbox id="zenLooksAndFeelEnableToolbarFlashPopup"
+                class="zen-row"
+                data-l10n-id="zen-look-and-feel-compact-toolbar-flash-popup"
+                preference="zen.view.compact.toolbar-flash-popup"/>
+      <checkbox id="zenLooksAndFeelClipboardToast"
+            class="zen-row"
+            data-l10n-id="zen-clipboard-toast-enabled"
+            preference="zen.clipboard.toast"/>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenPipCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenLooks">
+<html:h1 data-l10n-id="zen-pip-title"/>
+</hbox>
+
+<groupbox id="zenPipGroup" data-category="paneZenLooks" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-pip-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-pip-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenMediaShowOnOwnTab"
+            class="zen-row"
+            data-l10n-id="zen-media-show-on-own-tab"
+            preference="zen.mediacontrols.show-on-own-tab"/>
+      <checkbox id="zenPipToggleEnabled"
+            class="zen-row"
+            data-l10n-id="zen-pip-toggle-enabled"
+            preference="media.videocontrols.picture-in-picture.video-toggle.enabled"/>
+      <hbox class="zen-row zen-row-nested">
+            <label id="zenPipPositionLabel" class="zen-row-label" data-l10n-id="zen-pip-position-label"/>
+            <menulist id="zenPipPosition"
+                      preference="media.videocontrols.picture-in-picture.video-toggle.position">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-pip-position-right" value="right"/>
+                        <menuitem data-l10n-id="zen-pip-position-left" value="left"/>
+                  </menupopup>
+            </menulist>
+      </hbox>
+      <hbox class="zen-row zen-row-nested">
+            <label id="zenPipMinSecsLabel" class="zen-row-label" data-l10n-id="zen-pip-min-secs-label"/>
+            <menulist id="zenPipMinSecs"
+                      preference="media.videocontrols.picture-in-picture.video-toggle.min-video-secs">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-pip-min-secs-any" value="0"/>
+                        <menuitem data-l10n-id="zen-pip-min-secs-10" value="10"/>
+                        <menuitem data-l10n-id="zen-pip-min-secs-45" value="45"/>
+                        <menuitem data-l10n-id="zen-pip-min-secs-180" value="180"/>
+                  </menupopup>
+            </menulist>
+      </hbox>
+      <checkbox id="zenPipTextTracks"
+            class="zen-row"
+            data-l10n-id="zen-pip-text-tracks"
+            preference="media.videocontrols.picture-in-picture.display-text-tracks.enabled"/>
+      <checkbox id="zenPipSwitchingTabs"
+            class="zen-row"
+            data-l10n-id="zen-pip-switching-tabs"
+            preference="media.videocontrols.picture-in-picture.enable-when-switching-tabs.enabled"/>
+      <checkbox id="zenPipRememberPerSite"
+            class="zen-row"
+            data-l10n-id="zen-pip-remember-per-site"
+            preference="zen.pictureinpicture.remember-per-site"/>
+    </vbox>
+  </html:div>
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-external-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-external-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <hbox class="zen-row">
+            <label id="zenExternalPlayerLabel" class="zen-row-label" data-l10n-id="zen-external-player-label"/>
+            <menulist id="zenExternalPlayer" preference="zen.media.external.player">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-external-player-reel" value="reel"/>
+                        <menuitem data-l10n-id="zen-external-player-mpv" value="mpv"/>
+                        <menuitem data-l10n-id="zen-external-player-custom" value="custom"/>
+                  </menupopup>
+            </menulist>
+      </hbox>
+      <hbox class="zen-row zen-row-nested">
+            <label id="zenExternalCommandLabel" class="zen-row-label" data-l10n-id="zen-external-command-label"/>
+            <html:input id="zenExternalCommand" type="text" flex="1"
+                        placeholder="vlc --http-referrer={referer} {url}"
+                        preference="zen.media.external.command"/>
+      </hbox>
+      <checkbox id="zenExternalPause" class="zen-row"
+            data-l10n-id="zen-external-pause"
+            preference="zen.media.external.pause-in-browser"/>
+      <checkbox id="zenExternalCookies" class="zen-row"
+            data-l10n-id="zen-external-cookies"
+            preference="zen.media.external.send-cookies"/>
+      <checkbox id="zenExternalContextMenu" class="zen-row"
+            data-l10n-id="zen-external-context-menu"
+            preference="zen.media.external.context-menu"/>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-reel-prefs-title"/>
+    </html:div>
+    <html:div class="zen-card zen-table-card">
+      <html:div id="zenReelSitesList" class="zen-sites-list"/>
+      <html:div id="zenReelSitesEmpty" class="zen-empty">
+        <html:span data-l10n-id="zen-reel-prefs-empty"/>
+      </html:div>
+    </html:div>
+  </html:div>
+</groupbox>
+
+</html:template>

@@ -1,0 +1,34 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+  skin/classic/browser/preferences/zen-preferences.css             (../shared/preferences/zen-preferences.css)
+  skin/classic/browser/preferences/zen-preferences-android.css     (../shared/preferences/zen-preferences-android.css)
+  skin/classic/browser/preferences/zen-addons-nav.css              (../shared/preferences/zen-addons-nav.css)
+  skin/classic/browser/preferences/addons-icons/available-updates-fill.svg   (../shared/preferences/addons-icons/available-updates-fill.svg)
+  skin/classic/browser/preferences/addons-icons/available-updates.svg   (../shared/preferences/addons-icons/available-updates.svg)
+  skin/classic/browser/preferences/addons-icons/dictionary-fill.svg   (../shared/preferences/addons-icons/dictionary-fill.svg)
+  skin/classic/browser/preferences/addons-icons/dictionary.svg   (../shared/preferences/addons-icons/dictionary.svg)
+  skin/classic/browser/preferences/addons-icons/discover-fill.svg   (../shared/preferences/addons-icons/discover-fill.svg)
+  skin/classic/browser/preferences/addons-icons/discover.svg   (../shared/preferences/addons-icons/discover.svg)
+  skin/classic/browser/preferences/addons-icons/extension-fill.svg   (../shared/preferences/addons-icons/extension-fill.svg)
+  skin/classic/browser/preferences/addons-icons/extension.svg   (../shared/preferences/addons-icons/extension.svg)
+  skin/classic/browser/preferences/addons-icons/help-fill.svg   (../shared/preferences/addons-icons/help-fill.svg)
+  skin/classic/browser/preferences/addons-icons/help.svg   (../shared/preferences/addons-icons/help.svg)
+  skin/classic/browser/preferences/addons-icons/locale-fill.svg   (../shared/preferences/addons-icons/locale-fill.svg)
+  skin/classic/browser/preferences/addons-icons/locale.svg   (../shared/preferences/addons-icons/locale.svg)
+  skin/classic/browser/preferences/addons-icons/mlmodel-fill.svg   (../shared/preferences/addons-icons/mlmodel-fill.svg)
+  skin/classic/browser/preferences/addons-icons/mlmodel.svg   (../shared/preferences/addons-icons/mlmodel.svg)
+  skin/classic/browser/preferences/addons-icons/plugin-fill.svg   (../shared/preferences/addons-icons/plugin-fill.svg)
+  skin/classic/browser/preferences/addons-icons/plugin.svg   (../shared/preferences/addons-icons/plugin.svg)
+  skin/classic/browser/preferences/addons-icons/recent-updates-fill.svg   (../shared/preferences/addons-icons/recent-updates-fill.svg)
+  skin/classic/browser/preferences/addons-icons/recent-updates.svg   (../shared/preferences/addons-icons/recent-updates.svg)
+  skin/classic/browser/preferences/addons-icons/settings-fill.svg   (../shared/preferences/addons-icons/settings-fill.svg)
+  skin/classic/browser/preferences/addons-icons/settings.svg   (../shared/preferences/addons-icons/settings.svg)
+  skin/classic/browser/preferences/addons-icons/sitepermission-fill.svg   (../shared/preferences/addons-icons/sitepermission-fill.svg)
+  skin/classic/browser/preferences/addons-icons/sitepermission.svg   (../shared/preferences/addons-icons/sitepermission.svg)
+  skin/classic/browser/preferences/addons-icons/theme-fill.svg   (../shared/preferences/addons-icons/theme-fill.svg)
+  skin/classic/browser/preferences/addons-icons/theme.svg   (../shared/preferences/addons-icons/theme.svg)
+
+#include zen-icons/jar.inc.mn
+#include zen-icons/material-jar.inc.mn

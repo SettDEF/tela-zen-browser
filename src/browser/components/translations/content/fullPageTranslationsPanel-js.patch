@@ -1,0 +1,47 @@
+diff --git a/browser/components/translations/content/fullPageTranslationsPanel.js b/browser/components/translations/content/fullPageTranslationsPanel.js
+index 91666d6e513cf45f322c3bdf90cfa76e9d15d057..d85ca438a7ce57c5a9decbcfdeacdaaa0571d0e5 100644
+--- a/browser/components/translations/content/fullPageTranslationsPanel.js
++++ b/browser/components/translations/content/fullPageTranslationsPanel.js
+@@ -1165,11 +1165,22 @@ var FullPageTranslationsPanel = new (class {
+     this.#isPopupOpen = true;
+ 
+     PanelMultiView.openPopup(panel, target, {
+-      position: "bottomright topright",
++      position:
++        target.id === "zen-translations-button"
++          ? this.#zenPosition(target)
++          : "bottomright topright",
+       triggerEvent: event,
+     }).catch(error => this.console?.error(error));
+   }
+ 
++  // zen: open away from the window edges the movable button sits near.
++  #zenPosition(target) {
++    const r = target.getBoundingClientRect();
++    const up = r.top + r.height / 2 > window.innerHeight / 2;
++    const side = r.left + r.width / 2 < window.innerWidth / 2 ? "left" : "right";
++    return up ? `top${side} bottom${side}` : `bottom${side} top${side}`;
++  }
++
+   /**
+    * Keeps track of open requests to guard against race conditions.
+    *
+@@ -1243,9 +1254,15 @@ var FullPageTranslationsPanel = new (class {
+ 
+     this.#populateSettingsMenuItems();
+ 
+-    const targetButton =
+-      button.contains(event.target) ||
+-      event.type === "TranslationsParent:OfferTranslation"
++    // zen: the movable toolbar button anchors the panel to itself.
++    const zenButton =
++      event.target?.closest?.("#zen-translations-button") ||
++      (!button.checkVisibility({ visibilityProperty: true }) &&
++        document.getElementById("zen-translations-button"));
++    const targetButton = zenButton
++      ? zenButton
++      : button.contains(event.target) ||
++          event.type === "TranslationsParent:OfferTranslation"
+         ? button
+         : this.elements.appMenuButton;
+ 

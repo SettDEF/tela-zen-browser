@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* The Android look for about:preferences (zen.theme.style = "android"), the
+   shell's settings window translated: a layer-0 page with one layer-1
+   content sheet, sections with an icon and a tonal title, flat rows, M3
+   switches. Tokens and mixins are shared with the browser window's theme
+   (zen/common/styles/android); everything is scoped to the theme tag, which
+   zen-material-palette.mjs sets on this page too. */
+
+@use "zen/common/styles/android/tokens";
+
+@use "android/page";
+@use "android/sections";
+@use "android/controls";
+
+@include tokens.tokens;

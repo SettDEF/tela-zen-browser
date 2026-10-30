@@ -1,0 +1,1269 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+/* URL and tool bars */
+
+#urlbar-container {
+  padding-block: 0 !important;
+}
+
+:root[zen-single-toolbar="true"] {
+  & #urlbar:not([breakout-extend]) {
+    padding: 1px;
+    --toolbarbutton-border-radius: 6px;
+  }
+}
+
+.urlbar {
+  --urlbarview-separator-color: light-dark(hsl(0, 0%, 80%), hsl(0, 0%, 20%));
+  --urlbarview-background-color-hover: var(--toolbarbutton-hover-background);
+  border-radius: calc(var(--toolbarbutton-border-radius) - 2px);
+  height: var(--urlbar-height);
+  --urlbarView-results-padding: 10px !important;
+  --urlbar-container-height: 48px !important;
+
+  --urlbar-margin-inline: 5px;
+  --urlbar-container-padding: 4px;
+
+  &[breakout-extend] {
+    --urlbar-container-padding: 0px;
+  }
+
+  :root[inDOMFullscreen] & {
+    /* See issue https://github.com/zen-browser/desktop/issues/5229 */
+    visibility: visible;
+  }
+
+  :root[zen-single-toolbar="true"] &[breakout-extend],
+  &[zen-floating-urlbar="true"] {
+    --urlbar-container-padding: 3px;
+    --urlbar-margin-inline: 11px;
+
+    &:not([zen-floating-urlbar="true"]) {
+      --urlbar-container-height: 52px !important;
+    }
+  }
+}
+
+.urlbar-input::placeholder {
+  text-overflow: ellipsis;
+}
+
+/* Consolidated focus visuals */
+#searchbar:focus-within {
+  border-color: transparent !important;
+  background: var(--urlbar-box-background-color);
+}
+
+.urlbar-background {
+  background: var(--zen-toolbar-element-bg) !important;
+  border-radius: var(--border-radius-medium);
+  outline: none !important;
+
+  #urlbar:not([breakout-extend]) & {
+    margin: 1px;
+  }
+
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#urlbar[focused="true"]:not([suppress-focus-border]) > .urlbar-background,
+#searchbar:focus-within {
+  outline: none !important;
+  outline-offset: none !important;
+  outline-color: none !important;
+}
+
+#urlbar:not([breakout-extend]) {
+  &:hover .urlbar-background {
+    background-color: var(--zen-toolbar-element-bg-hover) !important;
+  }
+}
+
+#identity-box.chromeUI:not([pageproxystate="invalid"]) {
+  & #identity-icon-box {
+    background: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)) !important;
+  }
+
+  & #identity-icon-label {
+    display: none;
+  }
+}
+
+#identity-permission-box:not(:hover):not(:focus-within) {
+  background: transparent !important;
+}
+
+#identity-box:not(.chromeUI) #identity-icon-label {
+  padding-inline-start: 8px !important;
+}
+
+#urlbar:not([extend="true"]) #identity-box #identity-icon-box {
+  position: relative;
+}
+
+#identity-icon-box,
+#identity-permission-box {
+  margin-top: auto;
+  outline: none !important;
+
+  margin-bottom: auto;
+  padding: 6px !important;
+  :root:not([zen-single-toolbar="true"]) & {
+    padding-block: 2px !important;
+  }
+}
+
+#urlbar .urlbar-input {
+  border-radius: 0 !important;
+}
+
+#urlbar:not([breakout-extend]) .urlbar-input {
+  color: color-mix(in srgb, var(--input-color, FieldText) 70%, transparent);
+}
+
+#urlbar .urlbar-input-box {
+  font-weight: 500;
+}
+
+:root[zen-single-toolbar="true"] #urlbar:not([breakout-extend]) {
+  & #urlbar-input {
+    cursor: default;
+  }
+
+  & #identity-box {
+    margin-inline-end: 0 !important;
+    &.chromeUI:not([pageproxystate="invalid"]) #identity-icon-box {
+      border-radius: 10px !important;
+    }
+  }
+
+  .identity-box-button,
+  .urlbar-page-action,
+  .unified-extensions-item {
+    opacity: 0;
+    height: 100%; /* To still be able to open popups */
+    visibility: collapse;
+    margin: 0 !important;
+
+    :root:not([supress-primary-adjustment="true"]) & {
+      transition:
+        opacity 0.15s,
+        visibility 0.15s;
+    }
+
+    #navigator-toolbox[zen-has-implicit-hover="true"] &,
+    &[open],
+    #urlbar[has-popup-open="true"] &,
+    :root[zen-has-empty-tab="true"] & {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+:root:not([zen-single-toolbar="true"]):not([zen-has-empty-tab="true"]) #urlbar:not([breakout-extend]) .urlbar-input-container {
+  padding: 2px 3px;
+  gap: 2px;
+
+  & .urlbar-page-action {
+    height: 100%;
+  }
+
+  & #zen-copy-url-button {
+    order: -1;
+  }
+
+  & #identity-box {
+    order: 999;
+    margin: 0 !important;
+  }
+}
+
+#zen-copy-url-button[disabled] {
+  opacity: 0.3;
+  background: transparent !important;
+}
+
+:root:where([zen-single-toolbar="true"], [zen-has-empty-tab="true"]) {
+  #zen-copy-url-button[disabled] {
+    display: none !important;
+  }
+}
+
+:root[zen-single-toolbar="true"] #urlbar[breakout-extend] .unified-extensions-item {
+  display: none !important;
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media -moz-pref("zen.urlbar.single-toolbar-show-copy-url", false) {
+  :root[zen-single-toolbar="true"] #zen-copy-url-button {
+    display: none !important;
+  }
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("zen.urlbar.show-pip-button") {
+  #picture-in-picture-button {
+    display: none !important;
+  }
+}
+
+.urlbar-page-action,
+#tracking-protection-icon-container {
+  padding: 0 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0;
+
+  :root[zen-single-toolbar="true"] & {
+    padding: 5px !important;
+    width: unset !important;
+    height: unset !important;
+  }
+}
+
+#tracking-protection-icon-container {
+  margin: 0 0 0 2px !important;
+}
+
+.urlbar-page-action,
+#tracking-protection-icon-container,
+.urlbarView-title,
+.urlbarView-title-separator,
+.urlbarView-action,
+.urlbarView-url {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+
+#tracking-protection-icon-container,
+#page-action-buttons {
+  order: 2 !important;
+}
+
+#urlbar[breakout] {
+  position: fixed;
+}
+
+#urlbar[breakout-extend] {
+  z-index: 2;
+
+  :root[zen-single-toolbar="true"] & .urlbar-input-box,
+  &[zen-floating-urlbar="true"] .urlbar-input-box {
+    font-weight: 500;
+    @media (-moz-platform: linux) {
+      font-weight: 400;
+    }
+  }
+
+  & #identity-box {
+    height: 100%;
+  }
+
+  :root:not([zen-single-toolbar="true"]) &:not([zen-floating-urlbar="true"]) #identity-box:not([pageproxystate="invalid"]) {
+    margin-inline-end: 0;
+  }
+
+  & .urlbar-background {
+    --zen-urlbar-background-base: light-dark(#fbfbfb, color-mix(in srgb, hsl(0, 0%, 6.7%), var(--zen-colors-primary) 30%));
+    /* stylelint-disable-next-line media-query-no-invalid */
+    @media -moz-pref("zen.theme.acrylic-elements") and (not (prefers-reduced-transparency: reduce)) {
+      --zen-urlbar-background-transparent: light-dark(
+        color-mix(in srgb, white 80%, transparent),
+        color-mix(in srgb, var(--zen-urlbar-background-base) 65%, transparent)
+      );
+    }
+    background-color: var(--zen-urlbar-background-transparent, var(--zen-urlbar-background-base)) !important;
+    box-shadow: 0 30px 140px -15px light-dark(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)) !important;
+    backdrop-filter: none !important;
+    outline: 0.5px solid light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2)) !important;
+    outline-offset: var(--zen-urlbar-outline-offset) !important;
+
+    /* stylelint-disable-next-line media-query-no-invalid */
+    @media -moz-pref("zen.theme.acrylic-elements") {
+      backdrop-filter: var(--zen-urlbar-filter) !important;
+    }
+  }
+
+  &,
+  .urlbar-background {
+    border-radius: 12px !important;
+  }
+
+  &[breakout-extend][animate-searchmode="true"]::before {
+    position: absolute;
+    content: "";
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+    animation: zen-urlbar-searchmode ease-out 1s forwards;
+  }
+
+  & #zen-copy-url-button {
+    display: none;
+  }
+}
+
+:root[zen-single-toolbar="true"] {
+  --urlbar-icon-border-radius: 8px !important;
+  --urlbar-inner-border-radius: 6px !important;
+
+  #identity-permission-box > *:not(#zen-site-data-icon-button) {
+    visibility: collapse;
+  }
+
+  #identity-icon-label {
+    display: none;
+  }
+
+  &:not([zen-has-empty-tab="true"]) #urlbar:not([breakout-extend]) #identity-box {
+    order: 2;
+  }
+
+  #notification-popup-box:not([open]):not(:has(> [showing="true"])) {
+    margin-inline-start: calc(-10px - 2 * var(--urlbar-icon-padding));
+    opacity: 0;
+    transition: all 0.2s;
+  }
+
+  #notification-popup-box {
+    align-items: center;
+    justify-content: center;
+    height: unset !important;
+    background: transparent !important;
+
+    & > image {
+      margin-top: auto;
+      margin-bottom: auto;
+      height: var(--size-item-medium); /* double 12px */
+      width: var(--size-item-medium);
+      padding: 4px !important;
+
+      &:hover {
+        background: var(--toolbarbutton-hover-background);
+        border-radius: var(--toolbarbutton-border-radius);
+        overflow: visible;
+      }
+    }
+  }
+}
+
+:root:not([zen-single-toolbar="true"]) {
+  --urlbar-icon-border-radius: 6px !important;
+
+  #notification-popup-box {
+    margin: 0 4px 0 0 !important;
+    justify-content: center;
+    height: unset !important;
+    gap: 8px;
+    background: transparent;
+
+    & > image {
+      margin-top: auto;
+      margin-bottom: auto;
+      padding: 0;
+    }
+  }
+}
+
+#urlbar[breakout-extend] #notification-popup-box {
+  min-width: calc(var(--urlbar-min-height) - 4 * var(--urlbar-container-padding)) !important;
+  height: calc(var(--urlbar-min-height) - 4 * var(--urlbar-container-padding)) !important;
+}
+
+.popup-notification-dropmarker {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.searchbar-engine-one-off-item {
+  max-width: 28px;
+  min-width: 28px !important;
+  transition: background 0s;
+  justify-content: center;
+}
+
+#urlbar-container {
+  container: urlbar-container / inline-size;
+  z-index: 1;
+}
+
+@container urlbar-container (width < 350px) {
+  #userContext-label {
+    display: none;
+  }
+
+  #userContext-indicator {
+    margin-inline-end: 4px;
+  }
+}
+
+#notification-popup-box {
+  border-radius: 10px !important;
+}
+
+/* Border radius on hover */
+#urlbar .urlbar-page-action,
+#urlbar #tracking-protection-icon-container,
+#urlbar:not([breakout-extend]) #identity-box:where(:not(.chromeUI), [pageproxystate="invalid"]) #identity-icon-box {
+  border-radius: var(--urlbar-icon-border-radius) !important;
+  min-width: 26px;
+}
+
+#nav-bar,
+#zen-sidebar-top-buttons {
+  min-height: var(--zen-toolbar-height) !important;
+  height: var(--zen-toolbar-height) !important;
+  max-height: var(--zen-toolbar-height) !important;
+  display: flex;
+  align-items: center;
+}
+
+:root:not([zen-single-toolbar="true"]) {
+  &[zen-right-side="true"]:not([zen-window-buttons-reversed="true"]) #nav-bar {
+    margin-inline-start: var(--zen-element-separation);
+  }
+
+  &:not([zen-right-side="true"])[zen-window-buttons-reversed="true"] #nav-bar {
+    margin-inline-end: var(--zen-element-separation);
+  }
+}
+
+/* Other small tweaks */
+#nav-bar-customization-target {
+  /* Don't grow if potentially-user-sized elements (like the searchbar or the
+   * bookmarks toolbar item list) are too wide. This forces them to flex to the
+   * available space as much as possible, see bug 1795260. */
+  min-width: 0;
+
+  --toolbarbutton-padding-inner: var(--zen-toolbar-button-inner-padding);
+
+  /* Add space to beginning of toolbar and make that space click the first <toolbarbutton> */
+  > :is(toolbarbutton, toolbaritem):first-child,
+  > toolbarpaletteitem:first-child > :is(toolbarbutton, toolbaritem) {
+    padding-inline-start: 0;
+  }
+}
+
+#urlbar {
+  & .search-panel-one-offs-header {
+    display: none;
+  }
+
+  & .search-panel-one-offs-container .searchbar-engine-one-off-item {
+    box-shadow: none;
+  }
+}
+
+:root[zen-single-toolbar="true"] {
+  #urlbar[open] {
+    min-width: min(90%, 40rem);
+  }
+
+  &[zen-right-side="true"] #urlbar[open]:not([zen-floating-urlbar="true"]) {
+    right: 0;
+  }
+}
+
+#urlbar[open][zen-floating-urlbar="true"] {
+  z-index: 1000;
+  max-width: unset;
+  --urlbar-container-height: 62px !important;
+  --urlbar-margin-inline: 12px !important;
+
+  min-width: min(90%, 62rem) !important;
+  width: var(--zen-urlbar-width, min(90%, 62rem)) !important;
+  font-size: 1.15em !important;
+  @media (-moz-platform: macos) {
+    font-size: 1.5em !important;
+  }
+  top: var(--zen-urlbar-top) !important;
+  translate: -50% 0%;
+  left: 50% !important;
+
+  #urlbar-container:has(&) {
+    border-radius: var(--border-radius-medium);
+    background: var(--toolbarbutton-hover-background);
+    height: var(--urlbar-height) !important;
+    margin-inline: 0.15rem !important;
+    :root:not([zen-single-toolbar="true"]) & {
+      max-height: var(--size-item-large) !important;
+      min-height: unset !important;
+      margin-block: -1px !important;
+    }
+  }
+}
+
+#urlbar[open][zen-floating-urlbar="true"] #identity-icon-box,
+:root[zen-single-toolbar="true"] #urlbar[breakout-extend] #identity-icon-box {
+  --urlbar-box-hover-bgcolor: transparent;
+  margin-inline: 2px 8px;
+  transition: none;
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("zen.urlbar.show-protections-icon") {
+  #tracking-protection-icon-container {
+    display: none !important;
+  }
+}
+
+.urlbarView-title {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.urlbarView-url,
+.urlbarView-title-separator::before {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: light-dark(#4f4f4f, #aaa) !important;
+}
+
+.urlbarView-favicon {
+  margin-left: 0 !important;
+  margin-right: 12px !important;
+  padding: 6px !important;
+  border-radius: 3px !important;
+}
+
+.urlbarView-userContext {
+  border-top: none !important;
+}
+
+.urlbarView-shortcutContent {
+  text-transform: uppercase;
+  margin-left: auto;
+  background-color: color-mix(in srgb, var(--zen-branding-bg-reverse), transparent 95%);
+  padding: 6px 8px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  font-size: 10px;
+  margin-right: 2px;
+
+  &:empty {
+    display: none !important;
+  }
+}
+
+.urlbarView-prettyName,
+.urlbarView-shortcutContent {
+  border-radius: 4px;
+  font-weight: 600;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.urlbarView-prettyName {
+  padding: 4px 6px;
+  background-color: color-mix(in srgb, var(--zen-branding-bg-reverse), transparent 90%);
+  margin-left: 6px;
+  font-size: 12px;
+  align-items: center;
+  gap: 6px;
+  display: flex;
+  color: color-mix(in srgb, var(--zen-primary-color), currentColor 95%);
+
+  & img {
+    -moz-context-properties: fill;
+    fill: currentColor;
+    width: var(--size-item-small);
+    height: var(--size-item-small);
+  }
+
+  &[hidden] {
+    display: none !important;
+  }
+}
+
+.urlbarView-row[has-action]:is([type="switchtab"], [type="remotetab"], [type="clipboard"]) {
+  & .urlbarView-action:last-child {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+  }
+
+  &:is([type="switchtab"], [type="remotetab"]) .urlbarView-action:last-child {
+    background: transparent !important;
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    font-weight: 600;
+    margin-right: 28px !important;
+    position: relative;
+    scale: 0.93;
+    transform-origin: right;
+    opacity: 0.7;
+
+    .urlbarView-row[selected] & {
+      opacity: 1;
+    }
+
+    &::after {
+      content: "";
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+
+      background-color: currentColor;
+      mask-image: url("chrome://browser/skin/zen-icons/urlbar-arrow.svg");
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      pointer-events: none;
+      position: absolute;
+
+      right: -26px;
+    }
+  }
+
+  & .urlbarView-no-wrap {
+    width: 100%;
+  }
+}
+
+.urlbarView-no-wrap {
+  align-items: center !important;
+  position: relative;
+}
+
+#urlbar-label-box,
+#urlbar-search-mode-indicator {
+  background-color: color-mix(in srgb, var(--zen-primary-color) 50%, light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.2)) 50%) !important;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 50px;
+  font-size: 14px;
+}
+
+.urlbarView-row {
+  --urlbarView-row-padding-inline: 8px;
+  --urlbarview-row-padding-block: 10px;
+  color: light-dark(rgba(0, 0, 0, 0.7), rgba(255, 255, 255, 0.7)) !important;
+
+  &:hover {
+    &,
+    & .urlbarView-favicon {
+      background-color: color-mix(in srgb, var(--zen-branding-bg-reverse) 5%, transparent 95%) !important;
+    }
+  }
+
+  &[selected] {
+    --zen-selected-bg: color-mix(in srgb, var(--zen-primary-color) 50%, light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.1)));
+    --zen-selected-color: color-mix(in srgb, var(--zen-selected-bg), black 30%);
+    background-color: var(--zen-selected-bg) !important;
+
+    & *,
+    & .urlbarView-title-separator::before {
+      color: white !important;
+    }
+
+    & .urlbarView-favicon {
+      fill: currentColor !important;
+      stroke: currentColor !important;
+    }
+
+    & .urlbarView-shortcutContent {
+      color: var(--zen-selected-color) !important;
+    }
+
+    &:where([type="switchtab"], [type="dynamic"], [type^="history"], [type^="autofill_"], [type="top_site"], [type="bookmark"]) .urlbarView-favicon,
+    & .urlbarView-shortcutContent {
+      fill: var(--zen-selected-color) !important;
+      background-color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    & .urlbarView-prettyName {
+      background-color: color-mix(in srgb, var(--zen-branding-bg-reverse), transparent 80%);
+    }
+  }
+}
+
+#urlbar-results {
+  max-height: 252px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  margin-block-start: calc(var(--urlbarView-results-padding) - 2px);
+  margin-block-end: var(--urlbarView-results-padding);
+  padding-block: 0 !important;
+
+  & .action-contextualidentity {
+    display: none;
+  }
+}
+
+:root:not([zen-single-toolbar="true"]) #urlbar[breakout-extend]:not([zen-floating-urlbar="true"]) {
+  & .urlbar-background {
+    border-radius: 10px !important;
+  }
+
+  #urlbar-results {
+    margin-block: calc(var(--urlbarView-results-padding) - 2px);
+  }
+
+  #identity-box {
+    margin-inline-end: 3px !important;
+    margin-inline-start: 2px !important;
+  }
+}
+
+/* Hide the results body when there are no results, to avoid showing an empty box */
+.urlbar[noresults] .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner,
+#urlbar-search-mode-indicator-close {
+  display: none;
+}
+
+.urlbarView {
+  overflow: visible;
+}
+
+#urlbar-search-mode-indicator-title {
+  font-weight: 600;
+  padding: 0;
+}
+
+/* These are buttons that we dont need to be
+ * displayed anymore, since now zen displays
+ * them into a single, unified button */
+#reader-mode-button,
+.urlbar-go-button,
+#star-button-box,
+#pageActionButton:not([open]) {
+  display: none !important;
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("zen.urlbar.show-contextual-id") {
+  #userContext-icons {
+    display: none !important;
+  }
+}
+
+/* Sidebar results list. Zen sets the sidebar width inline, so widening it
+   needs !important; contain keeps long titles from driving the toolbox's
+   fit-content width and blowing the sidebar open. */
+/* Zen transitions left/right/visibility at 0.15s; repeated here because the
+   shorthand replaces them, and !important is needed to add width at all. */
+/* Width IS animated, but it is a layout property: every frame reflows the
+   whole vertical tab strip. Snapping instead was cheap and looked wrong, so
+   the cost is cut at the source below - each tab row gets layout+style
+   containment so a width change cannot walk into its subtree, and rows off
+   screen are skipped entirely. 0.18s rather than 0.22s trims a couple more
+   frames off the work. */
+#navigator-toolbox {
+  transition:
+    left 0.15s ease,
+    right 0.15s ease,
+    visibility 0.15s ease !important;
+}
+
+/* Expanded sidebar sizes from an inline width; collapsed sizes from
+   --zen-toolbox-max-width, which min/max-width pin with !important. */
+/* Widen RELATIVE to the resting width, not to a flat 320px - a sidebar
+   already at or above 320 saw no change at all on focus. The value is
+   computed once per focus in ZenSidebarResults; deriving it in CSS from
+   --actual-zen-sidebar-width would feed the ResizeObserver that writes that
+   variable and grow the sidebar without bound. */
+/* The field stays inside the sidebar; nothing widens on focus any more. */
+
+/* Compact/floating pins `--zen-toolbox-max-width: 74px !important` on the
+   toolbox, and vertical-tabs.css turns that into min/max-width !important, so
+   the floating sidebar never widened on focus. The pin lives under compact's
+   own guard chain, so matching it here is what actually outweighs it - a
+   plainer selector loses even with !important. */
+
+
+/* In sidebar mode the sidebar list IS the results view, so the stock one
+   would render at the same time - the floating panel over the tabs. Zen's
+   own machinery is left untouched (ZenSidebarResults deliberately does not
+   drive #openPanel or [breakout]); only the duplicate view is hidden, so
+   nothing about the urlbar's own open/close state changes. */
+:root[zen-sidebar-urlbar="true"] #urlbar > .urlbarView {
+  display: none !important;
+}
+
+/* One surface: the results take the field's grey, and the field keeps it
+   (no hover shift) while they show. */
+:root {
+  --zen-sidebar-results-bg: var(--zen-toolbar-element-bg);
+}
+
+#navigator-toolbox[zen-sidebar-results] #urlbar .urlbar-background {
+  background: var(--zen-sidebar-results-bg) !important;
+}
+
+#zen-sidebar-results {
+  --zen-result-gap: 8px;
+  --zen-result-pad-block: 7px;
+  background-color: var(--zen-sidebar-results-bg);
+  border-radius: var(--zen-border-radius, 7px);
+  box-sizing: border-box;
+  contain: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  /* Over the tabs, not between them: placed by _place(), animated with
+     opacity and transform only, so opening never re-lays-out the tab list. */
+  position: absolute;
+  top: var(--zen-results-top, 48px);
+  left: calc(var(--zen-results-left, 0px) + var(--zen-toolbox-padding, 6px));
+  width: calc(var(--zen-results-width, 100%) - 2 * var(--zen-toolbox-padding, 6px));
+  z-index: 10;
+  max-height: 60vh;
+  min-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 4px;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transform-origin: top center;
+  visibility: hidden;
+  box-shadow: 0 12px 32px -12px light-dark(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.6));
+  transition:
+    opacity 0.16s ease-out,
+    transform 0.2s cubic-bezier(0.075, 0.82, 0.165, 1),
+    visibility 0s linear 0.16s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #zen-sidebar-results {
+    transition: none;
+  }
+}
+
+#zen-sidebar-results[zen-density="compact"] {
+  --zen-result-gap: 7px;
+  --zen-result-pad-block: 4px;
+}
+
+#zen-sidebar-results[open] {
+  opacity: 1;
+  overflow-y: auto;
+  pointer-events: auto;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity 0.16s ease-out,
+    transform 0.2s cubic-bezier(0.075, 0.82, 0.165, 1),
+    visibility 0s;
+}
+
+.zen-sidebar-result-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Flat at rest: a stack of filled pills reads as eight identical blocks, so
+   the fill is spent on the row the keyboard or pointer is actually on. */
+.zen-sidebar-result {
+  align-items: center;
+  background-color: transparent;
+  border-radius: var(--tela-radius-sm, 6px);
+  box-sizing: border-box;
+  gap: var(--zen-result-gap);
+  min-width: 0;
+  outline: 1px solid transparent;
+  padding: var(--zen-result-pad-block) 8px;
+  transition:
+    background-color 0.15s ease-in-out,
+    outline-color 0.15s ease-in-out;
+  width: 100%;
+}
+
+.zen-sidebar-result:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 13%,
+    transparent
+  );
+}
+
+.zen-sidebar-result[selected] {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 22%,
+    transparent
+  );
+  outline-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 45%,
+    transparent
+  );
+}
+
+.zen-sidebar-result-icon {
+  border-radius: 3px;
+  height: 16px;
+  width: 16px;
+}
+
+.zen-sidebar-result[zen-result-kind="search"] .zen-sidebar-result-icon {
+  opacity: 0.75;
+}
+
+.zen-sidebar-result-text {
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.zen-sidebar-result-title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-sidebar-result[zen-result-heuristic] .zen-sidebar-result-title {
+  font-weight: 600;
+}
+
+/* The address is context for the title above it, not a second thing to read:
+   smaller, dimmer, and it never wraps the row onto another line. */
+.zen-sidebar-result-url {
+  flex: 1;
+  font-size: 0.85em;
+  margin: 0;
+  min-width: 0;
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#zen-sidebar-results[zen-density="compact"] .zen-sidebar-result-url {
+  font-size: 0.8em;
+}
+
+.zen-sidebar-result-meta {
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Shrinkable, not rigid: measured, a long translation grew this pill from 71px
+   to 209px and burst the row. The cap is sized so the longest English tag
+   ("Other device", 84px) is never the thing that gets ellipsised. */
+.zen-sidebar-result-tag {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 14%,
+    transparent
+  );
+  border-radius: 4px;
+  flex-shrink: 1;
+  font-size: 0.72em;
+  letter-spacing: 0.02em;
+  margin: 0;
+  max-width: 16ch;
+  min-width: 0;
+  opacity: 0.8;
+  overflow: hidden;
+  padding: 1px 5px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.zen-sidebar-result-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 8px 4px calc(16px + 8px + var(--zen-result-gap));
+}
+
+.zen-sidebar-result-chip {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 9%,
+    transparent
+  );
+  border-radius: var(--border-radius-medium, 8px);
+  font-size: 0.85em;
+  margin: 0;
+  opacity: 0.8;
+  padding: 2px 8px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.zen-sidebar-result-chip[selected] {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 28%,
+    transparent
+  );
+  opacity: 1;
+}
+
+.zen-sidebar-result-chip:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--zen-colors-primary) 20%,
+    transparent
+  );
+  opacity: 1;
+}
+
+/* ── Search engine button: our own mark, plus a corner triangle marking it
+   as a menu rather than a plain action. */
+/* Which engine your next search uses is worth seeing at rest, so the chip
+   keeps the page-action look without the hover-to-reveal behaviour. */
+#urlbar #zen-search-engine-button {
+  /* The field's rounded corner gives the left side breathing room the right
+     does not have, so equal gaps do not read as equal. */
+  margin-inline-end: 5px;
+  opacity: 1;
+  visibility: visible;
+}
+
+#zen-search-engine-button {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+#zen-search-engine-button .zen-search-engine-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  width: 16px;
+}
+
+#zen-search-engine-button::after {
+  content: "";
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-top: 3px solid transparent;
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  opacity: 0.55;
+  border-bottom-right-radius: 2px;
+  pointer-events: none;
+}
+
+#zen-search-engine-button:hover::after {
+  opacity: 0.9;
+}
+
+/* ── Picker panel: sized to the input it belongs to. */
+#zen-search-engine-panel {
+  --panel-padding: 6px;
+  min-width: var(--zen-search-engine-width, 260px);
+  padding: 6px;
+}
+
+.zen-search-engine-head {
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  padding: 4px 8px 8px;
+}
+
+.zen-search-engine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zen-search-engine-item {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--zen-border-radius, 7px);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: 10px;
+  padding: 7px 9px;
+  text-align: start;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.zen-search-engine-item:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.zen-search-engine-item[selected] {
+  background: color-mix(in srgb, var(--zen-colors-primary) 22%, transparent);
+}
+
+.zen-search-engine-item .zen-search-engine-mark {
+  display: flex;
+  height: 16px;
+  width: 16px;
+}
+
+.zen-search-engine-name {
+  flex: 1 1 auto;
+  font-size: 13px;
+}
+
+/* Zen's #urlbar[open] pins min-width to min(90%, 40rem). In sidebar mode the
+   results are rendered in the sidebar list, so that only shoved the field out
+   across the content - the "popup" it looked like. Hold it to the sidebar. */
+/* #urlbar is position:absolute against the viewport, so max-width:100% clamps
+   to the window, not the sidebar, and width:auto shrink-wraps to its content -
+   either way it overhung the content by ~113px. Taking it out of absolute
+   positioning collapsed the results list to 0 height, so size it instead from
+   --urlbar-width, which Zen already keeps at the container's width. */
+/* #urlbar carries the `popover` attribute, so it lives in the top layer and
+   its containing block is the VIEWPORT - its offsetParent is <body> even when
+   every ancestor is positioned. Percentages blow it out to the full window, so
+   both widths are absolute lengths. */
+
+/* Geometry for the widen/narrow is applied as INLINE styles by
+   ZenSidebarResults, not through a root attribute. Toggling an attribute on
+   :root re-matches selectors across the whole chrome document - measured ~12ms
+   of blocked main thread at focus - while inline styles invalidate only the
+   two elements that actually move. The attribute survives purely as a JS flag
+   for the resize observers, with no CSS depending on it. */
+
+/* At rest, outside the interaction, keep the field inside the sidebar. */
+:root[zen-urlbar-sidebar] #urlbar {
+  min-width: 0 !important;
+  width: calc(var(--zen-sidebar-rest, var(--urlbar-width)) - var(--zen-urlbar-inset, 0px)) !important;
+  max-width: calc(var(--zen-sidebar-rest, var(--urlbar-width)) - var(--zen-urlbar-inset, 0px)) !important;
+}
+
+
+/* Firefox marks a remote-controlled session with a raster robot that ignores
+   the theme. Only automated windows ever show it, but those are the windows
+   every screenshot comes from, so it gets a mark drawn like the rest of ours. */
+:root[remotecontrol] #remote-control-icon {
+  -moz-context-properties: fill;
+  fill: light-dark(#8a3d3d, #e0908f);
+  list-style-image: url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="context-fill">\
+<path d="M8 1.2a.7.7 0 0 1 .7.7v1.05h1.55A3.25 3.25 0 0 1 13.5 6.2v4.05a3.25 3.25 0 0 1-3.25 3.25h-4.5A3.25 3.25 0 0 1 2.5 10.25V6.2a3.25 3.25 0 0 1 3.25-3.25H7.3V1.9a.7.7 0 0 1 .7-.7Zm2.25 3.25h-4.5c-.97 0-1.75.78-1.75 1.75v4.05c0 .97.78 1.75 1.75 1.75h4.5c.97 0 1.75-.78 1.75-1.75V6.2c0-.97-.78-1.75-1.75-1.75Z"/>\
+<circle cx="6.15" cy="8.2" r="1.15"/><circle cx="9.85" cy="8.2" r="1.15"/>\
+<path d="M.9 7.35a.65.65 0 0 1 .65.65v1.6a.65.65 0 0 1-1.3 0V8a.65.65 0 0 1 .65-.65Zm14.2 0a.65.65 0 0 1 .65.65v1.6a.65.65 0 0 1-1.3 0V8a.65.65 0 0 1 .65-.65Z"/>\
+</svg>');
+  width: 16px;
+  height: 16px;
+}
+
+/* The engine chip stands in for Firefox's generic magnifier: two icons saying
+   the same thing, one of which knows which engine you are about to use. */
+:root[zen-urlbar-sidebar] #urlbar #zen-search-engine-button {
+  display: flex;
+}
+
+:root[zen-urlbar-sidebar] #urlbar:not([pageproxystate='valid']) #identity-icon-box,
+:root[zen-layout='horizontal'] #urlbar:not([pageproxystate='valid']) #identity-icon-box {
+  display: none;
+}
+
+
+/* An automated session takes over the chip's mark rather than adding a second
+   icon beside it: one glyph, and the dropdown triangle stays put. */
+/* Two ids so this beats whatever the horizontal chrome bar sets on the moved
+   nav-bar's children. */
+:root[remotecontrol] #urlbar #remote-control-box,
+:root[remotecontrol] #remote-control-box {
+  display: none !important;
+}
+
+:root[remotecontrol] #zen-search-engine-button .zen-search-engine-mark > * {
+  display: none;
+}
+
+:root[remotecontrol] #zen-search-engine-button .zen-search-engine-mark {
+  background-color: light-dark(#8a3d3d, #e0908f);
+  mask-image: url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">\
+<path d="M8 1.2a.7.7 0 0 1 .7.7v1.05h1.55A3.25 3.25 0 0 1 13.5 6.2v4.05a3.25 3.25 0 0 1-3.25 3.25h-4.5A3.25 3.25 0 0 1 2.5 10.25V6.2a3.25 3.25 0 0 1 3.25-3.25H7.3V1.9a.7.7 0 0 1 .7-.7Zm2.25 3.25h-4.5c-.97 0-1.75.78-1.75 1.75v4.05c0 .97.78 1.75 1.75 1.75h4.5c.97 0 1.75-.78 1.75-1.75V6.2c0-.97-.78-1.75-1.75-1.75Z"/>\
+<circle cx="6.15" cy="8.2" r="1.15"/><circle cx="9.85" cy="8.2" r="1.15"/>\
+<path d="M.9 7.35a.65.65 0 0 1 .65.65v1.6a.65.65 0 0 1-1.3 0V8a.65.65 0 0 1 .65-.65Zm14.2 0a.65.65 0 0 1 .65.65v1.6a.65.65 0 0 1-1.3 0V8a.65.65 0 0 1 .65-.65Z"/>\
+</svg>');
+  mask-position: 45% 42%;
+  mask-repeat: no-repeat;
+  mask-size: 13px 13px;
+}
+
+/* The container carries a 1px inline-start margin that the sidebar's other
+   rows do not, so the field sat a pixel right of every row beside it. */
+:root[zen-compact-mode="true"] #urlbar-container {
+  margin-inline-start: 0 !important;
+}
+
+/* Overlay (zen.urlbar.sidebar.overlay): #urlbar is already absolutely placed,
+   so only it widens; the sidebar's layer goes above the page while focused. */
+#navigator-toolbox[zen-urlbar-overlay] {
+  z-index: 3 !important;
+
+  & #urlbar {
+    width: var(--zen-urlbar-overlay-width) !important;
+    max-width: none !important;
+    z-index: 10;
+    transition: width 0.18s cubic-bezier(0.075, 0.82, 0.165, 1);
+  }
+
+  /* Over the page now, so the grey sits on a solid base: translucent, the
+     sidebar's own text showed through the results. */
+  & #urlbar .urlbar-background,
+  & #zen-sidebar-results {
+    background:
+      linear-gradient(var(--zen-sidebar-results-bg) 0 0),
+      var(--zen-main-browser-background) !important;
+  }
+
+  /* Open, field and results are one panel: no gap, same edges, the seam's
+     corners squared. */
+  &[zen-sidebar-results] #urlbar .urlbar-background {
+    border-end-start-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  & #zen-sidebar-results[open] {
+    top: var(--zen-results-joined-top, var(--zen-results-top));
+    left: var(--zen-results-field-left, var(--zen-results-left));
+    /* The grey is inset 1px inside the field box (.urlbar-background margin). */
+    width: calc(var(--zen-urlbar-overlay-width) - 2px);
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+    border-end-start-radius: var(--border-radius-medium);
+    border-end-end-radius: var(--border-radius-medium);
+    transform: none;
+  }
+
+  /* Breakout off: the field sits where it was, now out of the row. */
+  &[zen-urlbar-lift] #urlbar-container {
+    position: relative !important;
+  }
+
+  &[zen-urlbar-lift] #urlbar {
+    position: absolute !important;
+    top: 0;
+    inset-inline-start: 0;
+  }
+
+  &[zen-urlbar-lift][zen-right-side="true"] #urlbar {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+
+  &[zen-right-side="true"] #urlbar {
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #navigator-toolbox[zen-urlbar-overlay] #urlbar {
+    transition: none;
+  }
+}

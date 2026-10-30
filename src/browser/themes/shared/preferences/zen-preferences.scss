@@ -1,0 +1,2019 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/* Before any rule: @namespace after one is ignored, and every html| selector with it. */
+@namespace html "http://www.w3.org/1999/xhtml";
+
+:root {
+  /* One definition each. These were 34 literals across three files, with
+     #7d4698 and #e8a33d written out eight times apiece. */
+  --zen-tor-space: #7d4698;
+  --zen-tor-space-ink: #f6eefb;
+  --zen-tor-window: #e8a33d;
+  --zen-tor-window-ink: #2a1c05;
+  --zen-tor-bad: #c0392b;
+  --zen-tor-bad-ink: #fff1f1;
+  --zen-tor-ok: #4caf7d;
+  --zen-tor-onion: #b98fd0;
+}
+
+
+
+/* ==========================================================================
+   Zen settings design system
+   ==========================================================================
+   Three objects build every Zen pane:
+
+     .zen-section  heading + blurb + body, stacked with one gap
+     .zen-card     a connected group; its children are the rows
+     .zen-row      a row inside a card: text on the left, control on the right
+
+   Spacing comes from `gap` on those containers, never from margins on the
+   widgets, so a row can be added anywhere without re-tuning its neighbours.
+
+   The visual language is Material 3, matching the desktop shell this browser
+   runs beside. Nothing is bordered: a row is a filled tile one tonal step
+   above the page, a group of them is joined by a 2px gutter with large outer
+   corners and small inner ones, and hover raises a tile another step.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- surfaces */
+
+/* M3's elevation ladder. Each step prefers the desktop's live generated
+   palette (--zen-m3-*, published by zen-material-palette.mjs) and otherwise
+   derives itself from the browser's own tokens, so the rules below hold
+   either way. */
+:root {
+  /* Not --zen-primary-color: that is the raw desktop AccentColor, with no
+     guaranteed contrast against the text drawn on it. */
+  --zen-m3-accent: var(--zen-m3-primary, var(--color-accent-primary));
+
+  /* The ink M3 lays over a surface to raise it a step: black on light, white
+     on dark, carrying some of the accent's hue as M3's surface tint does. */
+  --zen-tint: color-mix(in srgb, var(--zen-m3-accent) 35%, light-dark(black, white));
+
+  --zen-surface: var(--zen-m3-surface, var(--background-color-canvas));
+  --zen-surface-low: var(
+    --zen-m3-surfaceContainerLow,
+    color-mix(in srgb, var(--zen-tint) 4%, var(--background-color-canvas))
+  );
+  --zen-surface-1: var(
+    --zen-m3-surfaceContainer,
+    color-mix(in srgb, var(--zen-tint) 7%, var(--background-color-canvas))
+  );
+  --zen-surface-2: var(
+    --zen-m3-surfaceContainerHigh,
+    color-mix(in srgb, var(--zen-tint) 11%, var(--background-color-canvas))
+  );
+  --zen-surface-3: var(
+    --zen-m3-surfaceContainerHighest,
+    color-mix(in srgb, var(--zen-tint) 16%, var(--background-color-canvas))
+  );
+
+  /* Tonal container: what carries a selected row, a chip or a tonal button. */
+  --zen-tonal: var(
+    --zen-m3-secondaryContainer,
+    color-mix(in srgb, var(--zen-m3-accent) 20%, var(--zen-surface-2))
+  );
+  --zen-on-tonal: var(--zen-m3-onSecondaryContainer, var(--text-color));
+  --zen-on-accent: var(--zen-m3-onPrimary, var(--text-color-accent-primary-selected));
+
+  --zen-text: var(--zen-m3-onSurface, var(--text-color));
+  --zen-text-dim: var(--zen-m3-onSurfaceVariant, var(--text-color-deemphasized));
+  --zen-outline: var(--zen-m3-outlineVariant, var(--border-color-deemphasized));
+
+  /* M3's shape scale, in the browser's radius tokens. */
+  /* The browser's scale (zen-theme.css --tela-radius 10px, -sm 6px), so a
+     settings tile and a sidebar card are the same shape. Pills stay pills. */
+  --zen-shape-xs: 4px;
+  --zen-shape-s: 6px;
+  --zen-shape-m: 10px;
+  --zen-shape-l: 14px;
+  --zen-shape-pill: var(--border-radius-circle);
+  --zen-group-gap: 2px;
+
+  /* Pull the browser's own widgets onto the same shape scale, so Firefox's
+     panes match the Zen ones rather than sitting at 4px next to 16. */
+  --button-border-radius: var(--zen-shape-pill);
+  --input-text-border-radius: var(--zen-shape-s);
+  --card-border-radius: var(--zen-shape-m);
+
+  accent-color: var(--zen-m3-accent);
+}
+
+/* With a live palette the whole page follows it, Firefox's own panes
+   included - remapping the in-content tokens is what carries it into
+   widgets this sheet never sees. The palette also decides light or dark:
+   zen-material-palette.mjs sets `color-scheme` from the file's $darkmode. */
+:root[zen-material-palette] {
+  --background-color-canvas: var(--zen-m3-background);
+  --background-color-box: var(--zen-m3-surfaceContainerLow);
+  --background-color-box-info: var(--zen-m3-surfaceContainer);
+  --background-color-critical: var(--zen-m3-errorContainer);
+  --background-color-information: var(--zen-m3-secondaryContainer);
+  --background-color-success: var(--zen-m3-successContainer);
+  --background-color-list-item-hover: var(--zen-m3-surfaceContainerHigh);
+  --border-color: var(--zen-m3-outline);
+  --border-color-deemphasized: var(--zen-m3-outlineVariant);
+  --border-color-interactive: var(--zen-m3-outline);
+  --border-color-error: var(--zen-m3-error);
+  --button-background-color: var(--zen-m3-surfaceContainerHigh);
+  --button-background-color-hover: var(--zen-m3-surfaceContainerHighest);
+  --button-background-color-active: var(--zen-m3-surfaceVariant);
+  --button-background-color-primary: var(--zen-m3-primary);
+  --button-background-color-primary-hover: var(--zen-m3-primary);
+  --button-text-color: var(--zen-m3-onSurface);
+  --button-text-color-primary: var(--zen-m3-onPrimary);
+  --color-accent-primary: var(--zen-m3-primary);
+  --color-accent-primary-hover: var(--zen-m3-primary);
+  --link-color: var(--zen-m3-primary);
+  --link-color-hover: var(--zen-m3-primary);
+  --text-color: var(--zen-m3-onSurface);
+  --text-color-deemphasized: var(--zen-m3-onSurfaceVariant);
+  --text-color-error: var(--zen-m3-error);
+  --text-color-accent-primary-selected: var(--zen-m3-onPrimary);
+  --in-content-page-background: var(--zen-m3-background);
+
+  background-color: var(--zen-m3-background);
+  color: var(--zen-m3-onSurface);
+}
+
+:root[zen-material-palette] body {
+  background-color: var(--zen-m3-background);
+  color: var(--zen-m3-onSurface);
+}
+
+/* The shell's shape: a navigation rail on the bare page, and the content in
+   one large raised panel beside it. */
+/* :root raises specificity over preferences.css's own .main-content rule. */
+:root .main-content {
+  background-color: var(--zen-surface-low);
+  border-radius: var(--zen-shape-l);
+  margin-block: var(--space-small);
+  margin-inline-end: var(--space-small);
+  padding-block-start: var(--space-medium);
+}
+
+/* The sticky search bar has to hide what scrolls under it, so it takes the
+   panel's own colour rather than the page's. */
+:root #search-container {
+  background-color: var(--zen-surface-low);
+}
+
+.pane-container {
+  /* Firefox pins this at 600px; the layout pickers and the per-site table
+     want the extra room. */
+  margin: auto;
+  width: min(100%, 720px);
+}
+
+.subcategory {
+  border-top: none !important;
+}
+
+.navigation {
+  padding: 4%;
+  background: var(--zen-colors-tertiary);
+}
+
+html|h1 {
+  font-size: var(--font-size-xlarge);
+  font-weight: var(--font-weight-heading);
+  margin: 0 0 var(--space-large);
+}
+
+/* --------------------------------------------------------------- section */
+
+.zen-group[data-category] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxlarge);
+  margin: 0 0 var(--space-xxlarge);
+}
+
+.zen-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small);
+  min-width: 0;
+}
+
+.zen-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxsmall);
+}
+
+/* An M3 section title is not bold - it is larger, and tinted with the colour
+   a tonal container would carry. */
+.zen-section-head html|h2,
+#zenCKSOption-wrapper html|h2 {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-semibold);
+  color: var(--zen-on-tonal);
+  opacity: 1;
+  margin: 0;
+}
+
+.zen-section-desc,
+.zen-section-note {
+  color: var(--zen-text-dim);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.zen-section-note {
+  font-size: var(--font-size-small);
+}
+
+.zen-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ card */
+
+/* Not a box: a group of tiles held together by a 2px gutter. Large corners
+   on the group's outside, small ones where two tiles meet - M3's connected
+   list shape, and what makes a stack read as one thing without a border. */
+.zen-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zen-group-gap);
+  min-width: 0;
+}
+
+.zen-card > * {
+  background-color: var(--zen-surface-1);
+  border-radius: var(--zen-shape-xs);
+}
+
+.zen-card > :first-child {
+  border-start-start-radius: var(--zen-shape-m);
+  border-start-end-radius: var(--zen-shape-m);
+}
+
+.zen-card > :last-child {
+  border-end-start-radius: var(--zen-shape-m);
+  border-end-end-radius: var(--zen-shape-m);
+}
+
+/* ------------------------------------------------------------------- row */
+
+.zen-card > .zen-row,
+.zen-card > checkbox {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium);
+  margin: 0;
+  min-height: 48px;
+  padding: var(--space-small) var(--space-large);
+}
+
+.zen-card > .zen-row.zen-row-stack {
+  align-items: stretch;
+  flex-direction: column;
+  gap: var(--space-xxsmall);
+  justify-content: center;
+}
+
+.zen-row-stack > checkbox {
+  margin: 0;
+}
+
+/* The control sits at the trailing edge on every row, so a column of rows
+   lines its dropdowns and inputs up without any per-row tuning. */
+.zen-card > .zen-row > :last-child:not(:first-child) {
+  margin-inline-start: auto;
+}
+
+.zen-row-label {
+  margin: 0;
+}
+
+.zen-row-note {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  margin: 0;
+  padding-inline-start: calc(var(--checkbox-size, 16px) + var(--space-small));
+}
+
+/* A nested row belongs to the checkbox above it. */
+.zen-row-nested {
+  padding-inline-start: calc(var(--space-large) + var(--checkbox-size, 16px) + var(--space-small)) !important;
+}
+
+/* Hover raises the tile one tonal step; nothing moves, nothing outlines. */
+.zen-card > checkbox:hover,
+.zen-card > .zen-row:hover:not(.zen-table-head) {
+  background-color: var(--zen-surface-2);
+}
+
+/* The trailing control on a row is a tonal pill, like the shell's. */
+.zen-card menulist,
+.zen-card html|select {
+  background-color: var(--zen-surface-2);
+  border: none;
+  border-radius: var(--zen-shape-pill);
+  color: var(--zen-text);
+  margin: 0;
+  min-width: 12ch;
+  padding-inline: var(--space-medium);
+}
+
+/* Its popup: a rounded surface with tonal rows, not the system's menu colours. */
+.zen-card menulist > menupopup {
+  --panel-background: var(--zen-surface-2);
+  --panel-color: var(--zen-text);
+  --panel-border-color: var(--zen-outline);
+  --panel-border-radius: var(--zen-shape-l);
+  --panel-padding: 6px;
+  appearance: none;
+}
+
+.zen-card menulist > menupopup > menuitem {
+  appearance: none;
+  border-radius: var(--zen-shape-m);
+  color: var(--zen-text);
+  min-height: 36px;
+  padding-inline: var(--space-medium);
+}
+
+.zen-card menulist > menupopup > menuitem[_moz-menuactive] {
+  background-color: var(--zen-surface-3);
+  color: var(--zen-text);
+}
+
+.zen-card menulist > menupopup > menuitem:is([selected="true"], [checked="true"]) {
+  background-color: var(--zen-tonal);
+  color: var(--zen-on-tonal);
+  font-weight: var(--font-weight-semibold);
+}
+
+.zen-card menulist:hover,
+.zen-card html|select:hover {
+  background-color: var(--zen-surface-3);
+}
+
+.zen-card-footer {
+  align-items: center;
+  display: flex;
+  gap: var(--space-small);
+  padding: var(--space-small) var(--space-large);
+}
+
+.zen-card-footer > html|a {
+  flex: none;
+  white-space: nowrap;
+}
+
+.zen-empty {
+  color: var(--zen-text-dim);
+  padding: var(--space-medium);
+  text-align: center;
+}
+
+/* --------------------------------------------------------------- controls */
+
+/* M3 filled text field: a surface a step above the tile it sits on, with the
+   border kept transparent so focus can colour it without shifting layout. */
+.zen-input {
+  background-color: var(--zen-surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--zen-shape-s);
+  color: inherit;
+  flex: 1;
+  min-height: var(--input-text-min-height);
+  min-width: 0;
+  padding: 0 var(--space-small);
+}
+
+.zen-input:focus-visible {
+  border-color: var(--zen-m3-accent);
+  outline: var(--focus-outline);
+  outline-offset: -1px;
+}
+
+.zen-input[invalid] {
+  border-color: var(--border-color-error);
+}
+
+/* A plain button in a Zen pane: same metrics as an in-content button, but
+   sized by its own text rather than XUL's 6.3em floor. */
+/* M3 buttons are pills carrying a tonal container, not bordered boxes. */
+.zen-button,
+.zen-button-ghost,
+.zen-button-primary {
+  align-items: center;
+  background-color: var(--zen-tonal);
+  border: none;
+  border-radius: var(--zen-shape-pill);
+  color: var(--zen-on-tonal);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-weight: var(--button-font-weight, var(--font-weight-semibold));
+  justify-content: center;
+  min-height: var(--button-min-height);
+  min-width: 0;
+  padding: 0 var(--space-large);
+}
+
+.zen-button-primary {
+  background-color: var(--zen-m3-accent);
+  color: var(--zen-on-accent);
+}
+
+.zen-button:hover,
+.zen-button-ghost:hover,
+.zen-button-primary:hover {
+  background-color: color-mix(in srgb, currentColor 12%, var(--zen-tonal));
+}
+
+.zen-button-primary:hover {
+  background-color: color-mix(in srgb, currentColor 12%, var(--zen-m3-accent));
+}
+
+.zen-button-primary:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.zen-button:focus-visible,
+.zen-button-ghost:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.zen-button-ghost {
+  background-color: transparent;
+  color: var(--zen-text-dim);
+  font-weight: normal;
+  padding: 0 var(--space-medium);
+}
+
+.zen-button-ghost:hover {
+  background-color: var(--zen-surface-3);
+  color: var(--zen-text);
+}
+
+/* A dependent row whose master switch is off: the label has to dim with the
+   control, or a dead setting still reads as live. */
+.zen-row[disabled] .zen-row-label {
+  opacity: var(--button-opacity-disabled, 0.4);
+}
+
+.zen-button[disabled],
+.zen-button-primary[disabled],
+.zen-button-ghost[disabled] {
+  opacity: var(--button-opacity-disabled, 0.4);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------- choice pickers */
+
+/* Layout presets and the sidebar layout share one object: a picture, a
+   label under it, and a ring when selected. */
+.zen-choice-grid {
+  display: grid;
+  gap: var(--space-small);
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+}
+
+.zen-choice-grid-wide {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.zen-choice {
+  align-items: center;
+  background-color: var(--zen-surface-1);
+  border: none;
+  border-radius: var(--zen-shape-m);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: var(--space-xsmall);
+  min-width: 0;
+  padding: var(--space-small);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.zen-choice:hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zen-choice:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* Selected is a tonal container with the accent drawn round it - the same
+   pairing the shell uses for a selected chip. */
+.zen-choice.selected {
+  background-color: var(--zen-tonal);
+  color: var(--zen-on-tonal);
+  outline: 2px solid var(--zen-m3-accent);
+  outline-offset: -2px;
+}
+
+.zen-choice[disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.zen-choice > html|img {
+  border-radius: var(--zen-shape-s);
+  display: block;
+  width: 100%;
+}
+
+.zen-choice-label {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* The preset previews are a CSS-drawn mock of the window - a sidebar rail,
+   a toolbar strip and a content area - because each option changes the
+   window's proportions rather than being one static picture. */
+.zen-ui-layout-preview {
+  aspect-ratio: 16 / 10;
+  background-color: var(--zen-surface);
+  border: 1px solid var(--zen-outline);
+  border-radius: var(--zen-shape-s);
+  display: block;
+  overflow: hidden;
+  width: 100%;
+}
+
+.zen-ui-layout-preview-body {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.zen-ui-layout-preview-body-column {
+  flex-direction: column;
+}
+
+.zen-ui-layout-preview-sidebar {
+  background-color: var(--zen-m3-accent);
+  flex: none;
+  opacity: 0.75;
+  width: 20%;
+}
+
+.zen-ui-layout-preview-sidebar-thin {
+  opacity: 0.5;
+  width: 7%;
+}
+
+.zen-ui-layout-preview-sidebar-narrow {
+  width: 14%;
+}
+
+.zen-ui-layout-preview-body-reverse {
+  flex-direction: row-reverse;
+}
+
+.zen-ui-layout-preview-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zen-ui-layout-preview-toolbar,
+.zen-ui-layout-preview-tabstrip {
+  flex: none;
+  height: 14%;
+}
+
+.zen-ui-layout-preview-toolbar {
+  background-color: var(--zen-surface-3);
+}
+
+.zen-ui-layout-preview-tabstrip {
+  background-color: var(--zen-m3-accent);
+  opacity: 0.75;
+}
+
+.zen-ui-layout-preview-content {
+  background-color: var(--zen-surface-1);
+  flex: 1;
+}
+
+/* A layout with no chrome left draws a dashed inset instead - otherwise the
+   card reads as broken rather than empty on purpose. */
+.zen-ui-layout-preview-bare {
+  position: relative;
+}
+
+.zen-ui-layout-preview-bare::before {
+  border: 1px dashed var(--border-color);
+  border-radius: 3px;
+  content: "";
+  inset: 4px;
+  position: absolute;
+}
+
+/* Shy pulls the chrome into the window border: two accent hairlines. */
+.zen-ui-layout-preview-body-shy {
+  position: relative;
+}
+
+.zen-ui-layout-preview-body-shy::before,
+.zen-ui-layout-preview-body-shy::after {
+  background-color: var(--zen-m3-accent);
+  border-radius: 2px;
+  content: "";
+  position: absolute;
+}
+
+.zen-ui-layout-preview-body-shy::before {
+  height: 2px;
+  inset-block-start: 4px;
+  inset-inline: 12px;
+}
+
+.zen-ui-layout-preview-body-shy::after {
+  inset-block: 12px;
+  inset-inline-end: 4px;
+  width: 2px;
+}
+
+.zen-ui-layout-preview-custom {
+  align-items: center;
+  border-style: dashed;
+  display: flex;
+  justify-content: center;
+}
+
+.zen-ui-layout-preview-custom > html|img {
+  /* Matches the icon set's own fill="context-fill" contract. */
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.7;
+  height: var(--icon-size-large, 20px);
+  width: var(--icon-size-large, 20px);
+}
+
+/* A preset's per-state widget hides, under its preview - empty for the
+   common case of a preset that does not touch any widget. */
+.zen-ui-layout-widget-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xxsmall);
+  justify-content: center;
+}
+
+.zen-ui-layout-widget-badge {
+  background-color: var(--zen-surface-3);
+  border-radius: var(--zen-shape-pill);
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-xsmall, 10px);
+  padding: 1px var(--space-xsmall);
+}
+
+/* The widgets picker: one row per placed widget, a checkbox per state. */
+.zen-ui-layout-widget-row {
+  align-items: center;
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: minmax(0, 1fr) repeat(4, 4.5em);
+  min-height: 36px;
+  padding: var(--space-xxsmall) var(--space-medium);
+}
+
+.zen-ui-layout-widget-row:not(.zen-table-head) {
+  border-block-start: 1px solid var(--zen-outline);
+}
+
+.zen-ui-layout-widget-row:not(.zen-table-head):hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zen-ui-layout-widget-row-label,
+.zen-ui-layout-widget-row > html|span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-ui-layout-widget-checkbox {
+  justify-self: center;
+  margin: 0;
+}
+
+/* ------------------------------------------------------ preset manager */
+
+/* A preset is a card: the choice above, its own actions below. The card is
+   what drags, so the whole thing moves rather than just the picture. */
+.zen-preset-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxsmall);
+  min-width: 0;
+  position: relative;
+}
+
+.zen-preset-card > .zen-choice {
+  flex: 1;
+}
+
+.zen-preset-dragging {
+  opacity: 0.4;
+}
+
+/* Where the card would land, drawn on the neighbour it is dropping beside. */
+.zen-preset-drop-before::before,
+.zen-preset-drop-after::after {
+  background-color: var(--zen-m3-accent);
+  border-radius: 2px;
+  content: "";
+  inset-block: 0;
+  position: absolute;
+  width: 2px;
+}
+
+.zen-preset-drop-before::before {
+  inset-inline-start: calc(var(--space-small) / -2);
+}
+
+.zen-preset-drop-after::after {
+  inset-inline-end: calc(var(--space-small) / -2);
+}
+
+/* The actions belong to the card, not the page: they stay out of the way
+   until it is the card being looked at. */
+.zen-preset-actions {
+  display: flex;
+  gap: var(--space-xxsmall);
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.zen-preset-card:hover .zen-preset-actions,
+.zen-preset-card:focus-within .zen-preset-actions,
+.zen-preset-card:has(.selected) .zen-preset-actions {
+  opacity: 1;
+}
+
+.zen-preset-action {
+  font-size: var(--font-size-small);
+  min-height: 24px;
+  padding: 0 var(--space-small);
+}
+
+.zen-preset-name {
+  flex: none;
+}
+
+/* -------------------------------------------------------- per-site table */
+
+/* One row object, used by the header and by every site: the same four
+   columns, so host names, widths, swatches and buttons line up down the
+   card however long the names get. */
+/* A table is one object: it opts out of the connected group and stays a
+   single surface, with its own rows inside. */
+.zen-card.zen-table-card {
+  background-color: var(--zen-surface-1);
+  border-radius: var(--zen-shape-m);
+  gap: 0;
+  overflow: clip;
+}
+
+.zen-table-card > :not(.zen-card-error) {
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.zen-table-scroll {
+  max-height: 340px;
+  overflow: auto hidden;
+}
+
+.zen-table {
+  min-width: 700px;
+}
+
+.zen-sites-row {
+  align-items: center;
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: minmax(0, 1fr) 8ch 64px minmax(170px, 1.1fr) 6.5em;
+  min-height: 44px;
+  padding: var(--space-xsmall) var(--space-medium);
+}
+
+.zen-table-head {
+  background-color: var(--zen-surface-2);
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  min-height: 32px;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+}
+
+.zen-sites-list > .zen-sites-row {
+  border-block-start: 1px solid var(--zen-outline);
+}
+
+.zen-sites-list > .zen-sites-row:hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zen-sites-host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-sites-width {
+  background-color: var(--zen-surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--zen-shape-s);
+  color: inherit;
+  min-height: var(--input-text-min-height);
+  padding: 0 var(--space-xsmall);
+  text-align: end;
+  width: 100%;
+}
+
+.zen-sites-width:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: -1px;
+}
+
+.zen-sites-color {
+  background: none;
+  block-size: 24px;
+  border: 1px solid var(--zen-outline);
+  border-radius: var(--zen-shape-s);
+  cursor: pointer;
+  /* The colour input carries its own intrinsic width; fill the column. */
+  inline-size: 100%;
+  min-width: 0;
+  padding: 2px;
+}
+
+/* An unset colour must read as unset rather than as a chosen grey. */
+.zen-sites-color[unset] {
+  opacity: 0.3;
+}
+
+/* A list rendered into a card: same row metrics as a static .zen-row. */
+.zen-sites-list > .zen-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium);
+  min-height: 44px;
+  padding: var(--space-xsmall) var(--space-medium);
+}
+
+.zen-sites-list > .zen-row + .zen-row {
+  border-block-start: 1px solid var(--zen-outline);
+}
+
+.zen-sites-list > .zen-row:hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zen-sites-list > .zen-row > :last-child:not(:first-child) {
+  margin-inline-start: auto;
+}
+
+.zen-input-narrow {
+  flex: none;
+  width: 14ch;
+}
+
+/* One bridge line per row, in the same monospace shape they were copied
+   from - a proportional font makes a pasted fingerprint hard to eyeball. */
+.zen-tor-bridges-input {
+  font-family: monospace;
+  font-size: var(--font-size-small);
+  padding: var(--space-small);
+  resize: vertical;
+  white-space: pre;
+  width: 100%;
+}
+
+.zen-tor-transports {
+  gap: var(--space-medium);
+}
+
+.zen-tor-transport {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+}
+
+.zen-tor-transport-missing {
+  color: var(--text-color-error);
+}
+
+/* The icon cell: what the mark looks like now, the source behind it, and the
+   two ways to change it. */
+.zen-sites-icon {
+  align-items: center;
+  display: flex;
+  gap: var(--space-xxsmall);
+  min-width: 0;
+}
+
+.zen-sites-icon-preview {
+  block-size: 20px;
+  border: 1px solid var(--zen-outline);
+  border-radius: var(--zen-shape-s);
+  flex: none;
+  inline-size: 20px;
+  object-fit: contain;
+  padding: 1px;
+}
+
+/* Nothing overridden reads as an empty slot, not as a broken image. */
+.zen-sites-icon-preview[unset] {
+  background-color: var(--zen-surface);
+  border-style: dashed;
+}
+
+.zen-sites-icon-input {
+  flex: 1;
+  min-width: 4ch;
+}
+
+.zen-icon-button {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: var(--zen-shape-pill);
+  color: var(--zen-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  flex: none;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  block-size: 24px;
+  inline-size: 24px;
+}
+
+.zen-icon-button:hover {
+  background-color: var(--zen-surface-3);
+  color: var(--zen-text);
+}
+
+.zen-icon-button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.zen-icon-button::before {
+  background-color: currentColor;
+  block-size: 14px;
+  content: "";
+  inline-size: 14px;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+/* A folder, and a cross. Drawn here so the cell needs no icon files. */
+.zen-sites-icon-pick::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1.8 3.4h4l1.4 1.8h7A1.4 1.4 0 0 1 15.6 6.6v6A1.4 1.4 0 0 1 14.2 14H1.8A1.4 1.4 0 0 1 .4 12.6V4.8A1.4 1.4 0 0 1 1.8 3.4Z' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.zen-sites-icon-clear::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9M12.5 3.5l-9 9' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.zen-card-error {
+  background-color: var(--background-color-critical);
+  color: var(--text-color-error);
+  margin: 0;
+  padding: var(--space-small) var(--space-medium);
+}
+
+/* ------------------------------------------------------ tab focus editor */
+
+.zen-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xsmall);
+}
+
+.zen-field-label {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+}
+
+.zen-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  padding: var(--space-large);
+}
+
+/* The shell's connected button group: tonal chips with a 2px gutter, the
+   ends rounded to a pill and the joins kept square-ish, so the row reads as
+   one control and the selected chip as part of it. */
+.zen-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zen-group-gap);
+}
+
+.zen-segment {
+  background-color: var(--zen-tonal);
+  border: none;
+  border-radius: var(--zen-shape-xs);
+  color: var(--zen-on-tonal);
+  cursor: pointer;
+  flex: 1 1 auto;
+  font: inherit;
+  font-size: var(--font-size-small);
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 var(--space-medium);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.zen-segment:first-child {
+  border-start-start-radius: var(--zen-shape-pill);
+  border-end-start-radius: var(--zen-shape-pill);
+}
+
+.zen-segment:last-child {
+  border-start-end-radius: var(--zen-shape-pill);
+  border-end-end-radius: var(--zen-shape-pill);
+}
+
+.zen-segment:hover {
+  background-color: color-mix(in srgb, currentColor 12%, var(--zen-tonal));
+}
+
+.zen-segment[aria-pressed="true"] {
+  background-color: var(--zen-m3-accent);
+  color: var(--zen-on-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.zen-segment:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.zen-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xsmall);
+}
+
+.zen-swatch {
+  block-size: 26px;
+  border: 1px solid var(--zen-outline);
+  border-radius: var(--border-radius-circle);
+  box-sizing: border-box;
+  cursor: pointer;
+  flex: none;
+  inline-size: 26px;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  transition: transform 120ms ease;
+}
+
+.zen-swatch:hover {
+  transform: scale(1.12);
+}
+
+.zen-swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--zen-surface-1),
+    0 0 0 4px var(--zen-m3-accent);
+}
+
+.zen-swatch:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* Label, track and read-out on one grid so every slider's number sits in
+   the same column. */
+.zen-slider-row {
+  align-items: center;
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: 9em 1fr 5ch;
+}
+
+/* Android's M3 Expressive slider: a thick rounded track, accent where it is
+   filled, and a slim upright handle cut out of it by a ring of the page colour. */
+.zen-slider-row > html|input[type="range"] {
+  appearance: none;
+  background: transparent;
+  block-size: 44px;
+  cursor: pointer;
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.zen-slider-row > html|input[type="range"]::-moz-range-track {
+  background-color: var(--zen-tonal);
+  block-size: 16px;
+  border-radius: var(--zen-shape-pill);
+}
+
+.zen-slider-row > html|input[type="range"]::-moz-range-progress {
+  background-color: var(--zen-m3-accent);
+  block-size: 16px;
+  border-radius: var(--zen-shape-pill);
+}
+
+.zen-slider-row > html|input[type="range"]::-moz-range-thumb {
+  background-color: var(--zen-m3-accent);
+  block-size: 40px;
+  border: none;
+  border-radius: var(--zen-shape-pill);
+  box-shadow: 0 0 0 5px var(--zen-surface-1);
+  inline-size: 4px;
+  transition: inline-size 120ms ease;
+}
+
+.zen-slider-row > html|input[type="range"]:active::-moz-range-thumb {
+  inline-size: 2px;
+}
+
+.zen-slider-row > html|input[type="range"]:focus-visible {
+  outline: none;
+}
+
+.zen-slider-row > html|input[type="range"]:focus-visible::-moz-range-thumb {
+  outline: var(--focus-outline);
+  outline-offset: 4px;
+}
+
+.zen-slider-value {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.zen-check-row {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: var(--space-small);
+}
+
+.zen-disclosure {
+  border-block-start: 1px solid var(--zen-outline);
+}
+
+.zen-disclosure > html|summary {
+  color: var(--zen-text-dim);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  list-style-position: inside;
+  padding: var(--space-small) var(--space-medium);
+}
+
+.zen-disclosure > html|summary:hover {
+  color: var(--zen-text);
+}
+
+.zen-disclosure-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small);
+  padding: 0 var(--space-medium) var(--space-medium);
+}
+
+/* Code editor: a textarea sitting exactly on top of a highlighted <pre>.
+   Chrome pages sanitise innerHTML, so every token is a real DOM node. */
+.zen-code {
+  /* Syntax hues are the one place with no design token to borrow: these are
+     picked for contrast on both surfaces and go through light-dark(). */
+  --zen-code-key: light-dark(#0550ae, #7aa2f7);
+  --zen-code-string: light-dark(#0a7c3f, #9ece6a);
+  --zen-code-number: light-dark(#8f4700, #e0af68);
+  --zen-code-punct: var(--text-color-deemphasized);
+
+  background-color: var(--zen-surface);
+  color: var(--zen-text);
+  border: none;
+  border-radius: var(--zen-shape-s);
+  display: flex;
+  font-family: var(--font-family-monospace, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  font-size: var(--font-size-small);
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+.zen-code-gutter {
+  background-color: var(--zen-surface-2);
+  border-inline-end: none;
+  color: var(--zen-text-dim);
+  min-width: 3ch;
+  overflow: hidden;
+  padding: var(--space-small) var(--space-xsmall);
+  text-align: end;
+  user-select: none;
+  white-space: pre;
+}
+
+.zen-code-stack {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.zen-code-highlight {
+  margin: 0;
+  max-height: 320px;
+  min-height: 180px;
+  overflow: auto;
+  padding: var(--space-small);
+  pointer-events: none;
+  white-space: pre;
+}
+
+.zen-code-input {
+  background: transparent;
+  border: 0;
+  caret-color: var(--text-color);
+  color: transparent;
+  font: inherit;
+  inset: 0;
+  margin: 0;
+  outline: none;
+  overflow: auto;
+  padding: var(--space-small);
+  position: absolute;
+  resize: none;
+  white-space: pre;
+}
+
+.zen-code-status {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  min-height: 1.4em;
+}
+
+.zen-code-status[data-state="error"] {
+  color: var(--text-color-error);
+}
+
+.zen-code-actions {
+  display: flex;
+  gap: var(--space-xsmall);
+}
+
+/* ------------------------------------------------- keyboard shortcuts */
+
+#zenCKSOption-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xlarge);
+}
+
+#zenCKSOption-wrapper .zen-section {
+  gap: var(--space-small);
+}
+
+.zenCKSOption {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  gap: var(--space-medium);
+  margin: 0;
+  min-height: 48px;
+  padding: var(--space-small) var(--space-large);
+}
+
+.zenCKSOption:hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zenCKSOption > .zenCKSOption-label {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.zenCKSOption-input {
+  background-color: var(--zen-surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--zen-shape-s);
+  cursor: text;
+  font-variant-numeric: tabular-nums;
+  min-height: var(--input-text-min-height);
+  overflow: hidden;
+  padding: 0 var(--space-small);
+  text-overflow: ellipsis;
+  transition: border-color 120ms ease;
+  user-select: none;
+  white-space: nowrap;
+  width: 14ch;
+}
+
+.zenCKSOption-input.zenCKSOption-input-not-set {
+  color: var(--zen-text-dim);
+}
+
+.zenCKSOption-input.zenCKSOption-input-editing {
+  border-color: var(--zen-m3-accent);
+  box-shadow: 0 0 0 1px var(--zen-m3-accent);
+}
+
+.zenCKSOption-input.zenCKSOption-input-invalid,
+.zenCKSOption-input.zenCKSOption-input-unsafed {
+  border-color: var(--border-color-error);
+}
+
+.zenCKSOption-conflict,
+.zenCKSOption-unsafed {
+  color: var(--text-color-error);
+  font-size: var(--font-size-small);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------- marketplace */
+
+#zenMarketplaceHeader {
+  align-items: center;
+  display: flex;
+  gap: var(--space-medium);
+  justify-content: space-between;
+}
+
+#zenMarketplaceHeader html|h2 {
+  margin: 0;
+}
+
+#zenThemeMarketplaceList {
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.zenThemeMarketplaceItem {
+  background-color: var(--zen-surface-1);
+  border: none;
+  border-radius: var(--zen-shape-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small);
+  justify-content: space-between;
+  overflow-x: hidden;
+  padding: var(--space-medium);
+  position: relative;
+}
+
+.zenThemeMarketplaceItemContent {
+  max-width: 100%;
+  width: 100%;
+}
+
+.zenThemeMarketplaceItemTitle,
+.zenThemeMarketplaceItemDescription {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.zenThemeMarketplaceItemDescription {
+  color: var(--zen-text-dim);
+}
+
+.zenThemeMarketplaceItemActions {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+#zenThemeMarketplaceItemContentHeader {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#zenThemeMarketplaceItemContentHeader moz-toggle {
+  margin-inline-start: var(--space-small);
+}
+
+.zenThemeMarketplaceItemHomepageButton,
+.zenThemeMarketplaceItemConfigureButton {
+  cursor: pointer;
+  min-width: 0;
+  position: relative;
+  width: 30px;
+}
+
+.zenThemeMarketplaceItemHomepageButton::before,
+.zenThemeMarketplaceItemConfigureButton::before {
+  background-repeat: no-repeat;
+  background-size: cover;
+  content: "";
+  height: 16px;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 16px;
+}
+
+.zenThemeMarketplaceItemHomepageButton::before {
+  -moz-context-properties: fill, fill-opacity;
+  background-image: url("chrome://browser/skin/home.svg");
+  fill: currentColor;
+}
+
+.zenThemeMarketplaceItemConfigureButton::before {
+  background-image: url("chrome://global/skin/icons/settings.svg");
+}
+
+.zenThemeMarketplaceItemPreferenceCheckbox {
+  margin-inline-end: var(--space-small);
+}
+
+.zenThemeMarketplaceItemPreferenceData > * {
+  margin: 0;
+}
+
+.zenThemeMarketplaceItemUninstallButton,
+#zenThemeMarketplaceImport,
+#zenThemeMarketplaceExport,
+#zenThemeMarketplaceCheckForUpdates {
+  cursor: pointer;
+}
+
+.zenThemeMarketplaceItemUninstallButton {
+  margin-inline-start: auto;
+}
+
+.zenThemeMarketplaceItemPreferenceDialog {
+  display: flex;
+  flex-direction: column;
+  min-width: 650px;
+  padding: var(--space-small);
+}
+
+.zenThemeMarketplaceItemPreferenceDialogTopBar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.zenThemeMarketplaceItemPreferenceDialogContent {
+  display: flex;
+}
+
+.zenThemeMarketplaceDisableAllToggle {
+  align-self: center;
+}
+
+/* --------------------------------------------------------- theme builder */
+
+#zen-theme-builder {
+  background-color: var(--zen-surface-1);
+  border: none;
+  border-radius: var(--zen-shape-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  justify-content: center;
+  padding: var(--space-medium);
+}
+
+#zen-theme-builder-color-picker {
+  border-radius: var(--zen-shape-m);
+  height: 180px;
+  margin-inline-end: var(--space-small);
+  position: relative;
+  width: 180px;
+}
+
+#zen-theme-builder-color-picker-canvas {
+  border-radius: var(--zen-shape-m);
+  height: 100%;
+  width: 100%;
+}
+
+#zen-theme-builder-color-picker-deck {
+  backdrop-filter: blur(15px);
+  background-color: var(--background-color-overlay, transparent);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-medium);
+  height: calc(100% - 20px);
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  margin: 10px;
+  position: absolute;
+  width: calc(100% - 20px);
+}
+
+#zen-theme-builder-color-picker-thumb {
+  background: var(--zen-m3-accent);
+  border: 4px solid var(--zen-surface-1);
+  border-radius: var(--border-radius-circle);
+  height: 20px;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+}
+
+/* ---------------------------------------------------------- dialog popin */
+
+@keyframes dialogPopin {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+html|dialog {
+  animation: dialogPopin 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html|dialog {
+    animation: none;
+  }
+}
+
+/* =======================================================================
+   Category rail icons
+   =======================================================================
+   Each category gets two glyphs - an outline and a solid - stacked in one
+   box and cross-faded, so hover and the selected state read as the icon
+   filling in. One technique everywhere: `mask-image` painted with
+   currentColor, which keeps the glyphs single-colour and theme-correct
+   without touching the shadow DOM of moz-page-nav-button.
+
+   zen-settings.js drops the native `iconsrc` and slots a `.zen-nav-icon`
+   into each button instead; without an icon in its shadow root the button
+   stops hiding its slot when the rail is narrow, which is what lets one
+   icon serve both the wide and the icon-only rail.
+   ======================================================================= */
+
+/* The rail: one surface, on the selected row only. The card language from the
+   sidebar is worth borrowing for the object that is forward - repeated on
+   every row it just makes eleven boxes. Everything else is an icon and a
+   label on the bare page, and spacing does the structural work. Nothing moves
+   at rest. */
+moz-page-nav-button {
+  /* M3's navigation pill: fully rounded, filled with a tonal container, and
+     flat - the shape and the tone carry the selection, not a shadow. */
+  --zen-rail-radius: var(--zen-shape-pill);
+
+  --page-nav-button-background-color: transparent;
+  --page-nav-button-background-color-hover: var(--zen-surface-2);
+  --page-nav-button-background-color-selected: transparent;
+  --page-nav-button-border-radius: var(--zen-rail-radius);
+  --page-nav-button-indicator-width: 0;
+}
+
+moz-page-nav-button.zen-nav-selected {
+  background-color: var(--zen-tonal);
+  border-radius: var(--zen-rail-radius);
+  color: var(--zen-on-tonal);
+}
+
+.zen-nav-icon {
+  display: block;
+  flex: none;
+  height: var(--icon-size, 16px);
+  position: relative;
+  width: var(--icon-size, 16px);
+}
+
+.zen-nav-icon::before,
+.zen-nav-icon::after {
+  background-color: currentColor;
+  content: "";
+  inset: 0;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  position: absolute;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.zen-nav-icon::before {
+  mask-image: var(--zen-nav-icon-outline);
+}
+
+.zen-nav-icon::after {
+  mask-image: var(--zen-nav-icon-fill);
+  opacity: 0;
+  transform: scale(0.82);
+}
+
+moz-page-nav-button:hover .zen-nav-icon::before,
+moz-page-nav-button.zen-nav-selected .zen-nav-icon::before {
+  opacity: 0;
+  transform: scale(1.08);
+}
+
+moz-page-nav-button:hover .zen-nav-icon::after,
+moz-page-nav-button.zen-nav-selected .zen-nav-icon::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zen-nav-icon::before,
+  .zen-nav-icon::after {
+    transform: none !important;
+    transition: none;
+  }
+}
+
+/* With no `iconsrc` the button no longer shrinks itself when the rail
+   collapses to icons, and its label has to be hidden by hand. Zeroing the
+   font size is enough: everything else in the button is sized in pixels. */
+@media (max-width: 950px) {
+  moz-page-nav-button {
+    font-size: 0;
+    width: var(--button-size-icon);
+  }
+}
+
+/* -------------------------------------------------- Firefox pane pruning */
+
+#dataCollectionCategory,
+#dataCollectionGroup,
+#websiteAdvertisingCategory,
+#websiteAdvertisingGroup,
+#helpButton,
+#support-firefox,
+#tabGroupSuggestions,
+#setting-control-sidebarChatbotFieldset,
+#setting-control-supportFirefox,
+.mission-message,
+html|setting-group:is([data-subcategory="layout"], [groupid="support"], [groupid="browserTheme"]) {
+  display: none !important;
+}
+
+.sync-engine-workspaces .checkbox-icon,
+.sync-engine-workspaces.sync-engine-image {
+  list-style-image: url("chrome://devtools/skin/images/tool-storage.svg");
+}
+
+@media (-moz-pref("zen.theme.disable-lightweight")) {
+  html|p[data-l10n-id="preferences-web-appearance-footer"] {
+    display: none;
+  }
+}
+
+@media (-moz-pref("zen.urlbar.replace-newtab")) {
+  #category-home {
+    display: none !important;
+  }
+}
+
+#zenTabsUnloadDelayContainer {
+  align-items: center;
+  display: flex;
+}
+
+#zenTabsUnloadDelayContainer #zenTabsUnloadDelay {
+  margin-inline-start: auto;
+}
+/* Generated by scratchpad/genicons.py - outline/fill pairs as data: URIs, so
+   the whole set lives in this file. */
+#category-general .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3.6M9.4 7H17M3 13h7.6M14.4 13H17'/%3E%3Ccircle cx='8' cy='7' r='2.4'/%3E%3Ccircle cx='13' cy='13' r='2.4'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='6.25' width='14' height='1.5' rx='0.75'/%3E%3Crect x='3' y='12.25' width='14' height='1.5' rx='0.75'/%3E%3Ccircle cx='8' cy='7' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-zen-looks .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.8c0 0 5.4 5.6 5.4 8.9a5.4 5.4 0 0 1-10.8 0C4.6 8.4 10 2.8 10 2.8Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.8c0 0 5.4 5.6 5.4 8.9a5.4 5.4 0 0 1-10.8 0C4.6 8.4 10 2.8 10 2.8Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-zen-tabs-management .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.8' y='4.4' width='14.4' height='11.2' rx='2.2'/%3E%3Cpath d='M2.8 8.6h14.4M7.6 4.4v4.2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4.4h10a2.2 2.2 0 0 1 2.2 2.2v6.8a2.2 2.2 0 0 1-2.2 2.2H5a2.2 2.2 0 0 1-2.2-2.2V6.6A2.2 2.2 0 0 1 5 4.4ZM4.3 10.1h11.4v3.3a.7.7 0 0 1-.7.7H5a.7.7 0 0 1-.7-.7Z' fill-rule='evenodd'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-zen-CKS .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.6' y='5.4' width='14.8' height='9.2' rx='2.2'/%3E%3Cpath d='M6 9h.01M10 9h.01M14 9h.01M7.4 12.2h5.2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.6' y='5.4' width='14.8' height='9.2' rx='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-zen-marketplace .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-sync .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.9 16.4a4.2 4.2 0 0 1-.5-8.3 4.6 4.6 0 0 1 8.7 1 3.7 3.7 0 0 1-.6 7.3Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.9 16.4a4.2 4.2 0 0 1-.5-8.3 4.6 4.6 0 0 1 8.7 1 3.7 3.7 0 0 1-.6 7.3Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-home .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.9 2.8 8.5V16a1.4 1.4 0 0 0 1.4 1.4h11.6A1.4 1.4 0 0 0 17.2 16V8.5Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.9 2.8 8.5V16a1.4 1.4 0 0 0 1.4 1.4h11.6A1.4 1.4 0 0 0 17.2 16V8.5Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-search .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8.8' cy='8.8' r='5.4'/%3E%3Cpath d='M12.8 12.8 17 17'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8.8' cy='8.8' r='5.4'/%3E%3Cpath d='M12.8 12.8 17 17' stroke-width='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Site data, not the padlock: this pane is about what a site keeps, and a
+   second shield next to Firefox's own privacy row would read as a duplicate. */
+#category-zen-privacy .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='10' cy='5.2' rx='5.4' ry='2.2'/%3E%3Cpath d='M4.6 5.2v9.6c0 1.2 2.4 2.2 5.4 2.2s5.4-1 5.4-2.2V5.2'/%3E%3Cpath d='M4.6 10c0 1.2 2.4 2.2 5.4 2.2s5.4-1 5.4-2.2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.6 5.2v9.6c0 1.2 2.4 2.2 5.4 2.2s5.4-1 5.4-2.2V5.2Z'/%3E%3Cellipse cx='10' cy='5.2' rx='5.4' ry='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-privacy .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.6 4 5v5.2c0 3.8 2.5 6.4 6 7.4 3.5-1 6-3.6 6-7.4V5Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.6 4 5v5.2c0 3.8 2.5 6.4 6 7.4 3.5-1 6-3.6 6-7.4V5Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-passwords-autofill .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='13.4' r='3.4'/%3E%3Cpath d='M9.1 11 16.8 3.3M14.2 5.9l2 2M12.3 7.8l2 2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6.6' cy='13.4' r='3.4'/%3E%3Cpath d='M9.1 11 16.8 3.3M14.2 5.9l2 2M12.3 7.8l2 2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-appearance .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='6.6'/%3E%3Cpath d='M10 3.4a6.6 6.6 0 0 1 0 13.2Z' fill='black'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='6.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-downloads .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 3v8.4M10 11.4 13.2 8.2M10 11.4 6.8 8.2M3.6 15.6h12.8'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.6a1 1 0 0 1 1 1v5.5l1.9-1.9a1 1 0 1 1 1.4 1.4l-3.6 3.6a1 1 0 0 1-1.4 0L5.7 8.6a1 1 0 1 1 1.4-1.4L9 9.1V3.6a1 1 0 0 1 1-1Z'/%3E%3Cpath d='M3.6 15.6h12.8' stroke-width='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-tabs-browsing .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.4 15.7 9.3l-4.6 1.4-1.4 4.6Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.4 15.7 9.3l-4.6 1.4-1.4 4.6Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-accessibility .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='4.6' r='2.1'/%3E%3Cpath d='M3.6 9.1h12.8M10 9.1v4.2M10 13.3l-2.6 4.1M10 13.3l2.6 4.1'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='4.6' r='2.6'/%3E%3Cpath d='M3.6 9.1h12.8M10 9.1v4.2M10 13.3l-2.6 4.1M10 13.3l2.6 4.1' stroke-width='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-languages .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z'/%3E%3Cpath d='M3 10h14'/%3E%3Cellipse cx='10' cy='10' rx='3.3' ry='7' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-permissions-data .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.2' y='8.8' width='11.6' height='8.4' rx='2.2'/%3E%3Cpath d='M7 8.8V6.6a3 3 0 0 1 6 0v2.2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.2' y='8.8' width='11.6' height='8.4' rx='2.2'/%3E%3Cpath d='M7 8.8V6.6a3 3 0 0 1 6 0v2.2' fill='none' stroke-width='1.8'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-experimental .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.1 2.8v4.7l-4.4 7.6A1.9 1.9 0 0 0 5.4 18h9.2a1.9 1.9 0 0 0 1.7-2.9l-4.4-7.6V2.8Z'/%3E%3Cpath d='M7.4 2.8h5.2'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.1 2.8v4.7l-4.4 7.6A1.9 1.9 0 0 0 5.4 18h9.2a1.9 1.9 0 0 0 1.7-2.9l-4.4-7.6V2.8Z'/%3E%3Cpath d='M7.4 2.8h5.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#category-about-firefox .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7'/%3E%3Cpath d='M10 9.2v4.4M10 6.6h.01'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#helpButton .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7'/%3E%3Cpath d='M8 8a2 2 0 1 1 2.6 2c-.4.2-.6.6-.6 1v.6M10 14.2h.01'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#addonsButton .zen-nav-icon {
+  --zen-nav-icon-outline: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2Z'/%3E%3C/g%3E%3C/svg%3E");
+  --zen-nav-icon-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='black' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 2.4l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+
+/* ------------------------------------------------------- Tor status legend */
+
+/* The four onions the chrome can show, in one place. This is the only surface
+   that renders the "not routed" asset: a window with no Tor in it hides the
+   indicator rather than showing a dimmed one, so it would otherwise never be
+   seen and there would be nothing to compare the live states against. */
+.zen-tor-status-row {
+  align-items: flex-start !important;
+}
+
+/* Same chip and same tint as the toolbar widget, at the size the widget draws
+   it: the legend is a preview, so a different treatment here would be a lie. */
+.zen-tor-onion-sample {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px 20px;
+  -moz-context-properties: fill, stroke;
+}
+
+.zen-tor-onion-sample[data-status="off"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-off.svg");
+  fill: var(--zen-text-dim);
+}
+
+.zen-tor-onion-sample[data-status="connecting"],
+.zen-tor-onion-sample[data-status="connected"] {
+  background-color: var(--zen-tor-space);
+  fill: var(--zen-tor-space-ink);
+}
+
+.zen-tor-onion-sample[data-status="connecting"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-connecting.svg");
+}
+
+.zen-tor-onion-sample[data-status="connected"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-connected.svg");
+}
+
+.zen-tor-onion-sample[data-status="unreachable"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-unreachable.svg");
+  background-color: var(--zen-tor-bad);
+  fill: var(--zen-tor-bad-ink);
+}
+
+.zen-tor-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.zen-tor-status-note {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+}
+
+/* A note under a field, not under a checkbox: no room to leave for a box. */
+.zen-field-note {
+  color: var(--zen-text-dim);
+  font-size: var(--font-size-small);
+  margin: 0;
+}
+
+/* ------------------------------------------------------- privacy site rules */
+
+/* Three columns, so the narrower table does not inherit the five-column grid
+   the appearance pane needs. */
+.zen-table-narrow {
+  min-width: 520px;
+}
+
+.zen-privacy-row {
+  align-items: center;
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: minmax(0, 1fr) minmax(196px, 0.9fr) 7em 6.5em;
+  min-height: 44px;
+  padding: var(--space-xsmall) var(--space-medium);
+}
+
+.zen-sites-list > .zen-privacy-row {
+  border-block-start: 1px solid var(--zen-outline);
+}
+
+.zen-sites-list > .zen-privacy-row:hover {
+  background-color: var(--zen-surface-2);
+}
+
+.zen-privacy-lifetime {
+  background-color: var(--zen-surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--zen-shape-pill);
+  color: var(--zen-text);
+  font: inherit;
+  font-size: var(--font-size-small);
+  min-height: 30px;
+  padding: 0 var(--space-small);
+  width: 100%;
+}
+
+.zen-privacy-lifetime:focus-visible {
+  border-color: var(--zen-m3-accent);
+  outline: var(--focus-outline);
+  outline-offset: -1px;
+}
+
+/* Spaces list: icon, name, where it shows, which desktop. */
+.zen-spaces-row {
+  align-items: center;
+  border-block-start: 1px solid var(--zen-outline);
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: 28px minmax(0, 1fr) auto minmax(140px, auto);
+  min-height: 44px;
+  padding: var(--space-xsmall) var(--space-medium);
+
+  &:first-child {
+    border-block-start: none;
+  }
+}
+
+.zen-spaces-icon {
+  display: grid;
+  place-items: center;
+
+  & img {
+    width: 16px;
+    height: 16px;
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
+}
+
+.zen-spaces-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-spaces-now {
+  font-size: 0.9em;
+  opacity: 0.65;
+}
+
+.zen-config-path {
+  font-family: monospace;
+  font-size: 0.9em;
+  opacity: 0.8;
+  overflow-wrap: anywhere;
+}
+
+.zen-config-errors {
+  color: var(--text-color-error, #e22850);
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 0;
+  padding-inline-start: 1.5em;
+}
+
+/* Translated sites: host, languages, when, repeat, remove. */
+.zen-translated-row {
+  align-items: center;
+  border-block-start: 1px solid var(--zen-outline);
+  display: grid;
+  gap: var(--space-medium);
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+  min-height: 40px;
+  padding: var(--space-xsmall) var(--space-medium);
+
+  &:first-child {
+    border-block-start: none;
+  }
+}
+
+.zen-translated-host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-translated-langs,
+.zen-translated-when {
+  font-size: 0.9em;
+  opacity: 0.7;
+}

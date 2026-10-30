@@ -1,0 +1,8 @@
+# Tab unloading. Auto is opt-in, and audible tabs are spared by default -
+# a tab going quiet by itself would read as a bug.
+- name: zen.tabs.unload.auto
+  value: false
+- name: zen.tabs.unload.after-minutes
+  value: 30
+- name: zen.tabs.unload.keep-audible
+  value: true

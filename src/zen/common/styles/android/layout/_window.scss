@@ -1,0 +1,37 @@
+// The window frame: the darkest layer. The sidebar and the page are floating
+// panels on it, as the shell's dock and sidebars float over the wallpaper.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  #main-window,
+  #zen-main-app-wrapper {
+    background-color: t.color("lowest") !important;
+    color: t.color("on");
+  }
+
+  // The page.
+  #tabbrowser-tabpanels,
+  .browserSidebarContainer {
+    border-radius: t.r("l") !important;
+  }
+
+  #tabbrowser-tabpanels {
+    box-shadow: 0 0 0 1px var(--a-border-0);
+  }
+
+  // The sidebar: see layout/sidebar.
+  #navigator-toolbox {
+    @include m.surface("l1", "l", "border");
+    color: t.color("on");
+    // The top and bottom gaps are measured against the page (ZenStartup
+    // #alignPanels), so both panels share one top edge; 5px until measured.
+    // Zen forces a zero top margin on the toolbox, hence !important there.
+    margin: 0 0 var(--a-panel-bottom, #{t.space("edge")}) t.space("edge");
+    margin-top: var(--a-panel-top, #{t.space("edge")}) !important;
+    padding: 0 t.space("m");
+  }
+
+  // The startup cover (zen.startup.cover) is the window's base layer.
+  #zen-startup-cover { --zen-startup-cover-bg: #{t.color("lowest")}; }
+}

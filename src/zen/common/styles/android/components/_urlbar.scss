@@ -1,0 +1,81 @@
+// The address bar is the shell's PillTextField: transparent, a 1px outline,
+// 1.5px primary when focused. Its suggestions are a menu.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  .urlbar-background {
+    @include m.bare;
+    border: 1px solid t.color("outline") !important;
+    border-radius: t.r("full") !important;
+    background: transparent !important;
+    transition:
+      border-color var(--a-dur-effects) var(--a-ease-effects),
+      box-shadow var(--a-dur-effects) var(--a-ease-effects),
+      background-color var(--a-dur-effects) var(--a-ease-effects);
+  }
+
+  // Zen squares the field's lower corners while results are showing; the pill
+  // keeps its shape in every state instead.
+  #urlbar > .urlbar-background,
+  #urlbar[focused] > .urlbar-background,
+  #urlbar[open] > .urlbar-background {
+    border-radius: t.r("full") !important;
+  }
+
+  // Zen's rule for "results showing" is more specific than the ones above and
+  // squares the lower corners (logical properties) and paints its own grey.
+  #navigator-toolbox[zen-sidebar-results] #urlbar .urlbar-background {
+    border-start-start-radius: t.r("full") !important;
+    border-start-end-radius: t.r("full") !important;
+    border-end-start-radius: t.r("full") !important;
+    border-end-end-radius: t.r("full") !important;
+    background: t.color("l2") !important;
+  }
+
+  #urlbar:hover > .urlbar-background { background: var(--a-hover-1) !important; }
+
+  // Focus: the outline turns primary and gains half a pixel. The extra is
+  // an inset shadow, so the field's box (and everything near it) stays put.
+  #urlbar[focused] > .urlbar-background,
+  #urlbar[open] > .urlbar-background {
+    border-color: t.color("primary") !important;
+    box-shadow: inset 0 0 0 0.5px t.color("primary") !important;
+    background: t.color("l1") !important;
+  }
+
+  #urlbar-input,
+  .urlbarView {
+    font-family: var(--a-font);
+    color: t.color("on");
+  }
+
+  .urlbarView-body-inner,
+  .urlbarView {
+    background: t.color("l1") !important;
+    border-radius: t.r("s") !important;
+  }
+
+  .urlbarView-row { border-radius: t.r("xs") !important; }
+  .urlbarView-row:hover,
+  .urlbarView-row[selected] { background: t.color("l2") !important; }
+
+  // The sidebar's own results list: its own floating card under the field,
+  // so the field itself stays a pill.
+  #zen-sidebar-results {
+    @include m.surface("l2", "l", "border");
+    margin-top: t.space("s");
+    padding: t.space("s") !important;
+  }
+
+  .zen-sidebar-result {
+    border-radius: t.r("s") !important;
+    @include m.motion(background-color);
+
+    &:hover,
+    &[selected] { background: t.color("l3") !important; }
+  }
+
+  .zen-sidebar-result-text { color: t.color("on"); }
+  .zen-sidebar-result-url { color: t.color("primary"); }
+}

@@ -1,0 +1,47 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="template-paneZenMarketplace">
+<hbox id="ZenMarketplaceCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenMarketplace">
+<html:h1 data-l10n-id="pane-zen-marketplace-title"/>
+</hbox>
+
+<groupbox id="zenMarketplaceGroup" data-category="paneZenMarketplace" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <hbox id="zenMarketplaceHeader">
+        <html:h2 data-l10n-id="zen-theme-marketplace-header"/>
+      </hbox>
+      <html:p class="zen-section-desc" data-l10n-id="zen-theme-marketplace-description"/>
+    </html:div>
+
+    <vbox class="zen-card">
+      <checkbox id="zenThemeMarketplaceAutoUpdate"
+            class="zen-row"
+            data-l10n-id="zen-themes-auto-update"
+            preference="zen.mods.auto-update"/>
+      <html:div class="zen-card-footer">
+        <html:a id="zenThemeMarketplaceLink" class="text-link" href="https://zen-browser.app/mods/" target="_blank" data-l10n-id="zen-theme-marketplace-link" />
+        <spacer flex="1"/>
+        <button id="zenThemeMarketplaceCheckForUpdates" data-l10n-id="zen-theme-marketplace-check-for-updates-button" />
+        <button id="zenThemeMarketplaceImport" data-l10n-id="zen-theme-marketplace-import-button" />
+        <button id="zenThemeMarketplaceExport" data-l10n-id="zen-theme-marketplace-export-button" />
+      </html:div>
+    </vbox>
+
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-updates-success" hidden="true" id="zenThemeMarketplaceUpdatesSuccess" />
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-updates-failure" hidden="true" id="zenThemeMarketplaceUpdatesFailure" />
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-import-success" hidden="true" id="zenThemeMarketplaceImportSuccess" />
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-import-failure" hidden="true" id="zenThemeMarketplaceImportFailure" />
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-export-success" hidden="true" id="zenThemeMarketplaceExportSuccess" />
+    <html:p class="zen-section-note" data-l10n-id="zen-theme-marketplace-export-failure" hidden="true" id="zenThemeMarketplaceExportFailure" />
+
+    <vbox id="zenThemeMarketplaceList"></vbox>
+  </html:div>
+</groupbox>
+
+</html:template>

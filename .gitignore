@@ -1,0 +1,59 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.dotbuild/
+engine/
+firefox-*/
+node_modules/
+.surfer/
+
+__pycache__/
+dist/
+
+windsign-temp/
+venv/
+
+!firefox-cache/
+win-cross/
+
+!firefox-patches/
+target/
+.vscode/
+
+locales/firefox-l10n/
+
+!src/toolkit/themes/shared/design-system/dist/
+.DS_Store
+
+mozconfig
+
+build/signing/env/
+build/signing/nss_config/
+build/signing/cert.pem
+build/signing/private_key.pem
+build/signing/private_key.p12
+
+bloat-dump.log
+
+# Build and packaging output, not sources.
+*.log
+build/logs/
+pkg/
+*.pkg.tar.zst
+
+# BEGIN generated stylesheets (scripts/build_styles.py)
+/src/browser/themes/shared/preferences/zen-addons-nav.css
+/src/browser/themes/shared/preferences/zen-preferences-android.css
+/src/browser/themes/shared/preferences/zen-preferences.css
+/src/zen/agent/zen-agent.css
+/src/zen/clipboard/zen-clipboard-toast.css
+/src/zen/common/styles/zen-animations.css
+/src/zen/common/styles/zen-panels/bookmarks.css
+/src/zen/common/styles/zen-panels/print.css
+/src/zen/common/styles/zen-theme-android.css
+/src/zen/downloads/zen-download-arc-animation.css
+/src/zen/downloads/zen-download-box-animation.css
+/src/zen/tabs/zen-horizontal-tabs.css
+/src/zen/tor/zen-tor.css
+# END generated stylesheets

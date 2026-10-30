@@ -1,0 +1,116 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+- name: zen.ui.layout-preset
+  value: "comfortable"
+
+# The order the presets are shown, cycled and listed in, as ids joined by
+# commas. Empty means the built-in order; the manager in Settings writes it
+# when a card is dragged. Repaired on read, so an id added later still shows.
+- name: zen.ui.layout-preset.order
+  value: ""
+
+- name: zen.tabs.style
+  value: "comfortable"
+
+# The widgets hidden per browser state (normal / an empty new tab / a Tor
+# space or window / both at once) - JSON-encoded, since prefs have no array or
+# object type. Applied by ZenLayoutPresets._applyWidgetVisibility; see
+# ZenLayoutPresetData.hiddenWidgetsFor for how a state resolves to a set.
+# The default is the onion's old zen.tor.hide-on-empty-tab="unrouted": gone
+# from the empty new tab, which has no site to report on, unless this window
+# or space is actually routed - in which case it is the only thing saying so.
+- name: zen.ui.layout-preset.widgets
+  value: '{"emptyTab":["zen-tor-status-button"],"torEmptyTab":[]}'
+
+# Four independently-configurable "Custom" slots (see ZenLayoutPresets.mjs).
+# Each stores its own snapshot of the underlying prefs so switching between
+# them (or away and back) doesn't lose what was set up in each one.
+- name: zen.ui.layout-preset.custom1.compact-mode
+  value: false
+- name: zen.ui.layout-preset.custom1.hide-tabbar
+  value: false
+- name: zen.ui.layout-preset.custom1.hide-toolbar
+  value: false
+- name: zen.ui.layout-preset.custom1.tab-style
+  value: "comfortable"
+- name: zen.ui.layout-preset.custom1.right-side
+  value: false
+- name: zen.ui.layout-preset.custom1.vertical-tabs
+  value: true
+- name: zen.ui.layout-preset.custom1.widgets
+  value: '{"emptyTab":["zen-tor-status-button"],"torEmptyTab":[]}'
+# Set when the slot is saved into, so a slot whose arrangement happens to
+# match every default still counts as holding something.
+- name: zen.ui.layout-preset.custom1.saved
+  value: false
+# Empty means the slot keeps its localized "Custom N" label.
+- name: zen.ui.layout-preset.custom1.name
+  value: ""
+
+- name: zen.ui.layout-preset.custom2.compact-mode
+  value: false
+- name: zen.ui.layout-preset.custom2.hide-tabbar
+  value: false
+- name: zen.ui.layout-preset.custom2.hide-toolbar
+  value: false
+- name: zen.ui.layout-preset.custom2.tab-style
+  value: "comfortable"
+- name: zen.ui.layout-preset.custom2.right-side
+  value: false
+- name: zen.ui.layout-preset.custom2.vertical-tabs
+  value: true
+- name: zen.ui.layout-preset.custom2.widgets
+  value: '{"emptyTab":["zen-tor-status-button"],"torEmptyTab":[]}'
+# Set when the slot is saved into, so a slot whose arrangement happens to
+# match every default still counts as holding something.
+- name: zen.ui.layout-preset.custom2.saved
+  value: false
+# Empty means the slot keeps its localized "Custom N" label.
+- name: zen.ui.layout-preset.custom2.name
+  value: ""
+
+- name: zen.ui.layout-preset.custom3.compact-mode
+  value: false
+- name: zen.ui.layout-preset.custom3.hide-tabbar
+  value: false
+- name: zen.ui.layout-preset.custom3.hide-toolbar
+  value: false
+- name: zen.ui.layout-preset.custom3.tab-style
+  value: "comfortable"
+- name: zen.ui.layout-preset.custom3.right-side
+  value: false
+- name: zen.ui.layout-preset.custom3.vertical-tabs
+  value: true
+- name: zen.ui.layout-preset.custom3.widgets
+  value: '{"emptyTab":["zen-tor-status-button"],"torEmptyTab":[]}'
+# Set when the slot is saved into, so a slot whose arrangement happens to
+# match every default still counts as holding something.
+- name: zen.ui.layout-preset.custom3.saved
+  value: false
+# Empty means the slot keeps its localized "Custom N" label.
+- name: zen.ui.layout-preset.custom3.name
+  value: ""
+
+- name: zen.ui.layout-preset.custom4.compact-mode
+  value: false
+- name: zen.ui.layout-preset.custom4.hide-tabbar
+  value: false
+- name: zen.ui.layout-preset.custom4.hide-toolbar
+  value: false
+- name: zen.ui.layout-preset.custom4.tab-style
+  value: "comfortable"
+- name: zen.ui.layout-preset.custom4.right-side
+  value: false
+- name: zen.ui.layout-preset.custom4.vertical-tabs
+  value: true
+- name: zen.ui.layout-preset.custom4.widgets
+  value: '{"emptyTab":["zen-tor-status-button"],"torEmptyTab":[]}'
+# Set when the slot is saved into, so a slot whose arrangement happens to
+# match every default still counts as holding something.
+- name: zen.ui.layout-preset.custom4.saved
+  value: false
+# Empty means the slot keeps its localized "Custom N" label.
+- name: zen.ui.layout-preset.custom4.name
+  value: ""

@@ -1,0 +1,48 @@
+# Selected-tab focus effect. Presets write these; nudging one makes it custom.
+- name: zen.tabs.focus.preset
+  value: "siren"
+- name: zen.tabs.focus.color-a
+  value: "#ff3b3b"
+- name: zen.tabs.focus.color-b
+  value: "#3b6bff"
+- name: zen.tabs.focus.speed
+  value: 2400
+- name: zen.tabs.focus.blur
+  value: 14
+- name: zen.tabs.focus.size
+  value: 70
+- name: zen.tabs.focus.intensity
+  value: 85
+- name: zen.tabs.focus.hover
+  value: false
+- name: zen.tabs.focus.reverse
+  value: false
+- name: zen.tabs.focus.site-colors
+  value: "{}"
+- name: zen.tabs.focus.selected.enabled
+  value: true
+- name: zen.tabs.focus.hover.enabled
+  value: false
+- name: zen.tabs.focus.loading.enabled
+  value: false
+- name: zen.tabs.focus.audio.enabled
+  value: false
+# Over every preset: full, subtle (inside the tab, no spill) or off.
+- name: zen.tabs.focus.strength
+  value: "full"
+# Tab looks (#78). -1 keeps the tab style's own value.
+- name: zen.tabs.look.selected
+  value: "mark"
+- name: zen.tabs.look.hover-shade
+  value: true
+- name: zen.tabs.look.close
+  value: "hover"
+- name: zen.tabs.look.radius
+  value: -1
+- name: zen.tabs.look.height
+  value: -1
+- name: zen.tabs.look.folder-gap
+  value: 6
+# Where a tab's own colour shows: off, selected, all.
+- name: zen.tabs.look.color
+  value: "selected"

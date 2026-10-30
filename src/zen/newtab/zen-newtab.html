@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>New Tab</title>
+<style>
+/* Fallbacks only: zen-newtab.js copies the browser's own theme over these. */
+:root {
+  --bg: #1b1b1b; --text: rgba(255,255,255,0.86); --muted: rgba(255,255,255,0.5);
+  --faint: rgba(255,255,255,0.32); --accent: #8f9bff;
+  --surface: color-mix(in srgb, var(--text) 9%, var(--bg));
+  --surface-hi: color-mix(in srgb, var(--text) 14%, var(--bg));
+  --line: color-mix(in srgb, var(--text) 10%, transparent);
+  --r: 10px; --r-sm: 6px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--bg); color: var(--text); font: menu; font-size: 14.67px;
+       -moz-osx-font-smoothing: grayscale; }
+img { -moz-context-properties: fill; fill: currentColor; }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 20px 24px 72px; }
+.view { display: flex; flex-direction: column; gap: 40px; padding-top: max(9vh, 28px); }
+#view-history, #view-settings { padding-top: 32px; gap: 16px; }
+
+/* The page's own views. Quiet, so the search stays the first thing seen. */
+.views { display: flex; justify-content: center; gap: 2px; }
+.views button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent;
+                color: var(--faint); font: inherit; font-size: 0.9em; cursor: pointer;
+                transition: background-color .15s, color .15s; }
+.views button:hover { color: var(--muted); }
+.views button:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); }
+.views button[aria-selected="true"] { background: var(--surface); color: var(--text); }
+body.no-date .date, body.no-chips .chips, body.no-tiles .tiles, body.no-recent #recent-sect { display: none; }
+
+.filter { height: 40px; padding: 0 14px; border-radius: var(--r); border: 1px solid var(--line);
+          background: var(--surface); color: var(--text); font: inherit; outline: 0; }
+.filter:focus { border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+.filter::placeholder { color: var(--faint); }
+
+.settings { display: flex; flex-direction: column; gap: 2px; max-width: 560px; width: 100%; margin: 0 auto; }
+.set-head { margin: 18px 0 6px; font-size: 0.8em; font-weight: 600; color: var(--faint); }
+.set-head:first-child { margin-top: 0; }
+.set { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 12px;
+       border-radius: var(--r-sm); cursor: pointer; }
+.set:hover { background: var(--surface); }
+.set.off { opacity: 0.45; cursor: default; }
+.set-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.set-hint { color: var(--faint); font-size: 0.85em; }
+.set-switch { appearance: none; flex: 0 0 auto; width: 34px; height: 20px; margin: 0; border-radius: 10px;
+              background: var(--surface-hi); position: relative; cursor: pointer; transition: background-color .15s; }
+.set-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px;
+                     border-radius: 7px; background: var(--muted); transition: transform .15s, background-color .15s; }
+.set-switch:checked { background: var(--accent); }
+.set-switch:checked::after { transform: translateX(14px); background: var(--on-accent, #fff); }
+.set-switch:focus-visible, .set-select:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); }
+.set-select { flex: 0 0 auto; height: 30px; padding: 0 8px; border-radius: var(--r-sm); border: 1px solid var(--line);
+              background: var(--surface); color: var(--text); font: inherit; }
+.set-all { align-self: flex-start; margin-top: 18px; height: 32px; padding: 0 14px; border-radius: 999px;
+           border: 1px solid var(--line); background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+.set-all:hover { background: var(--surface); color: var(--text); }
+/* Start layouts. */
+body[data-layout="minimal"] #view-start { min-height: calc(100vh - 140px); justify-content: center;
+                                          padding-top: 0; }
+body[data-layout="minimal"] .chips { display: none; }
+body[data-layout="sites"] .tiles { grid-template-columns: repeat(8, minmax(0, 1fr)); row-gap: 8px; }
+body[data-layout="sites"] .tile .ic { width: 52px; height: 52px; }
+body[data-layout="sites"] .tile .ic img { width: 26px; height: 26px; }
+
+.layouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+.layout { display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: var(--r);
+          border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit;
+          text-align: start; cursor: pointer; transition: background-color .15s, border-color .15s; }
+.layout:hover { background: var(--surface); }
+.layout[aria-checked="true"] { border-color: var(--accent); background: var(--surface); }
+.layout:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); }
+.layout .set-hint { font-size: 0.78em; }
+.sketch { height: 54px; margin-bottom: 4px; border-radius: var(--r-sm); background: var(--surface-hi);
+          display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+          gap: 4px; padding: 8px; }
+.sketch i { display: block; border-radius: 2px; background: var(--faint); }
+.sketch .s-bar { width: 60%; height: 6px; background: var(--muted); }
+.sketch .s-tiles { width: 60%; height: 5px; background: repeating-linear-gradient(90deg, var(--faint) 0 5px, transparent 5px 8px); }
+.sketch .s-cards { width: 80%; height: 12px; background: repeating-linear-gradient(90deg, var(--faint) 0 22%, transparent 22% 26%); }
+.sketch.minimal { justify-content: center; } .sketch.minimal .s-tiles, .sketch.minimal .s-cards { display: none; }
+.sketch.sites .s-cards { display: none; } .sketch.sites .s-tiles { height: 14px;
+  background: repeating-linear-gradient(90deg, var(--faint) 0 5px, transparent 5px 8px); }
+.sketch.recent .s-tiles { display: none; } .sketch.recent .s-cards { height: 24px; }
+@media (max-width: 560px) { .layouts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.keys { margin-top: 48px; color: var(--faint); font-size: 0.8em; text-align: center; }
+
+/* Search first: "a search bar to put the question in and get going". */
+.search { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.date { color: var(--muted); font-size: 0.9em; }
+.box { width: 100%; max-width: 640px; height: 52px; display: flex; align-items: center; gap: 12px;
+       padding: 0 8px 0 18px; border-radius: calc(var(--r) * 1.6); background: var(--surface);
+       border: 1px solid var(--line); transition: border-color .15s, background-color .15s; }
+.box:focus-within { border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+                    background: var(--surface-hi); }
+.box .engine { width: 18px; height: 18px; flex: 0 0 auto; border-radius: 4px; }
+.box input { flex: 1 1 auto; min-width: 0; border: 0; outline: 0; background: transparent;
+             color: var(--text); font: inherit; font-size: 1.1em; }
+.box input::placeholder { color: var(--faint); }
+.go { flex: 0 0 auto; height: 36px; padding: 0 14px; border: 0; border-radius: 999px;
+      background: var(--accent); color: var(--on-accent, #fff); font: inherit; font-weight: 600;
+      cursor: pointer; opacity: 0; transition: opacity .15s; }
+.box:focus-within .go, .box.typed .go { opacity: 1; }
+
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.chip { height: 30px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px;
+        border-radius: 999px; border: 1px solid var(--line); background: transparent;
+        color: var(--muted); font: inherit; cursor: pointer;
+        transition: background-color .15s, color .15s; }
+.chip:hover, .chip:focus-visible { background: var(--surface); color: var(--text); outline: 0; }
+
+/* Quick access: the sites used most, one click away. */
+.tiles { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px;
+         width: 100%; max-width: 640px; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px 10px;
+        border-radius: var(--r); cursor: pointer; text-decoration: none; color: var(--muted);
+        transition: background-color .15s, color .15s; }
+.tile:hover, .tile:focus-visible { background: var(--surface); color: var(--text); outline: 0; }
+.tile .ic { width: 44px; height: 44px; border-radius: var(--r); background: var(--surface);
+            display: grid; place-items: center; }
+.tile .ic img { width: 22px; height: 22px; }
+.tile .n { max-width: 100%; font-size: 0.85em; white-space: nowrap; overflow: hidden;
+           text-overflow: ellipsis; }
+
+.sect { display: flex; flex-direction: column; gap: 12px; }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.head h2 { margin: 0; font-size: 1em; font-weight: 600; }
+.head .m { color: var(--faint); font-size: 0.85em; }
+
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card { display: flex; flex-direction: column; gap: 10px; padding: 14px; min-height: 104px;
+        border-radius: var(--r); background: var(--surface); cursor: pointer; text-decoration: none;
+        color: inherit; transition: background-color .15s; }
+.card:hover, .card:focus-visible { background: var(--surface-hi); outline: 0; }
+.card .src { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85em;
+             min-width: 0; }
+.card .src span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .t { line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+           overflow: hidden; overflow-wrap: break-word; }
+.card .when { margin-top: auto; color: var(--faint); font-size: 0.8em; }
+.fav { width: 16px; height: 16px; flex: 0 0 auto; border-radius: 3px; }
+.dot { width: 6px; height: 6px; border-radius: 3px; background: var(--accent); flex: 0 0 auto;
+       margin-left: auto; }
+
+.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 12px; }
+.group { grid-column: 1 / -1; margin: 10px 0 2px; color: var(--faint); font-size: 0.8em; }
+.row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm);
+       cursor: pointer; text-decoration: none; color: inherit; min-width: 0;
+       transition: background-color .15s; }
+.row:hover, .row:focus-visible { background: var(--surface); outline: 0; }
+.row .t { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .h { flex: 0 0 auto; color: var(--faint); font-size: 0.85em; max-width: 40%;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 720px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .list { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .view { padding-top: 24px; }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="views" role="tablist" aria-label="New tab views">
+    <button role="tab" data-view="start" aria-selected="true">Start</button>
+    <button role="tab" data-view="history" aria-selected="false" tabindex="-1">History</button>
+    <button role="tab" data-view="settings" aria-selected="false" tabindex="-1">Settings</button>
+  </nav>
+
+  <div class="view" id="view-start">
+  <div class="search">
+    <div class="date" id="date"></div>
+    <form class="box" id="box" autocomplete="off">
+      <img class="engine" id="engine" alt="">
+      <input id="q" type="text" placeholder="Search or enter address" aria-label="Search or enter address">
+      <button class="go" type="submit">Search</button>
+    </form>
+    <div class="chips" id="chips"></div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="sect" id="recent-sect" hidden>
+    <div class="head"><h2>Recent</h2><span class="m" id="recent-meta"></span></div>
+    <div class="cards" id="recent"></div>
+  </div>
+
+  </div>
+
+  <div class="view" id="view-history" hidden>
+    <input class="filter" id="filter" type="search" placeholder="Filter history" aria-label="Filter history">
+    <div class="sect" id="list-sect" hidden>
+      <div class="head"><h2>History</h2><span class="m" id="list-meta"></span></div>
+      <div class="list" id="list"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-settings" hidden>
+    <div class="settings" id="settings"></div>
+  </div>
+  <div class="keys">[ and ] switch views</div>
+</div>
+
+<script src="chrome://browser/content/zen-newtab.js"></script>
+</body>
+</html>

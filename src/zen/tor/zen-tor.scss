@@ -1,0 +1,469 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  /* One definition each. These were 34 literals across three files, with
+     #7d4698 and #e8a33d written out eight times apiece. */
+  --zen-tor-space: #7d4698;
+  --zen-tor-space-ink: #f6eefb;
+  --zen-tor-window: #e8a33d;
+  --zen-tor-window-ink: #2a1c05;
+  --zen-tor-bad: #c0392b;
+  --zen-tor-bad-ink: #fff1f1;
+  --zen-tor-ok: #4caf7d;
+  --zen-tor-onion: #b98fd0;
+}
+
+
+/* Two markings that share no property: a purple bar down the tab-strip edge
+   for a persistent Tor space, a dashed amber ring around the whole window for
+   an ephemeral Tor window. Colour, geometry, anchor and wording all differ, so
+   neither can be mistaken for the other at a glance. */
+
+#zen-tor-marker {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  display: none;
+}
+
+:root[zen-tor] #zen-tor-marker {
+  display: block;
+}
+
+#zen-tor-marker > .zen-tor-frame {
+  position: absolute;
+  inset: 0;
+}
+
+#zen-tor-marker > .zen-tor-pill {
+  position: absolute;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+/* Persistent space: a bar down the left edge, low and out of the way. */
+:root[zen-tor="space"] #zen-tor-marker > .zen-tor-frame {
+  border-left: 3px solid var(--zen-tor-space);
+  box-shadow: inset 6px 0 14px -8px var(--zen-tor-space);
+}
+
+:root[zen-tor="space"] #zen-tor-marker > .zen-tor-pill {
+  bottom: 10px;
+  left: 12px;
+  background: var(--zen-tor-space);
+  color: var(--zen-tor-space-ink);
+}
+
+/* Ephemeral window: a dashed ring right around the window, and a pill at the
+   top where it cannot be missed. */
+:root[zen-tor="window"] #zen-tor-marker > .zen-tor-frame {
+  border: 3px dashed var(--zen-tor-window);
+  border-radius: 10px;
+}
+
+:root[zen-tor="window"] #zen-tor-marker > .zen-tor-pill {
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--zen-tor-window);
+  color: var(--zen-tor-window-ink);
+}
+
+/* Routing switched off under a routed container: the marking still shows,
+   struck through, rather than disappearing and reading as "not Tor". */
+:root[zen-tor-unreachable] #zen-tor-marker > .zen-tor-frame {
+  border-style: dotted;
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------- the identity-box badge */
+
+/* Sized and tinted like #identity-icon beside it - plain information, not
+   another routing indicator, so it takes no colour of its own. */
+#zen-tor-identity-onion {
+  width: 16px;
+  height: 16px;
+  margin-inline-start: 4px;
+  list-style-image: url("chrome://browser/content/zen-images/tor/onion-off.svg");
+  -moz-context-properties: fill, fill-opacity;
+}
+
+/* --------------------------------------------------- the status widget */
+
+/* #zen-tor-status-button is a CustomizableUI widget, so it can sit in the
+   toolbar, the right rail or the overflow menu, and the user can drag it out
+   entirely. It is never hidden by state - a widget that vanishes cannot be
+   dragged back - so "off" is a real drawn state here.
+
+   Three shapes, one per state: colour alone would not survive a screenshot or
+   a colourblind reader. Routed states put the onion in the accent's own chip
+   in the chip's text colour, because at 16px an accent-on-chrome glyph had
+   nowhere near enough contrast to read as a shape at all. Tinted through
+   -moz-context-properties, so one asset serves both accents.
+
+   The connecting asset is the only animated one and is only ever fetched
+   under [zen-tor-status="connecting"], so no other state has an animation to
+   suppress. Its own stylesheet keeps that to transform and opacity and stops
+   it under prefers-reduced-motion.
+
+   Painted onto the button's own icon element rather than a box of ours, so the
+   toolbar, the overflow menu and the customize palette lay it out the way they
+   lay out every other widget. */
+#zen-tor-status-button .toolbarbutton-icon {
+  box-sizing: content-box;
+  width: 20px;
+  height: 20px;
+  /* The chip is the content box and the padding is the button's hit area, so
+     the widget is the size every other toolbar button is. */
+  padding: 4px;
+  background-clip: content-box;
+  background-origin: content-box;
+  border-radius: 50%;
+  list-style-image: none;
+  background-image: url("chrome://browser/content/zen-images/tor/onion-off.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  -moz-context-properties: fill, stroke;
+  fill: currentColor;
+  opacity: 0.6;
+}
+
+:root[zen-tor] #zen-tor-status-button .toolbarbutton-icon {
+  opacity: 1;
+}
+
+:root[zen-tor="space"] #zen-tor-status-button .toolbarbutton-icon {
+  background-color: var(--zen-tor-space);
+  fill: var(--zen-tor-space-ink);
+}
+
+:root[zen-tor="window"] #zen-tor-status-button .toolbarbutton-icon {
+  background-color: var(--zen-tor-window);
+  fill: var(--zen-tor-window-ink);
+}
+
+:root[zen-tor][zen-tor-status="connecting"] #zen-tor-status-button .toolbarbutton-icon {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-connecting.svg");
+}
+
+:root[zen-tor][zen-tor-status="connected"] #zen-tor-status-button .toolbarbutton-icon {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-connected.svg");
+}
+
+/* Danger outranks the accent: an unreachable route is the same problem
+   whichever of the two lifetimes it belongs to. */
+:root[zen-tor][zen-tor-status="unreachable"] #zen-tor-status-button .toolbarbutton-icon {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-unreachable.svg");
+  background-color: var(--zen-tor-bad);
+  fill: var(--zen-tor-bad-ink);
+}
+
+/* Whether the onion survives the empty new tab is the layout preset's
+   per-state widget config now (zen.ui.layout-preset.widgets), applied as
+   [zen-preset-hidden] - see zen-compact-mode.css. */
+
+/* ------------------------------------------------------ the onion panel */
+
+/* Structure over decoration: a compact label/value list on the panel's own
+   tokens. There is deliberately no "unknown hop" style - with no control port
+   the circuit section is absent, not greyed out. */
+
+#zen-tor-panel-body {
+  width: 21em;
+  padding: 4px 0 6px;
+}
+
+#zen-tor-panel-header {
+  gap: 8px;
+  padding: 8px 9px 6px;
+}
+
+#zen-tor-panel-onion {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px 13px;
+  background-image: url("chrome://browser/content/zen-images/tor/onion-off.svg");
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  -moz-context-properties: fill, stroke;
+  fill: currentColor;
+  opacity: 0.7;
+}
+
+#zen-tor-panel-onion[data-state="connected"] {
+  background-color: var(--zen-tor-space);
+  fill: var(--zen-tor-space-ink);
+  opacity: 1;
+}
+
+/* The window accent, matching the widget: the panel must not read as a space
+   when it belongs to a Tor window. */
+:root[zen-tor="window"] #zen-tor-panel-onion[data-state="connected"] {
+  background-color: var(--zen-tor-window);
+  fill: var(--zen-tor-window-ink);
+}
+
+#zen-tor-panel-onion[data-state="connecting"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-connecting.svg");
+  background-color: var(--zen-tor-window);
+  fill: var(--zen-tor-window-ink);
+  opacity: 1;
+}
+
+#zen-tor-panel-onion[data-state="unreachable"] {
+  background-image: url("chrome://browser/content/zen-images/tor/onion-unreachable.svg");
+  background-color: var(--zen-tor-bad);
+  fill: var(--zen-tor-bad-ink);
+  opacity: 1;
+}
+
+#zen-tor-panel-site {
+  font-weight: 600;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.zen-tor-panel-heading {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.5;
+  padding: 6px 9px 3px;
+}
+
+.zen-tor-panel-note {
+  font-size: 11px;
+  line-height: 1.45;
+  opacity: 0.6;
+  padding: 0 9px 5px;
+}
+
+/* --- facts --- */
+
+.zen-tor-panel-fact {
+  display: grid;
+  grid-template-columns: 6px 5.6em 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+.zen-tor-panel-fact-label {
+  opacity: 0.5;
+}
+
+.zen-tor-panel-fact-value {
+  overflow-wrap: anywhere;
+}
+
+.zen-tor-panel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.25;
+}
+
+.zen-tor-panel-fact[data-tone="ok"] .zen-tor-panel-dot {
+  background: var(--zen-tor-ok);
+  opacity: 1;
+}
+
+.zen-tor-panel-fact[data-tone="warn"] .zen-tor-panel-dot {
+  background: var(--zen-tor-window);
+  opacity: 1;
+}
+
+.zen-tor-panel-fact[data-tone="bad"] .zen-tor-panel-dot {
+  background: var(--zen-tor-bad);
+  opacity: 1;
+}
+
+/* --- the route --- */
+
+/* A VPN-shaped path: you, the hops tor reported, the site. The column count
+   comes from the number of real hops, so an onion circuit is simply a
+   different-length chain rather than an exit slot left blank. */
+
+/* No nodes means no path to draw; the bare rail on its own reads as one. */
+#zen-tor-panel-route:not([data-flow="on"]) {
+  display: none;
+}
+
+#zen-tor-panel-route {
+  --zen-tor-route-count: 3;
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  padding: 4px 9px 8px;
+}
+
+/* Both the rail and the moving band span dot-centre to dot-centre. */
+#zen-tor-panel-route::before,
+#zen-tor-panel-route-track {
+  position: absolute;
+  top: 7px;
+  height: 2px;
+  left: calc(9px + (100% - 18px) / (2 * var(--zen-tor-route-count)));
+  right: calc(9px + (100% - 18px) / (2 * var(--zen-tor-route-count)));
+}
+
+#zen-tor-panel-route::before {
+  content: "";
+  background: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+#zen-tor-panel-route-track {
+  overflow: hidden;
+}
+
+#zen-tor-panel-route-pulse {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 38%,
+    var(--zen-tor-onion) 50%,
+    transparent 62%
+  );
+}
+
+#zen-tor-panel-route[data-flow="on"] #zen-tor-panel-route-pulse {
+  opacity: 1;
+  animation: zen-tor-route-flow 2.4s linear infinite;
+}
+
+@keyframes zen-tor-route-flow {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Hidden, not frozen: a paused pulse sits at the middle of the rail and reads
+   as a highlight on the middle hop. */
+@media (prefers-reduced-motion: reduce) {
+  #zen-tor-panel-route[data-flow="on"] #zen-tor-panel-route-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.zen-tor-panel-route-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+  text-align: center;
+}
+
+.zen-tor-panel-route-dot {
+  width: 8px;
+  height: 8px;
+  margin-bottom: 3px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1.5px solid currentColor;
+  background: var(--arrowpanel-background, Canvas);
+  opacity: 0.75;
+}
+
+.zen-tor-panel-route-node[data-role="you"] .zen-tor-panel-route-dot,
+.zen-tor-panel-route-node[data-role="site"] .zen-tor-panel-route-dot,
+.zen-tor-panel-route-node[data-role="onion"] .zen-tor-panel-route-dot {
+  background: currentColor;
+  opacity: 0.9;
+}
+
+.zen-tor-panel-route-node[data-role="onion"] .zen-tor-panel-route-dot {
+  background: var(--zen-tor-onion);
+  border-color: var(--zen-tor-onion);
+  opacity: 1;
+}
+
+.zen-tor-panel-route-name,
+.zen-tor-panel-route-sub {
+  /* Narrower than the column so neighbouring labels cannot touch. */
+  max-width: calc(100% - 6px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-tor-panel-route-name {
+  font-size: 10px;
+}
+
+.zen-tor-panel-route-sub {
+  font-size: 9px;
+  opacity: 0.5;
+}
+
+.zen-tor-panel-route-sub > span + span::before {
+  content: " · ";
+}
+
+#zen-tor-panel-torrc {
+  margin: 0 9px;
+  padding: 6px 8px;
+  border-radius: var(--arrowpanel-menuitem-border-radius, 5px);
+  font-family: monospace;
+  font-size: 11px;
+  white-space: pre;
+  user-select: text;
+  opacity: 0.75;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+}
+
+/* --- actions --- */
+
+#zen-tor-panel-actions {
+  gap: 4px;
+  margin: 6px 9px 0;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+}
+
+#zen-tor-panel-actions-row {
+  gap: 4px;
+}
+
+.zen-tor-panel-action {
+  margin: 0;
+  justify-content: center;
+  border-radius: var(--arrowpanel-menuitem-border-radius, 5px);
+}
+
+#zen-tor-panel-new-circuit {
+  margin: 4px 9px 2px;
+}
+
+/* The obvious next step from "Direct" is turning routing on, so that button
+   is the only one carrying weight. The space accent, not --zen-primary-color:
+   the user's accent is a near-black on this theme, which tinted the primary
+   action darker than the neutral buttons beside it. */
+.zen-tor-panel-primary {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--zen-tor-space) 45%, transparent) !important;
+}
+
+.zen-tor-panel-primary:hover {
+  background: color-mix(in srgb, var(--zen-tor-space) 62%, transparent) !important;
+}

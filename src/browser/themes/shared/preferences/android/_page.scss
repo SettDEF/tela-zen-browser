@@ -1,0 +1,29 @@
+// The page frame, as the shell's settings window: the page is layer 0, the
+// content one layer-1 sheet beside the navigation rail, rounded 10px.
+@use "zen/common/styles/android/tokens" as t;
+@use "zen/common/styles/android/mixins" as m;
+
+@include m.scoped {
+  &,
+  body {
+    background-color: t.color("l0") !important;
+    color: t.color("on");
+    font-family: var(--a-font);
+  }
+
+  // The content sheet.
+  .main-content {
+    background-color: t.color("l1") !important;
+    border-radius: 10px !important;
+    margin-block: t.space("s");
+    margin-inline-end: t.space("s");
+  }
+
+  // The search bar is part of the sheet, so it takes the sheet's colour.
+  #search-container { background-color: t.color("l1") !important; }
+
+  h1 {
+    color: t.color("on-tonal");
+    font-weight: 500;
+  }
+}

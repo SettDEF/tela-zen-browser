@@ -1,0 +1,352 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+  <style>
+    body { margin: 0; background: #101010; color: #e2e2e2;
+           font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #a9b4d1; } a:hover { color: #c8d0e6; }
+    .s { font-family: "Instrument Serif", "Iowan Old Style", Georgia, serif; font-weight: 400; }
+    .m { font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase;
+         color: rgba(226,226,226,0.42); }
+  </style>
+</helmet>
+
+<div style="width: 1440px; box-sizing: border-box; padding: 56px 72px 72px; background: #101010">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-bottom: 44px">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <div class="m">Thursday, 4 September</div>
+      <div class="s" style="font-size: 58px; line-height: 1; letter-spacing: -0.015em">Where you left off</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 13px;
+                border-radius: 7px; background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.09)">
+      <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span>
+      <span style="font-size: 13px; letter-spacing: 0.01em; color: rgba(226,226,226,0.86)">13 unread</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px">
+
+    <div style="grid-column: span 7; box-sizing: border-box; padding: 30px 32px 28px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; flex-direction: column; gap: 18px; min-height: 268px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}"></span>
+        <span class="m">moflix-stream.xyz</span>
+        <span class="m" style="color: rgba(226,226,226,0.28)">27 min left</span>
+      </div>
+      <div class="s" style="font-size: 44px; line-height: 1.05; letter-spacing: -0.01em; text-wrap: pretty">
+        Reacher — Karambit
+      </div>
+      <div style="font-size: 15px; line-height: 1.55; color: rgba(226,226,226,0.55); max-width: 46ch; text-wrap: pretty">
+        Season 4, episode 4. Picks up where you paused, 27:16 of 43:31.
+      </div>
+      <div style="margin-top: auto; display: flex; align-items: center; gap: 8px">
+        <div style="flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); overflow: hidden">
+          <div style="width: 63%; height: 100%; background: {{accent}}"></div>
+        </div>
+        <span class="m" style="letter-spacing: 0.08em">63%</span>
+      </div>
+    </div>
+
+    <div style="grid-column: span 5; box-sizing: border-box; padding: 26px 28px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; flex-direction: column; gap: 14px; min-height: 268px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}"></span>
+          <span class="m">youtube.com</span>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px;
+                     background: {{accentSoft}}; color: {{accent}}">3 new</span>
+      </div>
+      <div class="s" style="font-size: 30px; line-height: 1.12; letter-spacing: -0.005em; text-wrap: pretty">
+        Neue EVENTWOCHE in GTA Online
+      </div>
+      <div style="font-size: 14px; line-height: 1.5; color: rgba(226,226,226,0.5)">
+        Plus two more from channels you follow.
+      </div>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 9px">
+        <div style="display: flex; align-items: center; gap: 9px">
+          <span style="width: 6px; height: 6px; border-radius: 4px; background: {{accent}}"></span>
+          <span style="font-size: 13px; color: rgba(226,226,226,0.72)">Hard Techno / Schranz set</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 9px">
+          <span style="width: 6px; height: 6px; border-radius: 4px; background: rgba(255,255,255,0.14)"></span>
+          <span style="font-size: 13px; color: rgba(226,226,226,0.4)">In der Schule gemobbt</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="grid-column: span 4; box-sizing: border-box; padding: 22px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; flex-direction: column; gap: 12px; min-height: 158px">
+      <div style="display: flex; align-items: center; gap: 9px">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span>
+        <span class="m">reddit.com</span>
+      </div>
+      <div class="s" style="font-size: 21px; line-height: 1.2; text-wrap: pretty">
+        Madball16 replied to your comment
+      </div>
+      <div class="m" style="margin-top: auto; color: rgba(226,226,226,0.3)">2 hours ago</div>
+    </div>
+
+    <div style="grid-column: span 4; box-sizing: border-box; padding: 22px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; flex-direction: column; gap: 12px; min-height: 158px">
+      <div style="display: flex; align-items: center; gap: 9px">
+        <span style="width: 7px; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.14)"></span>
+        <span class="m" style="color: rgba(226,226,226,0.3)">github.com</span>
+      </div>
+      <div class="s" style="font-size: 21px; line-height: 1.2; color: rgba(226,226,226,0.5); text-wrap: pretty">
+        zen-browser/desktop — 1.21.16b
+      </div>
+      <div class="m" style="margin-top: auto; color: rgba(226,226,226,0.22)">Yesterday · read</div>
+    </div>
+
+    <div style="grid-column: span 4; box-sizing: border-box; padding: 22px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; flex-direction: column; gap: 12px; min-height: 158px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 9px">
+          <span style="width: 7px; height: 7px; border-radius: 4px; background: {{accent}}"></span>
+          <span class="m">claude.ai</span>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px;
+                     background: {{accentSoft}}; color: {{accent}}">2</span>
+      </div>
+      <div class="s" style="font-size: 21px; line-height: 1.2; text-wrap: pretty">
+        Opening a missing menu
+      </div>
+      <div class="m" style="margin-top: auto; color: rgba(226,226,226,0.3)">Active now</div>
+    </div>
+
+    <div style="grid-column: span 8; box-sizing: border-box; padding: 24px 28px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08);
+                display: flex; align-items: center; gap: 24px; min-height: 108px">
+      <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+      <div style="display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto">
+        <div class="s" style="font-size: 27px; line-height: 1.15; letter-spacing: -0.005em">
+          Affenkäfig — Veranstaltungen im September
+        </div>
+        <div class="m">affenkaefig.de · saved for later</div>
+      </div>
+      <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 4px 10px; border-radius: 5px;
+                   background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">4 new</span>
+    </div>
+
+    <div style="grid-column: span 4; box-sizing: border-box; padding: 22px 24px; border-radius: 7px;
+                background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12);
+                display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 108px">
+      <div style="font-size: 14px; color: rgba(226,226,226,0.6)">Nothing else new</div>
+      <div class="m" style="color: rgba(226,226,226,0.28)">Last checked 4 minutes ago</div>
+    </div>
+
+  </div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+              margin: 52px 0 18px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.08)">
+    <div class="s" style="font-size: 30px; line-height: 1; letter-spacing: -0.01em">Jump back in</div>
+    <div class="m">6 tabs · 5 unread</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 20px; padding: 20px 24px; border-radius: 7px;
+                background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+      <span style="width: 8px; height: 8px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+      <div class="s" style="font-size: 30px; line-height: 1.15; flex: 1 1 auto; text-wrap: pretty">AudioZ — new releases</div>
+      <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 4px 10px; border-radius: 5px; background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">5 new</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px; background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 22px; line-height: 1.2; color: #e2e2e2; text-wrap: pretty">Dexter: Original Sin</div>
+          <div class="m">moflix-stream.xyz</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px; background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 22px; line-height: 1.2; color: #e2e2e2; text-wrap: pretty">KinoKing V2 — Filme</div>
+          <div class="m">kinoking.cc</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px; background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2; color: #e2e2e2; text-wrap: pretty">AZYR | Main Floor</div>
+          <div class="m">youtube.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px; background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2; color: #e2e2e2; text-wrap: pretty">FRANKFURT TIEFGARAGE</div>
+          <div class="m">youtube.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 7px; background: #161616; border: 1px solid rgba(255,255,255,0.08)">
+        <span style="width: 7px; height: 7px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0">
+          <div class="s" style="font-size: 18px; line-height: 1.2; color: rgba(226,226,226,0.5); text-wrap: pretty">Non-English • fmhy</div>
+          <div class="m" style="color: rgba(226,226,226,0.24)">fmhy.net</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+              margin: 52px 0 18px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.08)">
+    <div class="s" style="font-size: 30px; line-height: 1; letter-spacing: -0.01em">Everything from before</div>
+    <div class="m">18 tabs · 3 unread</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px">
+      <div class="m" style="grid-column: 1 / -1; margin: 22px 0 4px; color: rgba(226,226,226,0.5)">Today</div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">(1) Hard Techno / Schranz</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">youtube.com · 1 hour ago</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">(1) In der Schule gemobbt</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">youtube.com · 1 hour ago</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">New chat</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.4)">claude.ai · Active now</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">tela bridge</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">Violentmonkey · 2 hours ago</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">New script</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">Violentmonkey · 2 hours ago</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">lineup 10.9 affenkäfig</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">google.com · 3 hours ago</div>
+        </div>
+      </div>
+      <div class="m" style="grid-column: 1 / -1; margin: 22px 0 4px; color: rgba(226,226,226,0.5)">Yesterday</div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">AudioZ — Producers Community</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">audioz.download</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Spider-Man: Brand New Day</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.4)">moflix-stream.xyz</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">FlixFilm+ — Streame</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">flixfilm.to</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: {{accent}}; flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">News Today — Evey Daily</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.4)">newstoday.com</div>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px; background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">6</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Yandex Images: search</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">yandex.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">uBlock₀ — Dashboard</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">extension</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Add-ons Manager</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">about:addons</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Privacy Badger</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">extension</div>
+        </div>
+      </div>
+      <div class="m" style="grid-column: 1 / -1; margin: 22px 0 4px; color: rgba(226,226,226,0.5)">Earlier</div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Sign In — Google</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">accounts.google.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">support.mozilla.org</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">mozilla.org</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Zen Browser — Release notes</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">github.com</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px; padding: 11px 14px; border-radius: 7px; background: rgba(255,255,255,0.02)">
+        <span style="width: 6px; height: 6px; border-radius: 5px; background: rgba(255,255,255,0.14); flex: 0 0 auto"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0">
+          <div style="font-size: 14px; line-height: 1.3; color: rgba(226,226,226,0.46); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Affenkäfig — Veranstaltungen</div>
+          <div class="m" style="font-size: 10px; letter-spacing: 0.1em; color: rgba(226,226,226,0.22)">affenkaefig.de</div>
+        </div>
+        <span style="font-size: 11px; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 5px; background: {{accentSoft}}; color: {{accent}}; flex: 0 0 auto">4</span>
+      </div>
+  </div>
+</div>
+</x-dc>

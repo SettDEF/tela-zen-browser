@@ -1,0 +1,785 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Styling for the strip ZenHorizontalTabs.mjs builds. Nothing here fights
+   Zen's sidebar layout - the strip is its own element in
+   #zen-appcontent-wrapper, so the sidebar keeps working alongside it. */
+
+#zen-horizontal-chrome {
+  display: none;
+}
+
+:root[zen-layout="horizontal"] {
+  /* One slot width for the field and for the box that reserves its place, so
+     the two cannot drift apart. vw rather than %: #urlbar is in the top layer,
+     where a percentage resolves against the viewport and not against the box
+     it appears to sit in. */
+  --zen-urlbar-slot: clamp(240px, 34vw, 560px);
+  /* These three also lay out the two rows above the field - the strip's
+     min-height and both rows' padding - so the resting position below is true
+     by construction rather than a guess at where the toolbar put things. */
+  --zen-urlbar-edge: 6px;
+  --zen-urlbar-pad: 3px;
+  --zen-htabs-strip: 40px;
+  /* Where the field rests. The glide subtracts these exact expressions, so the
+     two cannot disagree - the first attempt derived the resting left from
+     wherever the toolbar had laid the slot out, and was 29px wrong the moment
+     the row overflowed. */
+  --zen-urlbar-rest-x: calc(100vw - var(--zen-urlbar-edge) - var(--zen-urlbar-slot));
+  --zen-urlbar-rest-y: calc(var(--zen-htabs-strip) + var(--zen-urlbar-pad));
+  --zen-urlbar-glide: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Full-width stack above the sidebar and content: tab strip, then nav bar. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  width: 100%;
+}
+
+:root[zen-layout="horizontal"] #zen-horizontal-chrome .zen-htabs-strip {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  min-height: var(--zen-htabs-strip);
+  padding: var(--zen-urlbar-pad) var(--zen-urlbar-edge) 0;
+}
+
+/* The real #nav-bar, moved here: full width instead of the 181px sidebar. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #nav-bar {
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: var(--zen-urlbar-pad) var(--zen-urlbar-edge) !important;
+  width: 100% !important;
+}
+
+/* Zen's own tab list is redundant once the strip is up; the sidebar shell,
+   workspaces and buttons stay so the left sidebar still works.
+   #zen-tabs-wrapper is the tabs' *ancestor's child*, not their container -
+   #tabbrowser-tabs is its parent - so hiding the wrapper hid nothing and the
+   whole tab column kept painting down the left edge. */
+:root[zen-layout="horizontal"] #tabbrowser-tabs {
+  display: none !important;
+}
+
+.zen-htabs-list {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.zen-htabs-tab {
+  align-items: center;
+  box-sizing: border-box;
+  background: var(--zen-toolbar-element-bg, rgba(255, 255, 255, 0.06));
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-medium, 9px);
+  cursor: default;
+  display: flex;
+  flex: 0 1 200px;
+  gap: 7px;
+  min-width: 44px;
+  max-width: 200px;
+  padding: 5px 7px;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  user-select: none;
+}
+
+.zen-htabs-tab:hover {
+  background: var(--zen-toolbar-element-bg-hover, rgba(255, 255, 255, 0.12));
+}
+
+.zen-htabs-tab[selected] {
+  background: color-mix(in srgb, var(--zen-colors-primary, #a9b4d1) 22%, transparent);
+  border-color: color-mix(in srgb, var(--zen-colors-primary, #a9b4d1) 38%, transparent);
+}
+
+/* A pinned tab is icon-only, like every other browser. */
+.zen-htabs-tab[pinned] {
+  flex: 0 0 auto;
+  max-width: 36px;
+  min-width: 36px;
+  justify-content: center;
+}
+
+.zen-htabs-tab[pinned] .zen-htabs-label,
+.zen-htabs-tab[pinned] .zen-htabs-close {
+  display: none;
+}
+
+.zen-htabs-icon {
+  border-radius: 3px;
+  flex: 0 0 auto;
+  height: 16px;
+  width: 16px;
+}
+
+.zen-htabs-label {
+  flex: 1 1 auto;
+  font-size: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zen-htabs-close {
+  background: transparent;
+  border: none;
+  border-radius: var(--tela-radius-sm);
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 1em;
+  line-height: 1;
+  opacity: 0;
+  padding: 1px 4px;
+}
+
+.zen-htabs-tab:hover .zen-htabs-close,
+.zen-htabs-tab[selected] .zen-htabs-close {
+  opacity: 0.6;
+}
+
+.zen-htabs-close:hover {
+  background: var(--zen-toolbar-element-bg-hover, rgba(255, 255, 255, 0.16));
+  opacity: 1;
+}
+
+.zen-htabs-new {
+  background: transparent;
+  border: none;
+  border-radius: var(--tela-radius-sm);
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 1.15em;
+  line-height: 1;
+  padding: 2px 8px;
+}
+
+.zen-htabs-new:hover {
+  background: var(--zen-toolbar-element-bg-hover, rgba(255, 255, 255, 0.12));
+}
+
+/* Zen sizes the urlbar for a 181px sidebar; give it the slot instead. An
+   explicit width, not auto: the field is position:fixed in the top layer, so
+   auto is shrink-to-fit against the viewport rather than a fill of the box
+   below it. */
+/* Opaque, and opaque at rest too rather than only while lifted: dimming the
+   page cannot fix this - a 13.5% alpha pill still reads a paragraph through
+   itself at a 74% dim, because a dim scales contrast rather than removing it -
+   and a field that changes colour on the way home is a regression this file
+   has already shipped once. Mixed from the theme so it follows it. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #urlbar .urlbar-background {
+  background-color: color-mix(in srgb, var(--zen-main-browser-background, #1b1b1b) 88%,
+                              var(--toolbox-textcolor, #fff) 12%) !important;
+}
+
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #urlbar {
+  --urlbar-width: var(--zen-urlbar-slot) !important;
+  flex: 0 0 auto !important;
+  max-width: var(--zen-urlbar-slot) !important;
+  min-width: 0 !important;
+  width: var(--zen-urlbar-slot) !important;
+}
+
+/* The sidebar's top buttons - extensions among them - sit at the row's end. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #zen-sidebar-top-buttons {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #zen-sidebar-top-buttons-customization-target {
+  display: flex !important;
+  flex-direction: row !important;
+  width: auto !important;
+}
+
+/* Deliberate translucency: the bar had no background at all, so it showed the
+   desktop through. This is Zen's own toolbar surface, kept see-through. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome {
+  background: color-mix(in srgb, var(--zen-main-browser-background, #1b1b1b) 78%, transparent);
+  backdrop-filter: blur(22px) saturate(1.25);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* Tabs need their own weight to stay legible over a translucent bar. */
+:root[zen-layout="horizontal"] .zen-htabs-tab {
+  background: color-mix(in srgb, var(--zen-main-browser-background, #1b1b1b) 55%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+:root[zen-layout="horizontal"] .zen-htabs-tab[selected] {
+  background: color-mix(in srgb, var(--zen-colors-primary, #a9b4d1) 26%, var(--zen-main-browser-background, #1b1b1b) 60%);
+}
+
+/* Drag feedback: the dragged tab fades, a bar marks where it will land. */
+.zen-htabs-tab[dragging] {
+  opacity: 0.4;
+}
+
+.zen-htabs-tab[drop-before],
+.zen-htabs-tab[drop-after] {
+  position: relative;
+}
+
+.zen-htabs-tab[drop-before]::before,
+.zen-htabs-tab[drop-after]::after {
+  background: var(--zen-colors-primary, #a9b4d1);
+  border-radius: 1px;
+  bottom: 3px;
+  content: "";
+  position: absolute;
+  top: 3px;
+  width: 2px;
+}
+
+.zen-htabs-tab[drop-before]::before { left: -3px; }
+.zen-htabs-tab[drop-after]::after { right: -3px; }
+
+/* Tab groups: a labelled, coloured container around a contiguous run of the
+   group's tiles. --zen-htabs-group-color is set per-instance in JS from the
+   real group's colour (or Zen folder accent); falls back to the theme
+   accent so an uncoloured group still reads as a group. */
+.zen-htabs-group {
+  align-items: center;
+  background: color-mix(in srgb, var(--zen-htabs-group-color, var(--zen-colors-primary, #a9b4d1)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--zen-htabs-group-color, var(--zen-colors-primary, #a9b4d1)) 40%, transparent);
+  border-radius: var(--border-radius-medium, 9px);
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  padding: 3px;
+}
+
+.zen-htabs-group-label {
+  color: color-mix(in srgb, var(--zen-htabs-group-color, currentColor) 80%, currentColor);
+  cursor: default;
+  flex: 0 0 auto;
+  font-size: 0.85em;
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  padding: 0 3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Collapsed: only the label chip shows, same as Firefox's own group. */
+.zen-htabs-group[collapsed] .zen-htabs-tab {
+  display: none;
+}
+
+/* No dropdown at all in this layout: the urlbar is just a field. */
+:root[zen-layout="horizontal"] #urlbar > .urlbarView,
+:root[zen-layout="horizontal"] #urlbar-results {
+  display: none !important;
+}
+
+/* Widths held while closing, so the next tab's X lands under the cursor. */
+.zen-htabs-list[locked] .zen-htabs-tab:not([pinned]) {
+  flex: 0 0 var(--zen-htabs-locked, 200px) !important;
+  max-width: var(--zen-htabs-locked, 200px) !important;
+}
+
+/* Right rail: icon width only, transparent so springs read as empty space. */
+/* position/z-index are load-bearing: #zen-browser-background is absolutely
+   positioned at z-index 0 inside #browser, so a static sibling paints beneath
+   it - the rail laid out and hit-tested correctly while drawing nothing. */
+#zen-right-rail {
+  --zen-rail-button-size: 36px;
+  --zen-rail-icon-size: 20px;
+  align-items: center;
+  appearance: none;
+  background: transparent !important;
+  border: none !important;
+  border-left: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 0;
+  /* The content area is inset by --zen-element-separation on every side; the
+     rail sat flush against the window edge, which read as misaligned rather
+     than deliberate. */
+  margin-inline-end: var(--zen-element-separation, 8px);
+  position: relative;
+  width: 44px;
+  z-index: 2;
+}
+
+#zen-right-rail[hidden] { display: none; }
+
+#zen-right-rail-customization-target {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+/* Springs are the transparent flexible spacers; keep them invisible but
+   droppable, and visible as a dashed slot while customizing. */
+#zen-right-rail toolbarspring {
+  background: transparent;
+  flex: 1 1 auto;
+  min-height: 8px;
+  width: 100%;
+}
+
+:root[customizing] #zen-right-rail {
+  background: color-mix(in srgb, currentColor 6%, transparent) !important;
+  outline: 1px dashed color-mix(in srgb, currentColor 22%, transparent);
+}
+
+:root[customizing] #zen-right-rail toolbarspring {
+  outline: 1px dashed color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* Toolbar icons are sized for a 16px row; in a rail of their own they read as
+   specks. One rule for every widget here, tunable by the two vars above. */
+#zen-right-rail toolbarbutton {
+  height: var(--zen-rail-button-size);
+  min-height: var(--zen-rail-button-size);
+  min-width: var(--zen-rail-button-size);
+  padding: 0;
+  width: var(--zen-rail-button-size);
+}
+
+/* padding:0 is the point: toolbar styling puts 6px of padding on the icon box,
+   so a 20px box drew an 8px glyph while the download button's nested 16px image
+   ignored the box entirely - two icons, half a rail apart, at half each other's
+   size. Size the glyph and drop the inset. */
+#zen-right-rail toolbarbutton :is(image, .toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  height: var(--zen-rail-icon-size) !important;
+  padding: 0 !important;
+  width: var(--zen-rail-icon-size) !important;
+}
+
+/* The download button nests its glyph in sizing boxes of its own. Animatable
+   boxes are sprite strips - resizing those would break the animation. */
+#zen-right-rail toolbarbutton .toolbarbutton-badge-stack > box:not(.toolbarbutton-animatable-box),
+#zen-right-rail toolbarbutton .toolbarbutton-badge-stack > box:not(.toolbarbutton-animatable-box) > image {
+  height: var(--zen-rail-icon-size) !important;
+  width: var(--zen-rail-icon-size) !important;
+}
+
+#zen-right-rail toolbarbutton .toolbarbutton-animatable-image {
+  height: var(--zen-rail-icon-size) !important;
+  width: auto !important;
+}
+
+#zen-right-rail toolbarbutton .toolbarbutton-text {
+  display: none;
+}
+
+/* Toolbar buttons paint hover on the icon box, which the rule above shrinks
+   to the glyph; the whole 36px button is the target, so it carries the shape. */
+#zen-right-rail toolbarbutton {
+  border-radius: var(--tela-radius-sm, 6px);
+}
+
+#zen-right-rail toolbarbutton :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  background: transparent !important;
+}
+
+#zen-right-rail toolbarbutton:not([disabled]):hover {
+  background: var(--toolbarbutton-hover-background);
+}
+
+#zen-right-rail toolbarbutton:not([disabled]):is([open], [checked], :hover:active) {
+  background: var(--toolbarbutton-active-background);
+}
+
+/* Engine chip sits inside the field, ahead of the text. */
+:root[zen-layout="horizontal"] #urlbar .urlbar-input-container > #zen-search-engine-button {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  margin-inline: 2px 6px;
+  order: -1;
+  padding: 2px;
+}
+
+/* The glyph inherits toolbar text so it is always legible; the theme accent is
+   mixed in rather than used raw, since it can be near-black (measured
+   rgb(12,13,2)) and would vanish against a dark field. */
+:root[zen-layout="horizontal"] #zen-search-engine-button {
+  color: color-mix(in srgb, var(--zen-primary-color, currentColor) 45%, currentColor);
+  opacity: 0.85;
+}
+
+:root[zen-layout="horizontal"] #zen-search-engine-button:hover {
+  opacity: 1;
+}
+
+/* Zen hides this one by default (zen.theme.hide-unified-extensions-button);
+   in the rail it is how you reach extensions. Size comes from the rule above. */
+#zen-right-rail #unified-extensions-button {
+  display: flex !important;
+  height: var(--zen-rail-button-size) !important;
+  min-width: var(--zen-rail-button-size) !important;
+  visibility: visible !important;
+  width: var(--zen-rail-button-size) !important;
+}
+
+/* Zen's own magnifier duplicates the engine chip; the chip IS the indicator. */
+:root[zen-layout="horizontal"] #urlbar .searchmode-switcher,
+:root[zen-layout="horizontal"] #urlbar #urlbar-searchmode-switcher {
+  display: none !important;
+}
+
+/* The Marionette/WebDriver indicator ships as an emoji. Line glyph in the same
+   family as the engine chip, filled on hover so it reads as a live state. */
+:root[zen-layout="horizontal"] #remote-control-box {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-inline-end: 4px;
+  opacity: 0.68;
+  transition: opacity 0.15s ease-in-out;
+}
+
+:root[zen-layout="horizontal"] #remote-control-box:hover { opacity: 1; }
+
+:root[zen-layout="horizontal"] #remote-control-box > image {
+  background-color: color-mix(in srgb, var(--zen-primary-color, currentColor) 45%, currentColor);
+  height: 16px;
+  list-style-image: none !important;
+  width: 16px;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272.25%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%273.5%27%20y%3D%279%27%20width%3D%2717%27%20height%3D%2710.5%27%20rx%3D%274%27%2F%3E%3Cpath%20d%3D%27M12%209V6.1%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274.4%27%20r%3D%271.6%27%2F%3E%3Ccircle%20cx%3D%278.85%27%20cy%3D%2714%27%20r%3D%271.15%27%2F%3E%3Ccircle%20cx%3D%2715.15%27%20cy%3D%2714%27%20r%3D%271.15%27%2F%3E%3Cpath%20d%3D%27M1.9%2013.4v2.7M22.1%2013.4v2.7%27%2F%3E%3C%2Fsvg%3E") center / 16px 16px no-repeat;
+}
+
+:root[zen-layout="horizontal"] #remote-control-box:hover > image,
+:root[zen-layout="horizontal"] #remote-control-box[open] > image {
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27black%27%20fill-rule%3D%27evenodd%27%20d%3D%27M7.5%209%20H16.5%20A4%204%200%200%201%2020.5%2013%20V15.5%20A4%204%200%200%201%2016.5%2019.5%20H7.5%20A4%204%200%200%201%203.5%2015.5%20V13%20A4%204%200%200%201%207.5%209%20Z%20M7.55%2014%20a1.3%201.3%200%201%200%202.6%200%20a1.3%201.3%200%201%200%20-2.6%200%20Z%20M13.85%2014%20a1.3%201.3%200%201%200%202.6%200%20a1.3%201.3%200%201%200%20-2.6%200%20Z%20M11.25%205.9%20h1.5%20v3.2%20h-1.5%20Z%20M10.4%204.4%20a1.6%201.6%200%201%200%203.2%200%20a1.6%201.6%200%201%200%20-3.2%200%20Z%27%2F%3E%3Crect%20fill%3D%27black%27%20x%3D%271.1%27%20y%3D%2713.3%27%20width%3D%271.7%27%20height%3D%273%27%20rx%3D%270.85%27%2F%3E%3Crect%20fill%3D%27black%27%20x%3D%2721.2%27%20y%3D%2713.3%27%20width%3D%271.7%27%20height%3D%273%27%20rx%3D%270.85%27%2F%3E%3C%2Fsvg%3E") center / 16px 16px no-repeat;
+}
+
+/* The container was sized two different ways depending on timing: Zen's
+   calc(var(--urlbar-width) + ...) when that variable resolved, and a flex
+   fallback when it did not - 323px one run, 751px the next, and sticky once
+   flipped. Fixed width, one rule, always. */
+/* Flush with the row's trailing edge, not centred by auto margins: the field
+   is position:fixed at this box's static position, so pinning the box against
+   an edge the viewport also defines is what makes the field's resting left
+   arithmetic rather than a measurement. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #urlbar-container {
+  flex: 0 0 auto !important;
+  width: var(--zen-urlbar-slot) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-inline: auto 0 !important;
+}
+
+/* Nothing of its own between the slot and the row's padding, or the resting
+   left the centring computes stops matching where the field actually is. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #nav-bar-customization-target {
+  flex: 1 1 auto !important;
+  margin-inline-end: 0 !important;
+  padding-inline-end: 0 !important;
+}
+
+/* Focus lifts the field out of the bar into the middle of the window and blur
+   brings it back. Pure CSS on purpose: the JS version of this owned #urlbar's
+   width and spent its life fighting ZenSidebarResults over it. `translate` is
+   the one geometry property nothing else writes, and its two -50% terms are the
+   field's own width and height, so it stays centred whatever resizes it.
+
+   Explicit insets rather than the static position: #urlbar is position:fixed,
+   so `left`/`top` are measured off the viewport and hold even when the toolbar
+   row overflows - which it does at narrow widths, and which silently moved the
+   resting point out from under the arithmetic. */
+:root[zen-layout="horizontal"] #zen-horizontal-chrome #urlbar {
+  left: var(--zen-urlbar-rest-x) !important;
+  top: var(--zen-urlbar-rest-y) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Not while the startup focus is still being refused. Firefox focuses the
+   address bar for a blank page at ~+70ms, and without this the browser opens
+   with the field already sailing into the middle of the window - which is
+   what "the UI changes while opening" describes. ZenSidebarResults publishes
+   this for exactly that window and drops it on the first real interaction, so
+   a deliberate focus a moment later still glides.
+
+   Not zen-before-loaded, which was the first attempt and guards nothing:
+   ZenStartup removes it at MozBeforeInitialXULLayout whenever the watermark
+   is off, which is the shipped default - measured gone 248ms before first
+   paint. */
+:root[zen-layout="horizontal"]:not([zen-startup-settling]) #zen-horizontal-chrome #urlbar {
+  transition: translate var(--zen-urlbar-glide);
+}
+
+:root[zen-layout="horizontal"]:not([zen-startup-settling]) #zen-horizontal-chrome #urlbar:focus-within {
+  translate: calc(50vw - 50% - var(--zen-urlbar-rest-x))
+             calc(50vh - 50% - var(--zen-urlbar-rest-y));
+}
+
+/* Lifted, the field floats over the page: this recedes it. Legibility is the
+   opaque pill's job, not this one's - see above.
+
+   The host is not arbitrary. Remote page content composites above most chrome,
+   so a scrim on :root, #zen-main-app-wrapper or #browser dimmed the chrome and
+   left the page it exists to dim untouched. Of ten candidates measured, four
+   paint over the page - this wrapper, #navigator-toolbox, #tabbrowser-tabpanels
+   and #tabbrowser-tabbox - and only under grim: Marionette's own screenshot
+   composites chrome and page separately and answers this one wrongly. */
+:root[zen-layout="horizontal"] #zen-appcontent-wrapper::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  /* No backdrop-filter: over out-of-process page content it renders the
+     backdrop black and the page vanishes rather than blurring (measured
+     186 -> 3 luminance). A plain dim, and the field carries its own opacity. */
+  background: color-mix(in srgb, #000 55%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--zen-urlbar-glide);
+}
+
+:root[zen-layout="horizontal"]:not([zen-startup-settling]):has(#urlbar:focus-within) #zen-appcontent-wrapper::after {
+  opacity: 1;
+}
+
+/* ShyFox-inspired "shy" preset (ZenLayoutPresets.mjs): the top chrome and the
+   right rail recede into the window border and reveal on hover or keyboard
+   focus. Collapses via `height`/`width`, not position:fixed - same flow-
+   preserving idiom compact-mode/toolbar.inc.css already uses for its own
+   hide-toolbar-until-hovered, just applied to elements we fully own here. */
+:root[zen-layout="horizontal"][zen-shy-chrome] {
+  --zen-shy-margin: 6px;
+  --zen-shy-peek: 4px;
+  --zen-shy-rail-width: 6px;
+  --zen-shy-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --zen-shy-bar-opacity: 0.4;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome {
+  position: relative;
+  height: var(--zen-shy-peek);
+  overflow: hidden;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom-color: transparent !important;
+  transition: height var(--zen-shy-transition), background-color var(--zen-shy-transition);
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome > * {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(var(--zen-shy-transition) * 0.7) ease;
+}
+
+/* The indication bar: a thin rounded line standing in for the collapsed
+   chrome, translating ShyFox's own "line on window edge" pseudo-element. */
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: var(--zen-shy-margin);
+  right: var(--zen-shy-margin);
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--zen-colors-primary, #a9b4d1) 70%, transparent);
+  opacity: var(--zen-shy-bar-opacity);
+  transition: opacity calc(var(--zen-shy-transition) * 0.7) ease;
+}
+
+/* Reveal on hover, on keyboard focus anywhere inside (Ctrl+L, a tab), or
+   while a menu it owns is open - the urlbar and tabs are never unreachable,
+   regardless of where the pointer happens to be. */
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome:is(:hover, :focus-within),
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#urlbar:focus-within) #zen-horizontal-chrome,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#zen-horizontal-chrome [open]) #zen-horizontal-chrome {
+  height: var(--zen-shy-chrome-height, 4.5rem);
+  overflow: visible;
+  background: color-mix(in srgb, var(--zen-main-browser-background, #1b1b1b) 88%, transparent) !important;
+  backdrop-filter: blur(22px) saturate(1.25) !important;
+  border-bottom-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome:is(:hover, :focus-within) > *,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#urlbar:focus-within) #zen-horizontal-chrome > *,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#zen-horizontal-chrome [open]) #zen-horizontal-chrome > * {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome:is(:hover, :focus-within)::before,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#urlbar:focus-within) #zen-horizontal-chrome::before,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#zen-horizontal-chrome [open]) #zen-horizontal-chrome::before {
+  opacity: 0;
+}
+
+/* Customize Mode always shows full chrome - collapsing the very toolbar
+   being edited would hide the thing Customize Mode is for. */
+:root[customizing][zen-shy-chrome] #zen-horizontal-chrome {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+:root[customizing][zen-shy-chrome] #zen-horizontal-chrome > * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Right rail: collapses to a sliver carrying the same indication-bar element
+   as the top chrome - this is the ShyFox-style edge marker the rail wanted. */
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail {
+  position: relative;
+  width: var(--zen-shy-rail-width);
+  overflow: hidden;
+  border-left-color: transparent !important;
+  transition: width var(--zen-shy-transition);
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail-customization-target {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(var(--zen-shy-transition) * 0.7) ease;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail::before {
+  content: "";
+  position: absolute;
+  top: var(--zen-shy-margin);
+  bottom: var(--zen-shy-margin);
+  left: 2px;
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--zen-colors-primary, #a9b4d1) 70%, transparent);
+  opacity: var(--zen-shy-bar-opacity);
+  transition: opacity calc(var(--zen-shy-transition) * 0.7) ease;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail:is(:hover, :focus-within),
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]):has(#zen-right-rail [open]) #zen-right-rail {
+  width: 40px;
+  border-left-color: color-mix(in srgb, currentColor 8%, transparent) !important;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail:is(:hover, :focus-within) #zen-right-rail-customization-target,
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]):has(#zen-right-rail [open]) #zen-right-rail-customization-target {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]) #zen-right-rail:is(:hover, :focus-within)::before,
+:root[zen-layout="horizontal"][zen-shy-chrome]:not([customizing]):has(#zen-right-rail [open]) #zen-right-rail::before {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[zen-layout="horizontal"] #zen-horizontal-chrome #urlbar,
+  :root[zen-layout="horizontal"] #zen-appcontent-wrapper::after,
+  :root[zen-shy-chrome] #zen-horizontal-chrome,
+  :root[zen-shy-chrome] #zen-horizontal-chrome > *,
+  :root[zen-shy-chrome] #zen-horizontal-chrome::before,
+  :root[zen-shy-chrome] #zen-right-rail,
+  :root[zen-shy-chrome] #zen-right-rail-customization-target,
+  :root[zen-shy-chrome] #zen-right-rail::before,
+  :root[zen-shy-chrome] #urlbar {
+    transition: none !important;
+  }
+}
+
+/* #urlbar is absolutely positioned against an ancestor outside the chrome, so
+   it escaped both the chrome's opacity fade and its overflow clip and stayed
+   floating over the page while the bar was collapsed. Fade it with the bar. */
+:root[zen-layout="horizontal"][zen-shy-chrome] #urlbar {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+:root[zen-layout="horizontal"][zen-shy-chrome] #zen-horizontal-chrome:is(:hover, :focus-within) #urlbar,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#urlbar:focus-within) #urlbar,
+:root[zen-layout="horizontal"][zen-shy-chrome]:has(#zen-horizontal-chrome [open]) #urlbar,
+:root[customizing][zen-shy-chrome] #urlbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Compact mode floats the sidebar over the page so it can be revealed on
+   hover. With the tab column hidden there is nothing left in it to reveal, so
+   compact on top of this layout was an empty panel covering the content. */
+/* Not while customizing: the toolbox IS what Customize Mode edits, so hiding
+   it left an empty band with no toolbars and no right rail in it. */
+:root[zen-layout="horizontal"][zen-compact-mode="true"]:not([customizing]) #navigator-toolbox,
+:root[zen-layout="horizontal"][zen-compact-mode]:not([customizing]) #navigator-toolbox {
+  display: none !important;
+}
+
+/* The rail's own label only means anything in Customize Mode, where the rail
+   is shown as a row among the other toolbars. */
+#zen-right-rail-label {
+  display: none;
+}
+
+:root[customizing] #zen-right-rail {
+  align-items: center;
+  border-radius: var(--tela-radius);
+  flex-direction: row;
+  gap: 8px;
+  margin: 4px 6px;
+  min-height: 48px;
+  outline: 2px dashed color-mix(in srgb, var(--zen-primary-color, #7aa2f7) 55%, transparent);
+  outline-offset: -3px;
+  padding: 4px 8px;
+  width: auto;
+}
+
+:root[customizing] #zen-right-rail-label {
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+:root[customizing] #zen-right-rail-customization-target {
+  background: color-mix(in srgb, var(--zen-primary-color, #7aa2f7) 8%, transparent);
+  border-radius: var(--tela-radius-sm);
+  flex: 1 1 auto;
+  flex-direction: row;
+  min-height: 38px;
+  padding: 2px 4px;
+}
+
+/* Ours is neither the toolbox nor a <toolbar>, so upstream's
+   fullscreen-and-pointerlock.css collapses nothing here. display, not
+   visibility: #urlbar is positioned outside and escapes a collapse. */
+:root[inDOMFullscreen] #zen-horizontal-chrome {
+  display: none !important;
+}
+
+
+/* Tab colours (zen.tabs.look.color), mirrored from the tab onto its tile -
+   pinned and essential icon tiles too. */
+:root:is([zen-tab-color="selected"], [zen-tab-color="all"]) .zen-htabs-tab[zen-tab-colored][selected] {
+  background: color-mix(in srgb, var(--zen-tab-color) 28%, var(--zen-main-browser-background, #1b1b1b) 60%);
+  border-color: color-mix(in srgb, var(--zen-tab-color) 60%, transparent);
+}
+
+:root[zen-tab-color="all"] .zen-htabs-tab[zen-tab-colored]:not([selected]) {
+  background: color-mix(in srgb, var(--zen-tab-color) 12%, var(--zen-main-browser-background, #1b1b1b) 55%);
+  border-color: color-mix(in srgb, var(--zen-tab-color) 25%, transparent);
+}
+
+:root[zen-tab-color="all"] .zen-htabs-tab[zen-tab-colored]:not([selected]):hover {
+  background: color-mix(in srgb, var(--zen-tab-color) 20%, var(--zen-main-browser-background, #1b1b1b) 55%);
+}

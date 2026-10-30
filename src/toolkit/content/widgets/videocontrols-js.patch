@@ -1,0 +1,131 @@
+diff --git a/toolkit/content/widgets/videocontrols.js b/toolkit/content/widgets/videocontrols.js
+index eef48bc140..fc5574a4d6 100644
+--- a/toolkit/content/widgets/videocontrols.js
++++ b/toolkit/content/widgets/videocontrols.js
+@@ -230,6 +230,54 @@ this.VideoControlsWidget = class {
+       prefs["media.videocontrols.picture-in-picture.video-toggle.has-used"]
+     );
+   }
++  // Tela: the reel button beside the Picture-in-Picture toggle.
++  static setupReelToggle(reel, toggle) {
++    if (!reel) {
++      return;
++    }
++    reel.hidden = toggle.hidden;
++    reel.setAttribute("position", toggle.getAttribute("position") || "left");
++  }
++
++  static telaReelHandlers(owner, reel) {
++    if (!reel) {
++      return;
++    }
++    const toggle = owner.pictureInPictureToggle;
++    if (toggle) {
++      const mirror = () => {
++        for (const name of ["policy", "position", "small-video", "medium-video", "has-used"]) {
++          if (toggle.hasAttribute(name)) {
++            reel.setAttribute(name, toggle.getAttribute(name));
++          } else {
++            reel.removeAttribute(name);
++          }
++        }
++        reel.hidden = toggle.hidden;
++      };
++      new owner.window.MutationObserver(mirror).observe(toggle, { attributes: true });
++      mirror();
++    }
++    const send = (name, data) => {
++      try {
++        owner.window.windowGlobalChild.getActor("TelaMediaSource").sendAsyncMessage(name, data);
++      } catch {}
++    };
++    reel.addEventListener("click", event => {
++      event.preventDefault();
++      event.stopPropagation();
++      send("TelaMedia:Reel", {
++        src: owner.video.currentSrc,
++        position: owner.video.currentTime,
++        frame: owner.window.document.documentURI,
++      });
++    });
++    reel.addEventListener("contextmenu", event => {
++      event.preventDefault();
++      event.stopPropagation();
++      send("TelaMedia:Menu", { x: event.screenX, y: event.screenY });
++    });
++  }
+ };
+ 
+ this.VideoControlsImplWidget = class {
+@@ -582,6 +630,7 @@ this.VideoControlsImplWidget = class {
+       updatePictureInPictureToggleDisplay() {
+         if (this.isAudioOnly) {
+           this.pictureInPictureToggle.hidden = true;
++          VideoControlsWidget.setupReelToggle(this.telaReel, this.pictureInPictureToggle);
+           return;
+         }
+ 
+@@ -606,6 +655,7 @@ this.VideoControlsImplWidget = class {
+         } else {
+           this.pictureInPictureToggle.hidden = true;
+         }
++        VideoControlsWidget.setupReelToggle(this.telaReel, this.pictureInPictureToggle);
+       },
+ 
+       setupNewLoadState() {
+@@ -2495,6 +2545,8 @@ this.VideoControlsImplWidget = class {
+         this.pictureInPictureToggle = this.shadowRoot.getElementById(
+           "pictureInPictureToggle"
+         );
++        this.telaReel = this.shadowRoot.getElementById("telaReelToggle");
++        VideoControlsWidget.telaReelHandlers(this, this.telaReel);
+ 
+         let isMobile = this.window.navigator.appVersion.includes("Android");
+         if (isMobile) {
+@@ -2792,6 +2844,14 @@ this.VideoControlsImplWidget = class {
+               </div>
+               <div class="pip-icon clickable"></div>
+             </button>
++            <button id="telaReelToggle" class="pip-wrapper tela-reel" position="left" hidden="true" title="Open this video in reel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8.5"/><circle cx="11" cy="6.6" r="1.6"/><circle cx="15.2" cy="9.6" r="1.6"/><circle cx="13.6" cy="14.6" r="1.6"/><circle cx="8.4" cy="14.6" r="1.6"/><circle cx="6.8" cy="9.6" r="1.6"/><path d="M11 19.5h10"/></svg></button>
++            <style>
++              .pip-wrapper.tela-reel { width: 40px; height: 40px; padding: 0; margin-top: 46px; display: grid; place-items: center; border: 0; border-radius: var(--pip-border-radius-toggle); background: rgba(12, 12, 13, 0.65); color: #fff; cursor: pointer; }
++              .pip-wrapper.tela-reel[policy="bottom"] { margin-top: -46px; }
++              .pip-wrapper.tela-reel[position="right"] { margin-right: calc(var(--pip-icon-width-with-margins) * -1); }
++              .pip-wrapper.tela-reel:hover { background: rgba(12, 12, 13, 0.85); }
++              .pip-wrapper.tela-reel > svg { pointer-events: none; }
++            </style>
+ 
+             <div id="controlBar" class="controlBar" role="none" hidden="true">
+               <button id="playButton"
+@@ -3166,6 +3226,7 @@ this.NoControlsDesktopImplWidget = class {
+         } else {
+           this.pictureInPictureToggle.hidden = true;
+         }
++        VideoControlsWidget.setupReelToggle(this.telaReel, this.pictureInPictureToggle);
+       },
+ 
+       init(shadowRoot, prefs) {
+@@ -3180,6 +3241,8 @@ this.NoControlsDesktopImplWidget = class {
+         this.pictureInPictureToggle = this.shadowRoot.getElementById(
+           "pictureInPictureToggle"
+         );
++        this.telaReel = this.shadowRoot.getElementById("telaReelToggle");
++        VideoControlsWidget.telaReelHandlers(this, this.telaReel);
+ 
+         if (this.document.fullscreenElement) {
+           this.videocontrols.setAttribute("inDOMFullscreen", true);
+@@ -3276,6 +3339,14 @@ this.NoControlsDesktopImplWidget = class {
+               </div>
+               <div class="pip-icon"></div>
+             </button>
++            <button id="telaReelToggle" class="pip-wrapper tela-reel" position="left" hidden="true" title="Open this video in reel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8.5"/><circle cx="11" cy="6.6" r="1.6"/><circle cx="15.2" cy="9.6" r="1.6"/><circle cx="13.6" cy="14.6" r="1.6"/><circle cx="8.4" cy="14.6" r="1.6"/><circle cx="6.8" cy="9.6" r="1.6"/><path d="M11 19.5h10"/></svg></button>
++            <style>
++              .pip-wrapper.tela-reel { width: 40px; height: 40px; padding: 0; margin-top: 46px; display: grid; place-items: center; border: 0; border-radius: var(--pip-border-radius-toggle); background: rgba(12, 12, 13, 0.65); color: #fff; cursor: pointer; }
++              .pip-wrapper.tela-reel[policy="bottom"] { margin-top: -46px; }
++              .pip-wrapper.tela-reel[position="right"] { margin-right: calc(var(--pip-icon-width-with-margins) * -1); }
++              .pip-wrapper.tela-reel:hover { background: rgba(12, 12, 13, 0.85); }
++              .pip-wrapper.tela-reel > svg { pointer-events: none; }
++            </style>
+           </div>
+         </div>
+       </div>`,

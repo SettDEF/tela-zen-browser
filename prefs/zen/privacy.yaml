@@ -1,0 +1,28 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# How long a site's data lives when no per-site rule applies: "keep" (what
+# Firefox does), "session" (cleared when the browser closes) or "tab" (cleared
+# when the site's last tab closes). Anything other than "keep" drives
+# privacy.sanitize.sanitizeOnShutdown and
+# privacy.clearOnShutdown_v2.cookiesAndStorage, recording their previous values
+# so switching back restores them.
+- name: zen.privacy.site-data.default
+  value: "keep"
+
+# Whether a clear also drops the HTTP, image, script and style caches for the
+# site. On by default: a cached response is as good a re-identifier as a cookie.
+- name: zen.privacy.site-data.clear-caches
+  value: true
+
+# Two more prefs are deliberately not declared here, because both are
+# bookkeeping ZenSiteDataLifetime writes rather than settings anyone sets:
+#   .shutdown-prefs-restore  the previous value of every Firefox
+#                            clear-on-shutdown pref we overwrote, as JSON
+#   .clean-shutdown          false while running, true once
+#                            quit-application-granted has been handled; a false
+#                            reading at startup means the last session crashed
+#                            and the session/tab sites were never cleared
+- name: zen.privacy.log
+  value: false

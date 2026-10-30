@@ -1,0 +1,775 @@
+/* Focus effects for the selected tab: layered lights that orbit inside the
+   tab, clipped to its radius. One animated layer, selected tab only -
+   animating a whole tab list would cost real frames. */
+
+:root {
+  --zen-tab-a: #ff3b3b;
+  --zen-tab-b: #3b6bff;
+  --zen-tab-speed: 2.4s;
+  --zen-tab-blur: 9px;
+  --zen-tab-size: 46%;
+  --zen-tab-intensity: 1;
+  --zen-tab-direction: normal;
+}
+
+:root[zen-tab-focus]:not([zen-tab-focus="flat"]) {
+  /* Sits behind every tab, so the glow shows through the tabs above and
+     below as well as the selected one. Tabs paint over it, and their own
+     backgrounds are transparent. */
+  & .zen-tab-focus-layer {
+    position: absolute;
+    left: var(--zen-tab-x, 50%);
+    top: var(--zen-tab-y, 50%);
+    /* The tab plus a small halo. A square sized to the tab's WIDTH was ~7x
+       its height, so rotating it smeared colour across the whole sidebar. */
+    width: var(--zen-tab-w, 180px);
+    height: var(--zen-tab-h, 40px);
+    translate: -50% -50%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--zen-tab-intensity);
+    mix-blend-mode: screen;
+    overflow: hidden;
+    border-radius: var(--zen-tab-radius, 14px);
+    filter: saturate(1.18) brightness(1.12);
+    /* Full strength across the tab itself, then down to 10% beyond it, so
+       the spill reads as a faint halo rather than colour on its neighbours. */
+    /* A ring: hollow through the middle so the two colours stay apart on the
+       border, opaque near the tab's edge, 10% beyond it. Percentages are of
+       the layer box, so every stop must stay within 100% or it is clamped -
+       which is what filled the centre last time. */
+    /* Hollow through the middle so the two colours stay apart on the border;
+       full strength across the tab; 10% in the halo outside it - the stops
+       are of the LAYER box, which is why the tab must fill most of it. */
+    will-change: transform, opacity;
+    animation-duration: var(--zen-tab-speed);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: var(--zen-tab-direction);
+    transition:
+      left 0.18s ease-out,
+      top 0.18s ease-out,
+      width 0.18s ease-out;
+  }
+
+  /* A thin lit edge on the tab. Clipped copy only - on the halo, which does
+     not clip, it would draw a hard rectangle outside the tab. */
+  & .zen-tab-focus-layer:not(.zen-tab-focus-halo)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--zen-tab-a) 22%, transparent);
+    pointer-events: none;
+  }
+
+  /* Tabs sit above the glow; their content stays fully legible. */
+  & .tabbrowser-tab {
+    position: relative;
+    z-index: 1;
+  }
+
+  & .tabbrowser-tab[visuallyselected] > .tab-stack > .tab-background {
+    background-color: rgba(255, 255, 255, 0.07) !important;
+  }
+}
+
+/* ── Presets. Every one of these drives the four dots; the layer itself is
+   never transformed. It is the clip, so rotating or scaling it dragged the
+   whole glow off the tab - measured at 153x30 (pulse) and 190x55 (aurora)
+   against a 187x36 tab. */
+
+/* Siren: two light trails riding the border, each carrying both colours,
+   half a lap apart. */
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-a2,
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-b2 {
+  display: none;
+}
+
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-a1,
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-b1 {
+  display: block;
+  width: calc(var(--zen-tab-h, 40px) * 2.7);
+  height: calc(var(--zen-tab-h, 40px) * 0.52);
+  animation: zen-tab-travel var(--zen-tab-speed, 2.4s) linear infinite
+             var(--zen-tab-direction, normal);
+}
+
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-a1 {
+  background-image:
+    var(--zen-tab-streak-a) , var(--zen-tab-streak-b);
+  background-position: left center, right center;
+  background-size: 62% 100%, 62% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Half a lap behind, colours swapped so each light shows both. */
+:root[zen-tab-focus="siren"] .zen-tab-focus-dot-b1 {
+  background-image:
+    var(--zen-tab-streak-b), var(--zen-tab-streak-a);
+  background-position: left center, right center;
+  background-size: 62% 100%, 62% 100%;
+  background-repeat: no-repeat;
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.5);
+}
+
+/* ── Beacon: one long slow sweep of A, with a tight fast spark of B. */
+:root[zen-tab-focus="beacon"] .zen-tab-focus-dot-a2,
+:root[zen-tab-focus="beacon"] .zen-tab-focus-dot-b2 {
+  display: none;
+}
+
+:root[zen-tab-focus="beacon"] .zen-tab-focus-dot-a1 {
+  width: calc(var(--zen-tab-h, 40px) * 4.4);
+  height: calc(var(--zen-tab-h, 40px) * 0.6);
+  background-image: var(--zen-tab-streak-a);
+  animation: zen-tab-travel var(--zen-tab-speed, 2.4s) linear infinite
+             var(--zen-tab-direction, normal);
+}
+
+:root[zen-tab-focus="beacon"] .zen-tab-focus-dot-b1 {
+  width: calc(var(--zen-tab-h, 40px) * 1.15);
+  height: calc(var(--zen-tab-h, 40px) * 0.46);
+  background-image: var(--zen-tab-streak-b);
+  animation: zen-tab-travel calc(var(--zen-tab-speed, 2.4s) * 0.4) linear infinite
+             var(--zen-tab-direction, normal);
+}
+
+/* ── Scanner: no travel - two soft bars crossing the tab, out of phase. */
+:root[zen-tab-focus="scanner"] .zen-tab-focus-dot-a2,
+:root[zen-tab-focus="scanner"] .zen-tab-focus-dot-b2 {
+  display: none;
+}
+
+:root[zen-tab-focus="scanner"] .zen-tab-focus-dot {
+  offset-path: none;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--zen-tab-h, 40px) * 1.35);
+  height: calc(var(--zen-tab-h, 40px) * 1.5);
+  animation: zen-tab-sweep var(--zen-tab-speed, 2.4s) ease-in-out infinite alternate;
+}
+
+:root[zen-tab-focus="scanner"] .zen-tab-focus-dot-a1 {
+  background-image: var(--zen-tab-streak-a);
+}
+
+:root[zen-tab-focus="scanner"] .zen-tab-focus-dot-b1 {
+  background-image: var(--zen-tab-streak-b);
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.4);
+}
+
+/* ── Pulse: parked in the middle, breathing. */
+:root[zen-tab-focus="pulse"] .zen-tab-focus-dot-a2,
+:root[zen-tab-focus="pulse"] .zen-tab-focus-dot-b2 {
+  display: none;
+}
+
+:root[zen-tab-focus="pulse"] .zen-tab-focus-dot {
+  offset-path: none;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: calc(var(--zen-tab-w, 180px) * 0.74);
+  height: calc(var(--zen-tab-h, 40px) * 1.05);
+  animation: zen-tab-breathe var(--zen-tab-speed, 2.4s) ease-in-out infinite alternate;
+}
+
+:root[zen-tab-focus="pulse"] .zen-tab-focus-dot-a1 {
+  background-image: var(--zen-tab-streak-a);
+}
+
+:root[zen-tab-focus="pulse"] .zen-tab-focus-dot-b1 {
+  background-image: var(--zen-tab-streak-b);
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.5);
+}
+
+/* ── Aurora: three trails on a long lap, wobbling out of step. */
+:root[zen-tab-focus="aurora"] .zen-tab-focus-dot-b2 {
+  display: none;
+}
+
+:root[zen-tab-focus="aurora"] .zen-tab-focus-dot {
+  width: calc(var(--zen-tab-h, 40px) * 3.6);
+  height: calc(var(--zen-tab-h, 40px) * 0.78);
+}
+
+:root[zen-tab-focus="aurora"] .zen-tab-focus-dot-a2 {
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.33), var(--wobble-delay, -1s);
+}
+
+:root[zen-tab-focus="aurora"] .zen-tab-focus-dot-b1 {
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.66);
+}
+
+@keyframes zen-tab-orbit {
+  to { transform: rotate(360deg); }
+}
+
+/* Percentages in translate are of the dot, so the tab width has to come
+   from the variable to make the bar cross the whole tab. */
+@keyframes zen-tab-sweep {
+  from { translate: calc(-50% - var(--zen-tab-w, 180px) * 0.42) -50%; }
+  to   { translate: calc(-50% + var(--zen-tab-w, 180px) * 0.42) -50%; }
+}
+
+@keyframes zen-tab-breathe {
+  from { scale: 0.68 0.8; opacity: 0.4; }
+  to   { scale: 1.12 1.06; opacity: 1; }
+}
+
+/* Hover preview, when enabled. */
+:root[zen-tab-focus-hover="true"]:not([zen-tab-focus="flat"])
+  .tabbrowser-tab:not([visuallyselected]):hover > .tab-stack > .tab-background {
+  position: relative;
+  overflow: hidden;
+
+  & > .zen-tab-focus-layer {
+    position: absolute;
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    width: 150%;
+    aspect-ratio: 1 / 1;
+    translate: -50% -50%;
+    pointer-events: none;
+    opacity: calc(var(--zen-tab-intensity) * 0.35);
+    filter: blur(var(--zen-tab-blur));
+    background:
+      radial-gradient(closest-side ellipse at 20% 50%, var(--zen-tab-a) 0%, transparent var(--zen-tab-size)),
+      radial-gradient(closest-side ellipse at 80% 50%, var(--zen-tab-b) 0%, transparent var(--zen-tab-size));
+    animation: zen-tab-orbit calc(var(--zen-tab-speed) * 1.6) linear infinite;
+  }
+}
+
+/* Motion is the whole point, so honour the system setting rather than
+   half-speed it. */
+@media (prefers-reduced-motion: reduce) {
+  :root[zen-tab-focus] .zen-tab-focus-layer,
+  :root[zen-tab-focus-hover="true"] .tabbrowser-tab:hover > .tab-stack > .tab-background > .zen-tab-focus-layer {
+    animation: none !important;
+  }
+}
+
+
+.zen-tab-focus-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px;
+}
+
+.zen-tab-focus-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.zen-tab-focus-swatches {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+}
+
+.zen-tab-focus-swatch,
+.zen-tab-focus-hue {
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 17px;
+  min-width: 0;
+  padding: 0;
+  transition: transform 0.12s ease-in-out;
+  width: 100%;
+}
+
+.zen-tab-focus-swatch:hover,
+.zen-tab-focus-hue:hover {
+  transform: scale(1.15);
+}
+
+.zen-tab-focus-swatch[selected],
+.zen-tab-focus-hue[selected] {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.zen-tab-focus-slider input[type="range"] {
+  accent-color: var(--zen-tab-a, var(--zen-colors-primary));
+  width: 100%;
+}
+
+/* ── The controls panel. Built from Zen's own tokens - radius, element
+   backgrounds, uppercase meta labels - so it reads as part of the browser
+   rather than a stock form. */
+#zen-tab-focus-panel {
+  --panel-padding: 0;
+  --panel-border-radius: var(--zen-border-radius, 7px);
+}
+
+.zen-tab-focus-body {
+  /* The dotted field Zen uses on its own picker surfaces. */
+  background-color: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.02));
+  background-image: radial-gradient(
+    light-dark(rgba(0, 0, 0, 0.14), rgba(255, 255, 255, 0.07)) 1px,
+    transparent 0
+  );
+  background-size: 6px 6px;
+  background-position: -23px -23px;
+  border-radius: var(--zen-border-radius, 7px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  padding: 14px;
+  width: 288px;
+  /* A mid-screen anchor leaves less room than the 589px this wants; the panel
+     is clamped to fit and XUL stretches this box to it, toggles and all. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.zen-tab-focus-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.zen-tab-focus-preset {
+  background: var(--zen-toolbar-element-bg, rgba(255, 255, 255, 0.08));
+  border: none;
+  border-radius: var(--border-radius-medium, 8px);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 11px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.zen-tab-focus-preset:hover {
+  background: var(--zen-toolbar-element-bg-hover, rgba(255, 255, 255, 0.14));
+}
+
+.zen-tab-focus-preset[selected] {
+  background: color-mix(in srgb, var(--zen-colors-primary) 35%, transparent);
+}
+
+.zen-tab-focus-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.zen-tab-focus-label {
+  align-items: baseline;
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  letter-spacing: 0.13em;
+  opacity: 0.55;
+  text-transform: uppercase;
+}
+
+/* Slider drawn to match Zen's controls: thin track, round accent thumb. */
+.zen-tab-focus-slider input[type="range"] {
+  appearance: none;
+  background: transparent;
+  height: 16px;
+  margin: 0;
+  width: 100%;
+}
+
+.zen-tab-focus-slider input[type="range"]::-moz-range-track {
+  background: var(--zen-toolbar-element-bg, rgba(255, 255, 255, 0.1));
+  border-radius: 3px;
+  height: 4px;
+}
+
+.zen-tab-focus-slider input[type="range"]::-moz-range-progress {
+  background: var(--zen-colors-primary, #a9b4d1);
+  border-radius: 3px;
+  height: 4px;
+}
+
+.zen-tab-focus-slider input[type="range"]::-moz-range-thumb {
+  background: var(--zen-colors-primary, #a9b4d1);
+  border: 2px solid var(--zen-dialog-background, #1c1c1c);
+  border-radius: 50%;
+  height: 13px;
+  width: 13px;
+}
+
+.zen-tab-focus-toggles {
+  border-top: 1px solid var(--zen-colors-border, rgba(255, 255, 255, 0.1));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.zen-tab-focus-toggle {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: 9px;
+}
+
+/* Drawn checkbox: a native one inside a XUL panel repaints late. */
+.zen-tab-focus-check {
+  border: 1.5px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 4px;
+  flex: 0 0 auto;
+  height: 14px;
+  position: relative;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  width: 14px;
+}
+
+.zen-tab-focus-toggle[checked] .zen-tab-focus-check {
+  background: var(--zen-colors-primary, #a9b4d1);
+  border-color: var(--zen-colors-primary, #a9b4d1);
+}
+
+/* The tick, drawn as two strokes so no icon file is needed. */
+.zen-tab-focus-toggle[checked] .zen-tab-focus-check::after {
+  border-bottom: 2px solid var(--zen-colors-tertiary, #16161a);
+  border-right: 2px solid var(--zen-colors-tertiary, #16161a);
+  content: "";
+  height: 8px;
+  left: 4px;
+  position: absolute;
+  rotate: 45deg;
+  top: 1px;
+  width: 4px;
+}
+
+.zen-tab-focus-toggle:focus-visible {
+  outline: 2px solid var(--zen-colors-primary, #a9b4d1);
+  outline-offset: 2px;
+}
+
+/* ── Colour panel, opened by hovering "Change Color". */
+#zen-tab-focus-color-panel {
+  --panel-padding: 0;
+}
+
+.zen-tab-focus-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+}
+
+.zen-tab-focus-color-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.zen-tab-focus-color-caption {
+  align-items: center;
+  display: flex;
+  font-size: 11px;
+  gap: 7px;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+  text-transform: uppercase;
+}
+
+.zen-tab-focus-color-current {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  height: 12px;
+  width: 12px;
+}
+
+/* Six across keeps the panel narrow enough to sit beside the menu. */
+.zen-tab-focus-color-grid {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.zen-tab-focus-color-grid .zen-tab-focus-swatch {
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 22px;
+  padding: 0;
+  transition: transform 0.12s ease-in-out;
+  width: 22px;
+}
+
+.zen-tab-focus-color-grid .zen-tab-focus-swatch:hover {
+  transform: scale(1.14);
+}
+
+.zen-tab-focus-color-grid .zen-tab-focus-swatch[selected] {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+
+/* The tab element itself clips: overflow:clip plus layout containment. The
+   background and stack were already visible, so overriding those alone did
+   nothing. Scroll containers above stay clipping - the list must scroll. */
+:root[zen-tab-focus]:not([zen-tab-focus="flat"]) .tabbrowser-tab[visuallyselected] {
+  overflow: visible !important;
+  contain: none !important;
+}
+
+:root[zen-tab-focus]:not([zen-tab-focus="flat"]) .tabbrowser-tab[visuallyselected] > .tab-stack {
+  overflow: visible !important;
+}
+
+/* The halo spills, so keep it beneath every other tab's content. */
+.tabbrowser-tab > .tab-stack > .tab-background > .zen-tab-focus-layer {
+  z-index: 0;
+}
+
+.tabbrowser-tab[visuallyselected] {
+  position: relative;
+  z-index: 1;
+}
+
+.zen-tab-focus-remember {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  padding: 2px 2px 8px;
+}
+
+.zen-tab-focus-remember input[disabled] + span {
+  opacity: 0.45;
+}
+
+
+/* ── The travelling lights. offset-path traces the tab's rounded rect, so
+   they hug the border at an even speed the whole way round. */
+.zen-tab-focus-layer {
+  /* A hot core with a long tail, rather than a flat blob with a visible
+     edge - the edge is what made these read as old. */
+  --zen-tab-streak-a: radial-gradient(closest-side ellipse,
+    color-mix(in srgb, var(--zen-tab-a) 72%, white) 0%,
+    var(--zen-tab-a) 28%,
+    color-mix(in srgb, var(--zen-tab-a) 28%, transparent) 64%,
+    transparent 100%);
+  --zen-tab-streak-b: radial-gradient(closest-side ellipse,
+    color-mix(in srgb, var(--zen-tab-b) 72%, white) 0%,
+    var(--zen-tab-b) 28%,
+    color-mix(in srgb, var(--zen-tab-b) 28%, transparent) 64%,
+    transparent 100%);
+}
+
+.zen-tab-focus-dot {
+  position: absolute;
+  /* Blurred here, not on the layer: a filter on the clipping element paints
+     its result outside that element's own overflow. */
+  filter: blur(min(var(--zen-tab-blur, 9px), calc(var(--zen-tab-h, 40px) * 0.24)));
+  border-radius: 50%;
+  offset-path: inset(0 round calc(var(--zen-tab-h, 40px) / 2));
+  offset-rotate: auto;
+  will-change: offset-distance, scale;
+}
+
+/* Pair A: two ovals side by side, breathing as they go. */
+.zen-tab-focus-dot-a1,
+.zen-tab-focus-dot-a2 {
+  width: calc(var(--zen-tab-h, 40px) * 1.05);
+  height: calc(var(--zen-tab-h, 40px) * 0.66);
+  background-image: var(--zen-tab-streak-a);
+  animation:
+    zen-tab-travel var(--zen-tab-speed, 2.4s) linear infinite var(--zen-tab-direction, normal),
+    zen-tab-wobble var(--wobble, 3s) ease-in-out infinite alternate var(--wobble-delay, 0s);
+}
+
+.zen-tab-focus-dot-a2 {
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.07), var(--wobble-delay, -1s);
+  opacity: 0.8;
+}
+
+/* Pair B: opposite each other, steady, tight to the border. */
+.zen-tab-focus-dot-b1,
+.zen-tab-focus-dot-b2 {
+  width: calc(var(--zen-tab-h, 40px) * 0.58);
+  height: calc(var(--zen-tab-h, 40px) * 0.58);
+  background-image: var(--zen-tab-streak-b);
+  animation: zen-tab-travel var(--zen-tab-speed, 2.4s) linear infinite var(--zen-tab-direction, normal);
+}
+
+/* Half a lap apart, so the two stay parallel across the tab. */
+.zen-tab-focus-dot-b2 {
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.5);
+}
+
+@keyframes zen-tab-travel {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+@keyframes zen-tab-wobble {
+  from { scale: 0.72 0.9; }
+  to { scale: 1.35 1.1; }
+}
+
+
+/* The unclipped copy: everything outside the tab, at 10%. */
+.zen-tab-focus-halo {
+  overflow: visible !important;
+  /* Strong enough to carry the colour past the tab so the clip edge is not
+     a visible line, still far below the tab itself. */
+  opacity: calc(var(--zen-tab-intensity, 1) * 0.28) !important;
+}
+
+/* Softer than the clipped copy, so it reads as bloom rather than a second
+   set of lights sitting outside the tab. */
+.zen-tab-focus-halo .zen-tab-focus-dot {
+  filter: blur(calc(min(var(--zen-tab-blur, 9px), calc(var(--zen-tab-h, 40px) * 0.24)) * 1.9));
+}
+
+.zen-tab-focus-reset {
+  background: var(--zen-toolbar-element-bg, rgba(255, 255, 255, 0.08));
+  border: none;
+  border-radius: 5px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  margin-left: auto;
+  padding: 2px 8px;
+}
+
+.zen-tab-focus-reset:hover {
+  background: var(--zen-toolbar-element-bg-hover, rgba(255, 255, 255, 0.14));
+}
+
+/* While the sidebar is resizing, pause the glow: a moving blur repaints every
+   frame. Paused, the blur and halo stay - dropping them flashed a sharp,
+   different glow every time the sidebar slid out. */
+:root[zen-tab-focus-busy] .zen-tab-focus-dot {
+  animation-play-state: paused !important;
+}
+
+:root[zen-tab-focus-busy] .zen-tab-focus-layer {
+  transition: none !important;
+}
+
+/* Essentials clip their container, which cut the halo off and made the glow
+   read flatter there than on a normal tab. Only lifted while a layer is
+   actually inside, so the grid keeps its clipping the rest of the time. */
+:root[zen-tab-focus]:not([zen-tab-focus="flat"])
+  .zen-essentials-container:has(> .zen-tab-focus-layer) {
+  overflow: visible;
+}
+
+/* ── GPU path.
+   The travel animated offset-distance, which Gecko runs on the main thread
+   only (bug 1429305), so every frame competed with everything else the chrome
+   was doing. A rotation is a transform, and transform animations run on the
+   compositor - so the same motion is driven by the GPU instead.
+   The cost is geometric: a rotation traces an ellipse, not the tab's rounded
+   rectangle, so the light passes the corners a little wider. Switch it off
+   with zen.tabs.focus.gpu to get the exact old path back. */
+
+:root[zen-tab-focus-gpu] .zen-tab-focus-spin {
+  inset: 0;
+  position: absolute;
+  transform-origin: 50% 50%;
+}
+
+/* Squashed into the tab's aspect ratio, so the circle the rotation traces
+   becomes an ellipse that follows the tab's proportions. */
+:root[zen-tab-focus-gpu][zen-tab-focus="siren"] .zen-tab-focus-spin-a1,
+:root[zen-tab-focus-gpu][zen-tab-focus="siren"] .zen-tab-focus-spin-b1 {
+  animation: zen-tab-orbit-gpu var(--zen-tab-speed, 2.4s) linear infinite
+             var(--zen-tab-direction, normal);
+  will-change: transform;
+}
+
+:root[zen-tab-focus-gpu][zen-tab-focus="siren"] .zen-tab-focus-spin-b1 {
+  animation-delay: calc(var(--zen-tab-speed, 2.4s) * -0.5);
+}
+
+/* Riding the ellipse: pushed out by half the tab's width, then un-squashed so
+   the streak keeps its own shape. */
+:root[zen-tab-focus-gpu][zen-tab-focus="siren"] .zen-tab-focus-spin > .zen-tab-focus-dot {
+  left: 50%;
+  offset-path: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) translateX(calc(var(--zen-tab-w, 180px) * 0.5))
+             scaleY(var(--zen-tab-ratio, 4));
+  animation: none;
+}
+
+@keyframes zen-tab-orbit-gpu {
+  from {
+    transform: scaleY(calc(1 / var(--zen-tab-ratio, 4))) rotate(0deg);
+  }
+  to {
+    transform: scaleY(calc(1 / var(--zen-tab-ratio, 4))) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[zen-tab-focus-gpu] .zen-tab-focus-spin {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   Trail: kitty's cursor_trail / Neovide's animated cursor. Nothing runs at
+   rest — the mark is a static shape until the selection moves, then a single
+   transform transition carries it, stretched along the way, and stops.
+   ========================================================================== */
+:root[zen-tab-focus='trail'] {
+  & .zen-tab-focus-layer,
+  & .zen-tab-focus-halo,
+  & .zen-tab-focus-spin,
+  & .zen-tab-focus-dot {
+    /* The whole point: no keyframes, so an idle window costs nothing. */
+    animation: none !important;
+  }
+
+  & .zen-tab-focus-layer,
+  & .zen-tab-focus-halo {
+    transform: translateY(0) scaleY(1);
+    transition:
+      transform var(--zen-tab-speed, 260ms) cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity var(--zen-tab-speed, 260ms) ease-out;
+    will-change: transform;
+  }
+
+  /* One frame at the old place, stretched toward the new one. Removing the
+     attribute is what plays the animation. */
+  & .zen-tab-focus-layer[trail-start],
+  & .zen-tab-focus-halo[trail-start] {
+    transform: translateY(var(--zen-trail-from, 0)) scaleY(var(--zen-trail-stretch, 1));
+    transition: none;
+  }
+
+  & .zen-tab-focus-halo {
+    filter: blur(var(--zen-tab-blur, 8px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[zen-tab-focus='trail'] {
+    & .zen-tab-focus-layer,
+    & .zen-tab-focus-halo {
+      transition: none;
+    }
+  }
+}
+
+/* Subtle: the light stays inside the tab and spills nothing on its neighbours. */
+:root[zen-tab-focus-strength="subtle"] .zen-tab-focus-halo {
+  display: none !important;
+}

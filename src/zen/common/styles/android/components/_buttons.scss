@@ -1,0 +1,28 @@
+// The shell's RippleButton: 12px, 8% on hover, 15% pressed, primary when on.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  toolbarbutton:not([disabled]) > .toolbarbutton-icon,
+  .zen-sidebar-action-button > .toolbarbutton-icon {
+    border-radius: t.r("s") !important;
+    @include m.press-bounce(0.88);
+  }
+
+  toolbarbutton.toolbarbutton-1:not([disabled]):hover > .toolbarbutton-icon,
+  .zen-sidebar-action-button:not([disabled]):hover > .toolbarbutton-icon {
+    background-color: var(--a-hover-1) !important;
+  }
+
+  toolbarbutton.toolbarbutton-1:not([disabled]):hover:active > .toolbarbutton-icon,
+  .zen-sidebar-action-button:not([disabled]):hover:active > .toolbarbutton-icon {
+    background-color: var(--a-active-1) !important;
+  }
+
+  toolbarbutton[open] > .toolbarbutton-icon,
+  toolbarbutton[checked] > .toolbarbutton-icon {
+    background-color: t.color("primary") !important;
+    fill: t.color("on-primary") !important;
+    color: t.color("on-primary") !important;
+  }
+}

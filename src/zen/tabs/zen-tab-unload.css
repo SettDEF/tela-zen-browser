@@ -1,0 +1,24 @@
+/* An unloaded tab keeps its place in the list but reads as dormant: dimmed,
+   and with the focus effect suppressed so nothing animates for a tab that
+   isn't running. Firefox marks a discarded tab [pending]. */
+
+.tabbrowser-tab[pending] {
+  & .tab-label-container,
+  & .tab-icon-image,
+  & .tab-icon-stack {
+    opacity: 0.45;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover .tab-label-container,
+  &:hover .tab-icon-image,
+  &:hover .tab-icon-stack {
+    opacity: 0.72;
+  }
+
+  /* Nothing should orbit a tab that holds no process. */
+  & .tab-background::before {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 2280,
+      "title": "New Tab — full page"
+    },
+    {
+      "file": "Compact.dc.html",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 720,
+      "title": "New Tab — compact"
+    },
+    {
+      "file": "States.dc.html",
+      "x": 1560,
+      "y": 880,
+      "w": 760,
+      "h": 880,
+      "title": "Indicators"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "sizes",
+      "x": 0,
+      "y": -150,
+      "w": 420,
+      "text": "Every rhythm in one page: the 12-column mosaic up top (7+5, then 3, then 8+4), a 'Jump back in' band with full-width / 2-column / 3-column rows, then the long tail as a two-column list grouped by time. Unread = filled accent dot; read = grey dot + dimmed title; counts are tabular-figure pills."
+    },
+    {
+      "id": "density",
+      "x": 1560,
+      "y": -150,
+      "w": 420,
+      "text": "The compact artboard keeps the same system at a tighter density, if you'd rather the whole page felt like the band than like the mosaic."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

@@ -1,0 +1,95 @@
+// Menus and panels are the shell's PopupMenuPanel: layer 1, 12px, a 1px
+// border, 5px padding, rows 32px tall with 6px corners.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  menupopup,
+  panel {
+    appearance: none !important;
+    --panel-border-color: var(--a-border);
+    --panel-background: #{t.color("l1")};
+    --panel-padding: 5px;
+    font-family: var(--a-font);
+  }
+
+  menupopup::part(content),
+  panel::part(content),
+  .panel-arrowcontent {
+    @include m.bare;
+    // Linux draws menus natively unless told otherwise; the surface is ours.
+    appearance: none !important;
+    -moz-default-appearance: none !important;
+    background: t.color("l1") !important;
+    color: t.color("on") !important;
+    border: 1px solid var(--a-border) !important;
+    border-radius: t.r("s") !important;
+    padding: 5px !important;
+  }
+
+  menupopup > menuitem,
+  menupopup > menu,
+  .subviewbutton,
+  .panel-subview-body > toolbarbutton,
+  .PanelUI-subView toolbarbutton {
+    min-height: 32px;
+    margin: 1px 0 !important;
+    padding: 0 10px !important;
+    border: none !important;
+    border-radius: t.r("xs") !important;
+    color: t.color("on") !important;
+    -moz-box-align: center;
+  }
+
+  menupopup > menuitem[_moz-menuactive]:not([disabled]),
+  menupopup > menu[_moz-menuactive]:not([disabled]),
+  .subviewbutton:not([disabled]):hover,
+  .panel-subview-body > toolbarbutton:not([disabled]):hover {
+    background-color: t.color("l2") !important;
+    color: t.color("on") !important;
+  }
+
+  menuitem[disabled],
+  .subviewbutton[disabled] { color: t.color("subtext") !important; }
+
+  menuseparator,
+  toolbarseparator {
+    appearance: none !important;
+    border: none !important;
+    border-top: 1px solid var(--a-border) !important;
+    margin: 3px 8px !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .accel-label,
+  menuitem > .menu-accel-container {
+    color: t.color("subtext") !important;
+    font-family: t.$mono;
+    font-size: 10px;
+  }
+
+  // Opening: a short rise on the shell's decelerating curve, faster fade.
+  // Firefox moves panels 70px over 0.18s; the shell's popups barely move.
+  .animatable-menupopup,
+  panel[type="arrow"] {
+    transition-timing-function: var(--a-ease-enter), ease-out;
+
+    &:not([animate="false"]) {
+      transition-duration: var(--a-dur-enter), 110ms;
+    }
+
+    @media not (prefers-reduced-motion) {
+      @media (-moz-panel-animations) {
+        transform: translateY(-12px);
+
+        &:where([side="bottom"]) { transform: translateY(12px); }
+      }
+    }
+
+    &:is([animate="false"], [animate="open"]) {
+      transform: none;
+      transition-timing-function: var(--a-ease-enter), ease-in-out;
+    }
+  }
+}

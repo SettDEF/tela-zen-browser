@@ -1,0 +1,30 @@
+// Pinned extensions: bare icons with room around them; the shell's 12px
+// layer-3 chip only shows under the pointer. The badge (unread counts and the like) is primary.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  toolbaritem.unified-extensions-item {
+    @include m.tile("l2", "s");
+    @include m.press-bounce(0.92);
+    background-color: transparent !important;
+    margin: 2px 6px;
+    min-width: 32px;
+
+    &:hover { background-color: t.color("l3") !important; }
+
+    toolbarbutton,
+    .toolbarbutton-icon {
+      border-radius: t.r("s") !important;
+      background: transparent !important;
+    }
+  }
+
+  .toolbarbutton-badge {
+    background-color: t.color("primary") !important;
+    color: t.color("on-primary") !important;
+    border-radius: t.r("full") !important;
+    font-weight: 500;
+    box-shadow: 0 0 0 2px t.color("l0");
+  }
+}

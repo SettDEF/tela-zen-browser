@@ -1,0 +1,63 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Every value a mod would want to change lives here: a Zen Mod is CSS only,
+   so behaviour has to stay in the browser, but the whole look and the timing
+   are driven from these so a mod can restyle it with no JS. */
+:root {
+  --zen-clipboard-toast-offset: max(4px, var(--zen-element-separation));
+  --zen-clipboard-toast-duration: 1600ms;
+  --zen-clipboard-toast-fade: 0.18s;
+  --zen-clipboard-toast-rise: 8px;
+}
+
+/* Bottom-right corner, opposite Zen's own toasts so the two never collide. */
+#zen-clipboard-toast-container {
+  bottom: var(--zen-clipboard-toast-offset);
+  display: flex;
+  pointer-events: none;
+  position: fixed;
+  right: var(--zen-clipboard-toast-offset);
+  z-index: 1000;
+}
+
+#zen-clipboard-toast-container[hidden] {
+  display: none;
+}
+
+.zen-clipboard-toast {
+  align-items: center;
+  opacity: 0;
+  transition:
+    opacity var(--zen-clipboard-toast-fade) ease,
+    translate var(--zen-clipboard-toast-fade) cubic-bezier(0.2, 0.8, 0.2, 1);
+  translate: 0 var(--zen-clipboard-toast-rise);
+}
+
+.zen-clipboard-toast[entering] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.zen-clipboard-toast[leaving] {
+  opacity: 0;
+  translate: 0 calc(var(--zen-clipboard-toast-rise) * 0.75);
+}
+
+.zen-clipboard-toast-label {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zen-clipboard-toast {
+    transition: none;
+    translate: none;
+  }
+}
+
+/* Same as the activity toast: fixed to the root, so it survived DOM
+   fullscreen and painted over the page that owns the screen. */
+:root[inDOMFullscreen] #zen-clipboard-toast-container {
+  display: none;
+}

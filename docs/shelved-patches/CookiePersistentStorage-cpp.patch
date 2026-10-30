@@ -1,0 +1,591 @@
+diff --git a/netwerk/cookie/CookiePersistentStorage.cpp b/netwerk/cookie/CookiePersistentStorage.cpp
+index a968df250ba0f040777be76dcfd0adf5e4d1d763..372b8f1245301f0d9e9a66a263d2c758269d6245 100644
+--- a/netwerk/cookie/CookiePersistentStorage.cpp
++++ b/netwerk/cookie/CookiePersistentStorage.cpp
+@@ -311,6 +311,31 @@ UpdateOAsWithPartitionHostSQLFunction::OnFunctionCall(
+  * Parent class for our async storage listeners that handles the logging of
+  * errors.
+  ******************************************************************************/
++// A failure of the disk rather than of the file. Rebuilding on one moves the
++// whole jar aside, and on a full disk the new database stays empty.
++static bool IsEnvironmentalError(nsresult aRv) {
++  return aRv == NS_ERROR_FILE_NO_DEVICE_SPACE ||
++         aRv == NS_ERROR_STORAGE_IOERR || aRv == NS_ERROR_STORAGE_BUSY ||
++         aRv == NS_ERROR_FILE_IS_LOCKED || aRv == NS_ERROR_FILE_READ_ONLY ||
++         aRv == NS_ERROR_FILE_ACCESS_DENIED || aRv == NS_ERROR_OUT_OF_MEMORY;
++}
++
++static bool IsEnvironmentalSQLiteError(int32_t aResult) {
++  switch (aResult) {
++    case mozIStorageError::FULL:
++    case mozIStorageError::IOERR:
++    case mozIStorageError::BUSY:
++    case mozIStorageError::LOCKED:
++    case mozIStorageError::READONLY:
++    case mozIStorageError::NOMEM:
++    case mozIStorageError::CANTOPEN:
++    case mozIStorageError::PERM:
++      return true;
++    default:
++      return false;
++  }
++}
++
+ class DBListenerErrorHandler : public mozIStorageStatementCallback {
+  protected:
+   explicit DBListenerErrorHandler(CookiePersistentStorage* dbState)
+@@ -320,6 +345,17 @@ class DBListenerErrorHandler : public mozIStorageStatementCallback {
+ 
+  public:
+   NS_IMETHOD HandleError(mozIStorageError* aError) override {
++    int32_t sqliteResult = -1;
++    aError->GetResult(&sqliteResult);
++    if (IsEnvironmentalSQLiteError(sqliteResult)) {
++      // The cookies are still in memory and the file is intact; the next
++      // write can succeed once the disk recovers.
++      COOKIE_LOGSTRING(LogLevel::Warning,
++                       ("DBListenerErrorHandler::HandleError(): disk error %d "
++                        "during '%s'; keeping the database.",
++                        sqliteResult, GetOpType()));
++      return NS_OK;
++    }
+     if (MOZ_LOG_TEST(gCookieLog, LogLevel::Warning)) {
+       int32_t result = -1;
+       aError->GetResult(&result);
+@@ -989,6 +1025,12 @@ void CookiePersistentStorage::Activate() {
+  * If RESULT_RETRY or RESULT_FAILED is returned, the caller should perform
+  * cleanup of the default CookieStorage.
+  */
++static CookiePersistentStorage::OpenDBResult RetryUnlessEnvironmental(
++    nsresult aRv) {
++  return IsEnvironmentalError(aRv) ? CookiePersistentStorage::RESULT_FAILURE
++                                   : CookiePersistentStorage::RESULT_RETRY;
++}
++
+ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+     bool aRecreateDB) {
+   NS_ASSERTION(!mDBConn, "nonnull mDBConn");
+@@ -1002,10 +1044,26 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+   // so we move it out of the way.
+   nsresult rv;
+   if (aRecreateDB) {
++    // A fixed name let a second rebuild overwrite the first backup. The -wal
++    // moves too, or the new database replays it.
++    nsAutoCString backupName(COOKIES_FILE ".bak-");
++    backupName.AppendInt(PR_Now() / PR_USEC_PER_SEC);
++    for (const char* suffix : {"-wal", "-shm"}) {
++      nsAutoCString from(COOKIES_FILE);
++      from.Append(suffix);
++      nsAutoCString to(backupName);
++      to.Append(suffix);
++      nsCOMPtr<nsIFile> sidecar;
++      mCookieFile->GetParent(getter_AddRefs(sidecar));
++      sidecar->AppendNative(from);
++      bool exists = false;
++      if (NS_SUCCEEDED(sidecar->Exists(&exists)) && exists) {
++        sidecar->MoveToNative(nullptr, to);
++      }
++    }
+     nsCOMPtr<nsIFile> backupFile;
+     mCookieFile->Clone(getter_AddRefs(backupFile));
+-    rv = backupFile->MoveToNative(nullptr,
+-                                  nsLiteralCString(COOKIES_FILE ".bak"));
++    rv = backupFile->MoveToNative(nullptr, backupName);
+     NS_ENSURE_SUCCESS(rv, RESULT_FAILURE);
+   }
+ 
+@@ -1025,11 +1083,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+       glean::network_cookies::open_error
+           .Get(nsDependentCString(errorName ? errorName : "unknown"))
+           .Add(1);
+-      if (rv == NS_ERROR_FILE_NO_DEVICE_SPACE ||
+-          rv == NS_ERROR_FILE_ACCESS_DENIED) {
+-        return RESULT_FAILURE;
+-      }
+-      return RESULT_RETRY;
++      return RetryUnlessEnvironmental(rv);
+     }
+   }
+ 
+@@ -1039,13 +1093,13 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+   mSyncConn->TableExists("moz_cookies"_ns, &tableExists);
+   if (!tableExists) {
+     rv = CreateTable();
+-    NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++    NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+   } else {
+     // table already exists; check the schema version before reading
+     int32_t dbSchemaVersion;
+     rv = mSyncConn->GetSchemaVersion(&dbSchemaVersion);
+-    NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++    NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+     // Start a transaction for the whole migration block.
+     mozStorageTransaction transaction(mSyncConn, true);
+@@ -1064,7 +1118,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the lastAccessed column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD lastAccessed INTEGER"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+       }
+         // Fall through to the next upgrade.
+         [[fallthrough]];
+@@ -1073,7 +1127,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the baseDomain column and index to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             "ALTER TABLE moz_cookies ADD baseDomain TEXT"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Compute the baseDomains for the table. This must be done eagerly
+         // otherwise we won't be able to synchronously read in individual
+@@ -1083,21 +1137,21 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         nsCOMPtr<mozIStorageStatement> select;
+         rv = mSyncConn->CreateStatement("SELECT id, host FROM moz_cookies"_ns,
+                                         getter_AddRefs(select));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         nsCOMPtr<mozIStorageStatement> update;
+         rv = mSyncConn->CreateStatement(
+             nsLiteralCString("UPDATE moz_cookies SET baseDomain = "
+                              ":baseDomain WHERE id = :id"),
+             getter_AddRefs(update));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         nsCString baseDomain;
+         nsCString host;
+         bool hasResult;
+         while (true) {
+           rv = select->ExecuteStep(&hasResult);
+-          NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++          NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+           if (!hasResult) {
+             break;
+@@ -1108,7 +1162,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+ 
+           rv = CookieCommons::GetBaseDomainFromHost(mTLDService, host,
+                                                     baseDomain);
+-          NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++          NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+           mozStorageStatementScoper scoper(update);
+ 
+@@ -1118,13 +1172,13 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+           MOZ_ASSERT(NS_SUCCEEDED(rv));
+ 
+           rv = update->ExecuteStep(&hasResult);
+-          NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++          NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+         }
+ 
+         // Create an index on baseDomain.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "CREATE INDEX moz_basedomain ON moz_cookies (baseDomain)"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+       }
+         // Fall through to the next upgrade.
+         [[fallthrough]];
+@@ -1151,18 +1205,18 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                 "SELECT id, name, host, path FROM moz_cookies "
+                 "ORDER BY name ASC, host ASC, path ASC, expiry ASC"),
+             getter_AddRefs(select));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         nsCOMPtr<mozIStorageStatement> deleteExpired;
+         rv = mSyncConn->CreateStatement(
+             "DELETE FROM moz_cookies WHERE id = :id"_ns,
+             getter_AddRefs(deleteExpired));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Read the first row.
+         bool hasResult;
+         rv = select->ExecuteStep(&hasResult);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         if (hasResult) {
+           nsCString name1;
+@@ -1179,7 +1233,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+           while (true) {
+             // Read the second row.
+             rv = select->ExecuteStep(&hasResult);
+-            NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++            NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+             if (!hasResult) {
+               break;
+@@ -1199,7 +1253,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+               MOZ_ASSERT(NS_SUCCEEDED(rv));
+ 
+               rv = deleteExpired->ExecuteStep(&hasResult);
+-              NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++              NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+             }
+ 
+             // Make the second row the first for the next iteration.
+@@ -1213,19 +1267,19 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the creationTime column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD creationTime INTEGER"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Copy the id of each row into the new creationTime column.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("UPDATE moz_cookies SET creationTime = "
+                              "(SELECT id WHERE id = moz_cookies.id)"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Create a unique index on (name, host, path) to allow fast lookup.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("CREATE UNIQUE INDEX moz_uniqueid "
+                              "ON moz_cookies (name, host, path)"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+       }
+         // Fall through to the next upgrade.
+         [[fallthrough]];
+@@ -1245,15 +1299,15 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Rename existing table
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies RENAME TO moz_cookies_old"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop existing index (CreateTable will create new one for new table)
+         rv = mSyncConn->ExecuteSimpleSQL("DROP INDEX moz_basedomain"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Create new table (with new fields and new unique constraint)
+         rv = CreateTableForSchemaVersion5();
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Copy data from old table, using appId/inBrowser=0 for existing rows
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+@@ -1264,11 +1318,11 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+             "SELECT baseDomain, 0, 0, name, value, host, path, expiry,"
+             " lastAccessed, creationTime, isSecure, isHttpOnly "
+             "FROM moz_cookies_old"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop old table
+         rv = mSyncConn->ExecuteSimpleSQL("DROP TABLE moz_cookies_old"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 5"));
+@@ -1294,15 +1348,15 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Rename existing table.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies RENAME TO moz_cookies_old"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop existing index (CreateTable will create new one for new table).
+         rv = mSyncConn->ExecuteSimpleSQL("DROP INDEX moz_basedomain"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Create new table with new fields and new unique constraint.
+         rv = CreateTableForSchemaVersion6();
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Copy data from old table without the two deprecated columns appId and
+         // inBrowserElement.
+@@ -1315,7 +1369,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+ 
+         rv = mSyncConn->CreateFunction(convertToOriginAttrsName, 2,
+                                        convertToOriginAttrs);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "INSERT INTO moz_cookies "
+@@ -1326,14 +1380,14 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+             " name, value, host, path, expiry, lastAccessed, creationTime, "
+             " isSecure, isHttpOnly "
+             "FROM moz_cookies_old"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->RemoveFunction(convertToOriginAttrsName);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop old table
+         rv = mSyncConn->ExecuteSimpleSQL("DROP TABLE moz_cookies_old"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 6"));
+@@ -1351,11 +1405,11 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // longer used in the latest schema.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD appId INTEGER DEFAULT 0;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD inBrowserElement INTEGER DEFAULT 0;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Compute and populate the values of appId and inBrwoserElement from
+         // originAttributes.
+@@ -1366,7 +1420,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         constexpr auto setAppIdName = "SET_APP_ID"_ns;
+ 
+         rv = mSyncConn->CreateFunction(setAppIdName, 1, setAppId);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         nsCOMPtr<mozIStorageFunction> setInBrowser(
+             new SetInBrowserFromOriginAttributesSQLFunction());
+@@ -1375,18 +1429,18 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         constexpr auto setInBrowserName = "SET_IN_BROWSER"_ns;
+ 
+         rv = mSyncConn->CreateFunction(setInBrowserName, 1, setInBrowser);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "UPDATE moz_cookies SET appId = SET_APP_ID(originAttributes), "
+             "inBrowserElement = SET_IN_BROWSER(originAttributes);"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->RemoveFunction(setAppIdName);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->RemoveFunction(setInBrowserName);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 7"));
+@@ -1402,7 +1456,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+ 
+         // Drop existing index
+         rv = mSyncConn->ExecuteSimpleSQL("DROP INDEX moz_basedomain"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Create a new_moz_cookies table without the appId field.
+         rv = mSyncConn->ExecuteSimpleSQL(
+@@ -1423,7 +1477,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                              "CONSTRAINT moz_uniqueid UNIQUE (name, host, "
+                              "path, originAttributes)"
+                              ")"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Move the data over.
+         rv = mSyncConn->ExecuteSimpleSQL(
+@@ -1456,22 +1510,22 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                              "isHttpOnly, "
+                              "inBrowserElement "
+                              "FROM moz_cookies;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop the old table
+         rv = mSyncConn->ExecuteSimpleSQL("DROP TABLE moz_cookies;"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Rename new_moz_cookies to moz_cookies.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE new_moz_cookies RENAME TO moz_cookies;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Recreate our index.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("CREATE INDEX moz_basedomain ON moz_cookies "
+                              "(baseDomain, originAttributes)"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 8"));
+@@ -1482,7 +1536,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the sameSite column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             "ALTER TABLE moz_cookies ADD sameSite INTEGER"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 9"));
+@@ -1493,12 +1547,12 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the rawSameSite column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD rawSameSite INTEGER"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Copy the current sameSite value into rawSameSite.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             "UPDATE moz_cookies SET rawSameSite = sameSite"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 10"));
+@@ -1509,7 +1563,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Rename existing table
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies RENAME TO moz_cookies_old"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Create a new moz_cookies table without the baseDomain field.
+         rv = mSyncConn->ExecuteSimpleSQL(
+@@ -1531,7 +1585,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                              "CONSTRAINT moz_uniqueid UNIQUE (name, host, "
+                              "path, originAttributes)"
+                              ")"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Move the data over.
+         rv = mSyncConn->ExecuteSimpleSQL(
+@@ -1567,17 +1621,17 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                              "rawSameSite "
+                              "FROM moz_cookies_old "
+                              "WHERE baseDomain NOTNULL;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop the old table
+         rv = mSyncConn->ExecuteSimpleSQL("DROP TABLE moz_cookies_old;"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // Drop the moz_basedomain index from the database (if it hasn't been
+         // removed already by removing the table).
+         rv = mSyncConn->ExecuteSimpleSQL(
+             "DROP INDEX IF EXISTS moz_basedomain;"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 11"));
+@@ -1588,7 +1642,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the schemeMap column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies ADD schemeMap INTEGER DEFAULT 0;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 12"));
+@@ -1600,7 +1654,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("ALTER TABLE moz_cookies ADD "
+                              "isPartitionedAttributeSet INTEGER DEFAULT 0;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         COOKIE_LOGSTRING(LogLevel::Debug,
+                          ("Upgraded database to schema version 13"));
+@@ -1612,7 +1666,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("UPDATE moz_cookies SET expiry = unixepoch() + "
+                              "34560000 WHERE expiry > unixepoch() + 34560000"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         [[fallthrough]];
+       }
+@@ -1624,7 +1678,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+                              ":unsetValue WHERE sameSite = :laxValue AND "
+                              "rawSameSite = :noneValue"),
+             getter_AddRefs(update));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         mozStorageStatementScoper scoper(update);
+ 
+@@ -1640,11 +1694,11 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+ 
+         bool hasResult;
+         rv = update->ExecuteStep(&hasResult);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "ALTER TABLE moz_cookies DROP COLUMN rawSameSite;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         [[fallthrough]];
+       }
+@@ -1652,7 +1706,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+       case 15: {
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("UPDATE moz_cookies SET expiry = expiry * 1000;"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         [[fallthrough]];
+       }
+@@ -1661,17 +1715,17 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // Add the updateTime column to the table.
+         rv = mSyncConn->ExecuteSimpleSQL(
+             nsLiteralCString("ALTER TABLE moz_cookies ADD updateTime INTEGER"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // OK so... this is tricky because we have to guess the creationTime
+         rv = mSyncConn->ExecuteSimpleSQL(nsLiteralCString(
+             "UPDATE moz_cookies SET updateTime = CAST(strftime('%s','now') AS "
+             "INTEGER) * 1000000"));
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         // No more upgrades. Update the schema version.
+         rv = mSyncConn->SetSchemaVersion(COOKIES_SCHEMA_VERSION);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         [[fallthrough]];
+       }
+@@ -1688,7 +1742,7 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+         // re-set the schema version in the db, in case the checks succeed (if
+         // they don't, we're dropping the table anyway).
+         rv = mSyncConn->SetSchemaVersion(COOKIES_SCHEMA_VERSION);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+       }
+         // fall through to downgrade check
+         [[fallthrough]];
+@@ -1726,10 +1780,10 @@ CookiePersistentStorage::OpenDBResult CookiePersistentStorage::TryInitDB(
+ 
+         // our columns aren't there - drop the table!
+         rv = mSyncConn->ExecuteSimpleSQL("DROP TABLE moz_cookies"_ns);
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+ 
+         rv = CreateTable();
+-        NS_ENSURE_SUCCESS(rv, RESULT_RETRY);
++        NS_ENSURE_SUCCESS(rv, RetryUnlessEnvironmental(rv));
+       } break;
+     }
+   }

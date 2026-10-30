@@ -1,0 +1,142 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Three groups, in the order someone works through them: how long a site keeps
+# data, what removing it actually removes, and how connections are made. Each
+# group ends with what it does NOT cover - see docs/browser-safety.md, which is
+# where every one of those sentences comes from.
+
+<html:template id="template-paneZenPrivacy">
+
+<hbox id="zenPrivacyCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenPrivacy">
+<html:h1 data-l10n-id="zen-privacy-title"/>
+</hbox>
+
+<groupbox id="zenPrivacyAgentGroup" data-category="paneZenPrivacy" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-agent-settings-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-agent-settings-description"/>
+    </html:div>
+
+    <vbox class="zen-card">
+      <checkbox id="zenAgentEnabled"
+            class="zen-row"
+            data-l10n-id="zen-agent-settings-enabled"
+            preference="zen.agent.enabled"/>
+      <checkbox id="zenAgentIsolate"
+            class="zen-row"
+            data-l10n-id="zen-agent-settings-isolate"
+            preference="zen.agent.isolate-tabs"/>
+      <html:p class="zen-row-note" data-l10n-id="zen-agent-settings-isolate-description"/>
+      <checkbox id="zenAgentGuarded"
+            class="zen-row"
+            data-l10n-id="zen-agent-settings-guarded"
+            preference="zen.agent.allow-guarded-origins"/>
+      <html:p class="zen-row-note" data-l10n-id="zen-agent-settings-guarded-description"/>
+    </vbox>
+
+    <html:p class="zen-section-note" data-l10n-id="zen-agent-settings-note"/>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenPrivacySiteDataGroup" data-category="paneZenPrivacy" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-privacy-lifetime-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-privacy-lifetime-description"/>
+    </html:div>
+
+    <html:div class="zen-card">
+      <html:div class="zen-field">
+        <html:span class="zen-field-label" data-l10n-id="zen-privacy-default-label"/>
+        <html:div id="zenPrivacyDefault" class="zen-segmented" role="group"/>
+      </html:div>
+      <html:p id="zenPrivacyDefaultNote" class="zen-field-note"/>
+    </html:div>
+
+    <html:div class="zen-card zen-table-card">
+      <html:div class="zen-table-scroll">
+        <html:div class="zen-table zen-table-narrow">
+          <html:div class="zen-privacy-row zen-table-head">
+            <html:span data-l10n-id="zen-privacy-column-site"/>
+            <html:span data-l10n-id="zen-privacy-column-lifetime"/>
+            <html:span/>
+            <html:span/>
+          </html:div>
+          <html:div id="zenPrivacySitesList" class="zen-sites-list"></html:div>
+        </html:div>
+      </html:div>
+      <html:div id="zenPrivacySitesEmpty" class="zen-empty">
+        <html:span data-l10n-id="zen-privacy-sites-empty"/>
+      </html:div>
+      <html:p id="zenPrivacySitesError" class="zen-card-error" hidden="true"
+              data-l10n-id="zen-privacy-site-invalid"/>
+      <html:div class="zen-card-footer">
+        <html:input id="zenPrivacyNewSite" type="text" class="zen-input"
+                    data-l10n-id="zen-privacy-new-site"/>
+        <button id="zenPrivacySiteAdd" class="zen-button-primary" data-l10n-id="zen-privacy-site-add"/>
+      </html:div>
+    </html:div>
+
+    <html:p class="zen-section-note" data-l10n-id="zen-privacy-lifetime-note"/>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenPrivacyClearGroup" data-category="paneZenPrivacy" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-privacy-clear-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-privacy-clear-description"/>
+    </html:div>
+
+    <vbox class="zen-card">
+      <checkbox id="zenPrivacyClearCaches"
+            class="zen-row"
+            data-l10n-id="zen-privacy-clear-caches"
+            preference="zen.privacy.site-data.clear-caches"/>
+      <html:p class="zen-row-note" data-l10n-id="zen-privacy-clear-caches-note"/>
+      <checkbox id="zenPrivacyShutdownCookies"
+            class="zen-row"
+            data-l10n-id="zen-privacy-shutdown-cookies"
+            preference="privacy.clearOnShutdown_v2.cookiesAndStorage"/>
+      <checkbox id="zenPrivacyShutdownCache"
+            class="zen-row"
+            data-l10n-id="zen-privacy-shutdown-cache"
+            preference="privacy.clearOnShutdown_v2.cache"/>
+      <checkbox id="zenPrivacyShutdownSiteSettings"
+            class="zen-row"
+            data-l10n-id="zen-privacy-shutdown-site-settings"
+            preference="privacy.clearOnShutdown_v2.siteSettings"/>
+      <html:p id="zenPrivacyShutdownState" class="zen-row-note"/>
+    </vbox>
+
+    <html:p class="zen-section-note" data-l10n-id="zen-privacy-clear-includes"/>
+    <html:p class="zen-section-note" data-l10n-id="zen-privacy-clear-leaves"/>
+  </html:div>
+</groupbox>
+
+<groupbox id="zenPrivacyHttpsGroup" data-category="paneZenPrivacy" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-privacy-https-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-privacy-https-description"/>
+    </html:div>
+
+    <html:div class="zen-card">
+      <html:div class="zen-field">
+        <html:span class="zen-field-label" data-l10n-id="zen-privacy-https-label"/>
+        <html:div id="zenPrivacyHttps" class="zen-segmented" role="group"/>
+      </html:div>
+      <html:p id="zenPrivacyHttpsNote" class="zen-field-note"/>
+    </html:div>
+
+    <html:p class="zen-section-note" data-l10n-id="zen-privacy-network-note"/>
+  </html:div>
+</groupbox>
+
+</html:template>

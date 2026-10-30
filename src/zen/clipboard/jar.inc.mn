@@ -1,0 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+        content/browser/zen-components/ZenClipboardToast.mjs                    (../../zen/clipboard/ZenClipboardToast.mjs)
+        content/browser/zen-components/zen-clipboard-frame.js                   (../../zen/clipboard/zen-clipboard-frame.js)
+        content/browser/zen-styles/zen-clipboard-toast.css                      (../../zen/clipboard/zen-clipboard-toast.css)

@@ -1,0 +1,116 @@
+diff --git a/toolkit/actors/PictureInPictureChild.sys.mjs b/toolkit/actors/PictureInPictureChild.sys.mjs
+index ebd70c8f27..9240e3ef3c 100644
+--- a/toolkit/actors/PictureInPictureChild.sys.mjs
++++ b/toolkit/actors/PictureInPictureChild.sys.mjs
+@@ -345,6 +345,7 @@ export class PictureInPictureLauncherChild extends JSWindowActorChild {
+       if (
+         video &&
+         PictureInPictureChild.videoIsPlaying(video) &&
++        !video.muted &&
+         PictureInPictureChild.videoIsPiPEligible(video)
+       ) {
+         this.togglePictureInPicture({ video, reason: "AutoPip" }, false);
+@@ -1126,6 +1127,24 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+       return;
+     }
+ 
++    // Tela: the reel button under the toggle, checked FIRST: the toggle's hitbox grows to
++    // contain its hidden children (the folded explainer), which reaches over the reel button.
++    // A page's own player layers usually lie over the video, so it is hit-tested here, by
++    // position, the way the toggle is, not through its DOM.
++    let reel = this.getReelElement(shadowRoot);
++    if (reel && this.isMouseOverToggle(reel, event)) {
++      state.isClickingToggle = true;
++      state.clickedElement = Cu.getWeakReference(event.originalTarget);
++      event.stopImmediatePropagation();
++      event.preventDefault();
++      this.sendReel(video, "TelaMedia:Reel", {
++        src: video.currentSrc,
++        position: video.currentTime,
++        frame: video.ownerDocument.documentURI,
++      });
++      return;
++    }
++
+     let toggle = this.getToggleElement(shadowRoot);
+     if (this.isMouseOverToggle(toggle, event)) {
+       state.isClickingToggle = true;
+@@ -1136,6 +1155,40 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+     }
+   }
+ 
++  // Tela: the reel button, when it is showing.
++  getReelElement(shadowRoot) {
++    let reel = shadowRoot.getElementById("telaReelToggle");
++    return reel && !reel.hidden ? reel : null;
++  }
++
++  sendReel(video, name, data) {
++    try {
++      // this actor's own window global: reaching it through the video's global fails silently
++      this.manager.getActor("TelaMediaSource").sendAsyncMessage(name, data);
++    } catch (e) {
++      console.error("Tela: handing the video to reel failed", e);
++    }
++  }
++
++  // Tela: a hand over the reel button. The page's own player layer lies on top, so its
++  // cursor wins; the element under the pointer wears "pointer" until it leaves.
++  telaPointerCursor(over, doc, event) {
++    let held = this._telaCursor?.get();
++    if (over) {
++      let el = doc.elementFromPoint(event.clientX, event.clientY);
++      if (!el || el === held) {
++        return;
++      }
++      this.telaPointerCursor(false, doc, event);
++      this._telaCursorWas = el.style.cursor;
++      el.style.cursor = "pointer";
++      this._telaCursor = Cu.getWeakReference(el);
++    } else if (held) {
++      held.style.cursor = this._telaCursorWas || "";
++      this._telaCursor = null;
++    }
++  }
++
+   startPictureInPicture(event, video) {
+     let pipEvent = new this.contentWindow.CustomEvent(
+       "MozTogglePictureInPicture",
+@@ -1507,6 +1560,13 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+    */
+   checkHoverToggle(toggle, event) {
+     toggle.classList.toggle("hovering", this.isMouseOverToggle(toggle, event));
++    // Tela: the reel button beside it lights up the same way
++    let reel = toggle.parentNode?.querySelector?.("#telaReelToggle");
++    if (reel) {
++      let over = !reel.hidden && this.isMouseOverToggle(reel, event);
++      reel.classList.toggle("hovering", over);
++      this.telaPointerCursor(over, toggle.ownerDocument, event);
++    }
+   }
+ 
+   /**
+@@ -1521,6 +1581,8 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+    */
+   onMouseLeaveVideo(video) {
+     let state = this.docState;
++    // Tela: the hand put on for the reel button comes off with the pointer
++    this.telaPointerCursor(false, video.ownerDocument, null);
+     let shadowRoot = video.openOrClosedShadowRoot;
+ 
+     if (shadowRoot) {
+@@ -1602,6 +1664,14 @@ export class PictureInPictureToggleChild extends JSWindowActorChild {
+       return;
+     }
+ 
++    let reel = this.getReelElement(shadowRoot);
++    if (reel && this.isMouseOverToggle(reel, event)) {
++      this.sendReel(video, "TelaMedia:Menu", { x: event.screenX, y: event.screenY });
++      event.stopImmediatePropagation();
++      event.preventDefault();
++      return;
++    }
++
+     let toggle = this.getToggleElement(shadowRoot);
+     if (this.isMouseOverToggle(toggle, event)) {
+       let devicePixelRatio = toggle.documentGlobal.devicePixelRatio;

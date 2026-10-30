@@ -1,0 +1,111 @@
+// Tabs as the shell's navigation-rail rows, inside the sidebar's layer-1
+// card: the selected one is the tonal pill, hover and press are state layers.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+$bg: "> .tab-stack > .tab-background";
+$selected: ":is([visuallyselected], [multiselected='true'])";
+
+@include m.scoped {
+  #tabbrowser-tabs .tabbrowser-tab {
+    #{$bg} {
+      @include m.bare;
+      border-radius: t.r("m") !important;
+      background: transparent !important;
+      @include m.motion(background-color);
+    }
+
+    &:not(#{$selected}):hover #{$bg} { background: var(--a-hover-1) !important; }
+    &:not(#{$selected}):hover:active #{$bg} { background: var(--a-active-1) !important; }
+    &#{$selected} #{$bg} { background: t.color("tonal") !important; }
+
+    // Pressed: the row dips and springs back.
+    > .tab-stack { @include m.press-bounce(0.97); }
+
+    .tab-label {
+      color: t.color("on") !important;
+      font-family: var(--a-font);
+    }
+    &#{$selected} .tab-label {
+      color: t.color("on-tonal") !important;
+      font-weight: 500;
+    }
+  }
+
+  // The glow layers and side marks belong to the default look.
+  .tabbrowser-tab::before,
+  .tabbrowser-tab::after,
+  .tabbrowser-tab .tab-context-line,
+  .tabbrowser-tab .zen-tab-focus-layer {
+    display: none !important;
+  }
+
+  // Folders: one tile above the panel, header and children together.
+  zen-folder {
+    @include m.tile("l2", "m");
+    --zen-folder-bg: #{t.color("l2")};
+    margin: t.space("xs") 0;
+    overflow: clip;
+
+    > .tab-group-label-container,
+    > .tab-group-container {
+      background: transparent !important;
+    }
+
+    > .tab-group-label-container .tab-group-label {
+      color: t.color("on") !important;
+      font-weight: 500;
+    }
+  }
+
+  // Tab controls: the close button and the audio badge are small round
+  // buttons with the shell's state layers.
+  #tabbrowser-tabs .tabbrowser-tab {
+    .tab-close-button,
+    .tab-reset-button {
+      width: 24px;
+      height: 24px;
+      padding: 5px;
+      border-radius: t.r("s") !important;
+      color: t.color("on-variant");
+      @include m.state-layer;
+    }
+
+    &#{$selected} .tab-close-button { color: t.color("on-tonal"); }
+
+    .tab-icon-overlay {
+      border-radius: t.r("full") !important;
+      background: t.color("l3") !important;
+      color: t.color("on") !important;
+      fill: t.color("on") !important;
+      stroke: none !important;
+    }
+  }
+
+  // Tab states, in the theme's colours: loading pulses, unloaded tabs recede,
+  // a tab asking for attention takes the accent.
+  #tabbrowser-tabs .tabbrowser-tab {
+    &[busy] .tab-label {
+      animation: a-busy 1.4s var(--a-ease-effects) infinite;
+    }
+
+    &[pending]:not(#{$selected}) .tab-label,
+    &[discarded]:not(#{$selected}) .tab-label {
+      color: t.color("subtext") !important;
+    }
+
+    &[attention]:not(#{$selected}) .tab-label,
+    &[titlechanged]:not(#{$selected}) .tab-label {
+      color: t.color("primary") !important;
+    }
+  }
+
+  @keyframes a-busy {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tabbrowser-tabs .tabbrowser-tab[busy] .tab-label { animation: none; }
+  }
+}

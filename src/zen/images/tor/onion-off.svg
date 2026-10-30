@@ -1,0 +1,23 @@
+<!--
+   - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   -->
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="bulb"
+      d="M12 4.4C12 4.4 19.6 9.6 19.6 13.8A7.6 7.6 0 0 1 4.4 13.8C4.4 9.6 12 4.4 12 4.4Z"/>
+  </defs>
+
+  <!-- Two layers, not three: at the 16px this is actually drawn at, a third
+       ring closes the gaps and the onion turns into a blot. A layer is the
+       same outline scaled about the bulb's centre, so stroke-width is
+       pre-divided by that scale to come out the same weight. -->
+  <g fill="none" stroke="context-fill" stroke-width="2.25"
+     stroke-linejoin="round" stroke-linecap="round">
+    <use href="#bulb"/>
+    <use href="#bulb" stroke-width="4.33"
+         transform="translate(12 13.8) scale(0.52) translate(-12 -13.8)"/>
+    <path d="M12 4.6C12 3.2 11.1 2.4 9.9 2.1"/>
+  </g>
+</svg>

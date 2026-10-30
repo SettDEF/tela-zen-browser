@@ -1,0 +1,52 @@
+// The sidebar, region by region. The panel (layout/window) is the only
+// surface: the header, the tab list and the footer are flat on it, and only
+// controls - the address bar, extension chips, essentials, folders - are
+// tiles one step above.
+@use "../tokens" as t;
+@use "../mixins" as m;
+
+@include m.scoped {
+  // Header: back / forward / menu, flat.
+  #zen-sidebar-top-buttons {
+    margin: t.space("m") 0 t.space("xs");
+    padding: 0 t.space("xs");
+  }
+
+  // The tab list sits directly on the panel.
+  #tabbrowser-tabs {
+    margin: t.space("xs") 0;
+    padding: 0;
+  }
+
+  // The workspace label above the tabs.
+  .zen-current-workspace-indicator {
+    color: t.color("on-variant") !important;
+    font-weight: 500;
+    border-radius: t.r("m");
+
+    &:hover { background: var(--a-hover-1) !important; }
+  }
+
+  // The divider under the pinned area: a hairline, not a bar.
+  .pinned-tabs-container-separator {
+    background: transparent !important;
+    border-color: var(--a-border) !important;
+  }
+
+  // Footer: flat, with new tab as the action button.
+  #zen-sidebar-foot-buttons {
+    margin: t.space("xs") 0 t.space("m");
+    padding: 0 t.space("s");
+    min-height: 40px;
+    align-items: center;
+  }
+
+  #zen-create-new-button {
+    @include m.fab(32px);
+
+    > .toolbarbutton-icon {
+      fill: t.color("on-primary-cont") !important;
+      border-radius: t.r("s") !important;
+    }
+  }
+}

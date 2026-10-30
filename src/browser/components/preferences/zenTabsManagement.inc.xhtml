@@ -1,0 +1,272 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="template-paneZenTabManagement">
+<hbox id="ZenWorkspacesCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenTabManagement">
+</hbox>
+
+<hbox id="zenTabManagementCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenTabManagement">
+<html:h1 data-l10n-id="pane-settings-workspaces-title"/>
+</hbox>
+
+<groupbox id="zenWorkspacesGroup" data-category="paneZenTabManagement" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-settings-workspaces-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-settings-workspaces-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenWorkspacesSyncUnpinnedTabs"
+            class="zen-row"
+            data-l10n-id="zen-settings-workspaces-sync-unpinned-tabs"
+            preference="zen.window-sync.sync-only-pinned-tabs"/>
+      <checkbox id="zenWorkspacesHideDefaultContainer"
+            class="zen-row"
+            data-l10n-id="zen-settings-workspaces-hide-default-container-indicator"
+            preference="zen.workspaces.hide-default-container-indicator"/>
+      <checkbox id="zenWorkspacesForceContainerTabsToWorkspace"
+            class="zen-row"
+            data-l10n-id="zen-settings-workspaces-force-container-tabs-to-workspace"
+            preference="zen.workspaces.force-container-workspace"/>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-spaces-list-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-spaces-list-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenSpacesFollowDesktop"
+            class="zen-row"
+            data-l10n-id="zen-spaces-follow-desktop"
+            preference="zen.spaces.desktop.enabled"/>
+      <html:p id="zenSpacesDesktopStatus" class="zen-section-desc zen-row"/>
+    </vbox>
+    <html:div class="zen-card zen-table-card">
+      <html:div id="zenSpacesList" class="zen-sites-list"/>
+      <html:div class="zen-card-footer">
+        <button id="zenSpacesNew" class="zen-button-primary" data-l10n-id="zen-spaces-new"/>
+      </html:div>
+    </html:div>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-translated-sites-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-translated-sites-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenTranslatedSitesAuto"
+            class="zen-row"
+            data-l10n-id="zen-translated-sites-auto"
+            preference="zen.translations.remember-sites"/>
+    </vbox>
+    <html:div class="zen-card zen-table-card">
+      <html:div id="zenTranslatedSitesList" class="zen-sites-list"/>
+      <html:div id="zenTranslatedSitesEmpty" class="zen-empty">
+        <html:span data-l10n-id="zen-translated-sites-empty"/>
+      </html:div>
+      <html:div class="zen-card-footer">
+        <button id="zenTranslatedSitesClear" data-l10n-id="zen-translated-sites-clear"/>
+      </html:div>
+    </html:div>
+  </html:div>
+</groupbox>
+
+<hbox id="zenTabSwitchingCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenTabManagement">
+<html:h1 data-l10n-id="zen-tab-switching-title"/>
+</hbox>
+
+<groupbox id="zenTabSwitchingGroup" data-category="paneZenTabManagement" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tab-switching-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tab-switching-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox class="zen-row"
+            data-l10n-id="zen-tabs-cycle-ignore-pending-tabs"
+            preference="zen.tabs.ctrl-tab.ignore-pending-tabs"/>
+      <vbox class="zen-row zen-row-stack">
+        <checkbox data-l10n-id="zen-tabs-cycle-by-attribute"
+              preference="zen.tabs.ctrl-tab.ignore-essential-tabs"/>
+        <html:p id="zenTabsCycleByAttributeWarning"
+              class="zen-row-note"
+              data-l10n-id="zen-tabs-cycle-by-attribute-warning"
+              hidden="true"/>
+      </vbox>
+      <checkbox class="zen-row"
+            data-l10n-id="zen-tabs-select-recently-used-on-close"
+            preference="zen.tabs.select-recently-used-on-close"/>
+      <checkbox id="zenTabsCloseOnBackWithNoHistory"
+            class="zen-row"
+            data-l10n-id="zen-tabs-close-on-back-with-no-history"
+            preference="zen.tabs.close-on-back-with-no-history"/>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenPinnedTabsManagerCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenTabManagement">
+      <html:h1 data-l10n-id="pane-zen-pinned-tab-manager-title"/>
+</hbox>
+
+<groupbox id="zenPinnedTabsManagerGroup" data-category="paneZenTabManagement" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-pinned-tab-manager-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-pinned-tab-manager-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenPinnedTabRestorePinnedTabsToPinnedUrl"
+                class="zen-row"
+                data-l10n-id="zen-pinned-tab-manager-restore-pinned-tabs-to-pinned-url"
+                preference="zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url"/>
+      <checkbox id="zenPinnedTabContainerSpecificEssentials"
+                class="zen-row"
+                data-l10n-id="zen-pinned-tab-manager-container-specific-essentials-enabled"
+                preference="zen.workspaces.separate-essentials"/>
+      <hbox class="zen-row">
+            <label id="zenPinnedTabCloseShortcutBehaviorLabel" class="zen-row-label" data-l10n-id="zen-pinned-tab-manager-close-shortcut-behavior-label"/>
+            <menulist id="zenPinnedTabCloseShortcutBehavior" preference="zen.pinned-tab-manager.close-shortcut-behavior">
+                  <menupopup>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-reset-unload-switch-close-shortcut-option" value="reset-unload-switch"/>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-unload-switch-close-shortcut-option" value="unload-switch"/>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-reset-switch-close-shortcut-option" value="reset-switch"/>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-switch-close-shortcut-option" value="switch"/>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-reset-close-shortcut-option" value="reset"/>
+                        <menuitem data-l10n-id="zen-pinned-tab-manager-close-close-shortcut-option" value="close"/>
+                  </menupopup>
+            </menulist>
+      </hbox>
+    </vbox>
+  </html:div>
+</groupbox>
+
+<hbox id="zenTorCategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneZenTabManagement">
+<html:h1 data-l10n-id="zen-tor-title"/>
+</hbox>
+
+<groupbox id="zenTorGroup" data-category="paneZenTabManagement" hidden="true" class="highlighting-group zen-group">
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tor-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tor-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenTorEnabled"
+            class="zen-row"
+            data-l10n-id="zen-tor-enabled"
+            preference="zen.tor.enabled"/>
+      <hbox class="zen-row zen-row-nested">
+        <label class="zen-row-label" data-l10n-id="zen-tor-host-label"/>
+        <html:input id="zenTorHost" class="zen-input zen-input-narrow" type="text"
+                    data-l10n-id="zen-tor-host-input"/>
+      </hbox>
+      <hbox class="zen-row zen-row-nested">
+        <label class="zen-row-label" data-l10n-id="zen-tor-port-label"/>
+        <html:input id="zenTorPort" class="zen-input zen-input-narrow" type="number"
+                    min="1" max="65535" step="1"
+                    data-l10n-id="zen-tor-port-input"/>
+      </hbox>
+      <vbox class="zen-row zen-row-stack">
+        <checkbox id="zenTorHarden"
+              data-l10n-id="zen-tor-harden"
+              preference="zen.tor.harden"/>
+        <html:p class="zen-row-note" data-l10n-id="zen-tor-harden-note"/>
+      </vbox>
+      <checkbox id="zenTorLog"
+            class="zen-row"
+            data-l10n-id="zen-tor-log"
+            preference="zen.tor.log"/>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tor-bridges-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tor-bridges-description"/>
+    </html:div>
+    <vbox class="zen-card">
+      <checkbox id="zenTorBridgesEnabled"
+            class="zen-row"
+            data-l10n-id="zen-tor-bridges-enabled"
+            preference="zen.tor.bridges.enabled"/>
+      <vbox class="zen-row zen-row-stack">
+        <html:textarea id="zenTorBridgesLines" class="zen-input zen-tor-bridges-input"
+                    rows="4" data-l10n-id="zen-tor-bridges-lines-input"/>
+        <html:p id="zenTorBridgesStatus" class="zen-row-note"/>
+      </vbox>
+      <html:div id="zenTorBridgesTransports" class="zen-row zen-tor-transports"/>
+      <html:p class="zen-row-note" data-l10n-id="zen-tor-bridges-note"/>
+    </vbox>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tor-status-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tor-status-description"/>
+    </html:div>
+    <html:div class="zen-card">
+      <html:div class="zen-row zen-tor-status-row">
+        <html:div class="zen-tor-onion-sample" data-status="off"/>
+        <html:div class="zen-tor-status-text">
+          <html:span class="zen-tor-status-name" data-l10n-id="zen-tor-status-off"/>
+          <html:span class="zen-tor-status-note" data-l10n-id="zen-tor-status-off-note"/>
+        </html:div>
+      </html:div>
+      <html:div class="zen-row zen-tor-status-row">
+        <html:div class="zen-tor-onion-sample" data-status="connecting"/>
+        <html:div class="zen-tor-status-text">
+          <html:span class="zen-tor-status-name" data-l10n-id="zen-tor-status-connecting"/>
+          <html:span class="zen-tor-status-note" data-l10n-id="zen-tor-status-connecting-note"/>
+        </html:div>
+      </html:div>
+      <html:div class="zen-row zen-tor-status-row">
+        <html:div class="zen-tor-onion-sample" data-status="connected"/>
+        <html:div class="zen-tor-status-text">
+          <html:span class="zen-tor-status-name" data-l10n-id="zen-tor-status-connected"/>
+          <html:span class="zen-tor-status-note" data-l10n-id="zen-tor-status-connected-note"/>
+        </html:div>
+      </html:div>
+      <html:div class="zen-row zen-tor-status-row">
+        <html:div class="zen-tor-onion-sample" data-status="unreachable"/>
+        <html:div class="zen-tor-status-text">
+          <html:span class="zen-tor-status-name" data-l10n-id="zen-tor-status-unreachable"/>
+          <html:span class="zen-tor-status-note" data-l10n-id="zen-tor-status-unreachable-note"/>
+        </html:div>
+      </html:div>
+    </html:div>
+  </html:div>
+
+  <html:div class="zen-section">
+    <html:div class="zen-section-head">
+      <html:h2 data-l10n-id="zen-tor-spaces-header"/>
+      <html:p class="zen-section-desc" data-l10n-id="zen-tor-spaces-description"/>
+    </html:div>
+    <html:div class="zen-card">
+      <html:div id="zenTorSpacesList" class="zen-sites-list"></html:div>
+      <html:div id="zenTorSpacesEmpty" class="zen-empty">
+        <html:span data-l10n-id="zen-tor-spaces-empty"/>
+      </html:div>
+    </html:div>
+  </html:div>
+</groupbox>
+
+</html:template>

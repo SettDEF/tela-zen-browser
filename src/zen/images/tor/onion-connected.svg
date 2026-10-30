@@ -1,0 +1,24 @@
+<!--
+   - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   -->
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="bulb"
+      d="M12 4.4C12 4.4 19.6 9.6 19.6 13.8A7.6 7.6 0 0 1 4.4 13.8C4.4 9.6 12 4.4 12 4.4Z"/>
+    <!-- The layer line is a hole, not a stroke in some second colour: a solid
+         onion then reads on whatever background the chrome happens to have. -->
+    <mask id="layers">
+      <rect width="24" height="24" fill="#000"/>
+      <use href="#bulb" fill="#fff"/>
+      <use href="#bulb" fill="none" stroke="#000" stroke-width="2.2"
+           stroke-linejoin="round"
+           transform="translate(12 13.8) scale(0.55) translate(-12 -13.8)"/>
+    </mask>
+  </defs>
+
+  <use href="#bulb" fill="context-fill" mask="url(#layers)"/>
+  <path d="M12 4.6C12 3.2 11.1 2.4 9.9 2.1"
+        fill="none" stroke="context-fill" stroke-width="2.25" stroke-linecap="round"/>
+</svg>

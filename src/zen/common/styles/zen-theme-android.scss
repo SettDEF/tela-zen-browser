@@ -1,0 +1,29 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* The Android look (zen.theme.style = "android"): the desktop shell's own
+   Material 3 design, translated from its QML. Everything is scoped to
+   :root[zen-theme-style="android"], so the default theme is untouched.
+   Compiled by scripts/build_styles.py; this file only lists the parts.
+
+     android/tokens      palette, rounding scale, state overlays
+     android/mixins      surface, panel, card, pill, fab, state-layer
+     android/layout/     window frame, sidebar regions, compact mode
+     android/components/ tabs, essentials, urlbar, buttons, extensions, popups, dialogs */
+
+@use "android/tokens";
+
+@use "android/layout/window";
+@use "android/layout/sidebar";
+@use "android/layout/compact";
+
+@use "android/components/tabs";
+@use "android/components/essentials";
+@use "android/components/urlbar";
+@use "android/components/buttons";
+@use "android/components/extensions";
+@use "android/components/popups";
+@use "android/components/dialogs";
+
+@include tokens.tokens;
